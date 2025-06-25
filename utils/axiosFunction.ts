@@ -23,6 +23,7 @@ export const axiosFunction = async ({
   token = undefined,
   isServer = false,
 }: axiosParams) => {
+  
   const url = process.env.NEXT_PUBLIC_SERVER_URL + urlPath;
   const cookieToken = getCookie("jubilee-token")?.toString() || null;
   const authToken = cookieToken || token;

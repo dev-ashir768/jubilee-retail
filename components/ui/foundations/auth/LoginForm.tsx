@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/shadcn/button'
 import { Input } from '../../shadcn/input'
 
 import { Eye, EyeOff } from 'lucide-react'
+import { setCookie } from 'cookies-next'
 
 const LoginForm = () => {
   const [toggleEye, setToggleEye] = useState(false)
@@ -28,7 +29,7 @@ const LoginForm = () => {
             {toggleEye ? <Eye /> : <EyeOff />}
           </Button>
         </div>
-        <Button type="submit" className="w-full cursor-pointer" size="lg">
+        <Button type="button" onClick={() => { setCookie("jubilee-token", "opopoponxnxs29999udjncb2990") }} className="w-full cursor-pointer" size="lg">
           Login
         </Button>
       </div>
