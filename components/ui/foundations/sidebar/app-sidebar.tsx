@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import NavLogo from "@/components/ui/foundations/sidebar/nav-logo"
 import NavMain from "@/components/ui/foundations/sidebar/nav-main"
@@ -12,33 +12,34 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/shadcn/sidebar"
-import { getCookie } from "cookies-next"
 import { menusTypes } from "@/types/verifyOtpTypes"
+import { getCookie } from "cookies-next"
 
 
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ initialMenus = [], ...props }: { initialMenus?: menusTypes[] } & React.ComponentProps<typeof Sidebar>) {
 
-  const [menusFromCookies, setMenusFromCookies] = useState<menusTypes[]>([]);
+  const [menus, setMenus] = useState<menusTypes[]>(initialMenus)
 
   useEffect(() => {
-    const cookieData = getCookie("menus");
-    if (cookieData) {
-      setMenusFromCookies(JSON.parse(cookieData.toString()));
+    if (menus.length === 0) {
+      const menusFromCookies = getCookie('menus')?.toString()
+      const cookiesMenus = menusFromCookies ? (JSON.parse(menusFromCookies) as menusTypes[]) : []
+      setMenus(cookiesMenus)
     }
-  }, [])
+  }, [menus.length])
 
-  const organizeMenu = (menusFromCookies: menusTypes[]) => {
+  const organizeMenu = useCallback((menus: menusTypes[]) => {
     // Add items array to each menu item
-    const menus = menusFromCookies.map(item => ({ ...item, items: [] as menusTypes[] }));
+    const menusWithChildren = menus.map(item => ({ ...item, items: [] as menusTypes[] }));
 
     // Separate top-level items and children
     const result: menusTypes[] = [];
-    menus.forEach((item: menusTypes) => {
+    menusWithChildren.forEach((item: menusTypes) => {
       if (!item.parent_id) {
         result.push(item);
       } else {
-        const parent = menus.find(p => p.menu_id === item.parent_id);
+        const parent = menusWithChildren.find(p => p.menu_id === item.parent_id);
         if (parent) parent.items.push(item);
       }
     });
@@ -48,9 +49,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     result.forEach(parent => parent.items!.sort((a, b) => a.sorting - b.sorting));
 
     return result;
-  };
+  }, []);
 
-  const cacheMenu = useMemo(() => organizeMenu(menusFromCookies), [menusFromCookies])
+  const cacheMenu = useMemo(() => organizeMenu(menus), [menus, organizeMenu])
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -58,11 +59,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavLogo />
       </SidebarHeader>
       <SidebarContent>
-        {menusFromCookies.length === 0 ? (
-          <div className="p-4 text-muted-foreground text-sm">Loading menus...</div>
-        ) : (
-          <NavMain menusData={cacheMenu} />
-        )}
+        <NavMain menusData={cacheMenu} />
       </SidebarContent>
       <SidebarFooter className="border-t">
         <NavLogout />

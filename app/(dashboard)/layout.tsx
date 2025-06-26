@@ -16,11 +16,19 @@ import {
 import { AppSidebar } from "@/components/ui/foundations/sidebar/app-sidebar"
 import UserProfile from "@/components/ui/foundations/sidebar/user-profile"
 
-const DashboardLayout = ({ children }: { children: ReactNode }) => {
+import { cookies } from "next/headers"
+import { menusTypes } from "@/types/verifyOtpTypes"
+import { getCookie } from "cookies-next/server"
+
+const DashboardLayout = async ({ children }: { children: ReactNode }) => {
+
+  const menusFromCookies = await getCookie('menus', { cookies })
+  const initialMenus = menusFromCookies ? (JSON.parse(menusFromCookies) as menusTypes[]) : []
+  
   return (
     <>
       <SidebarProvider>
-        <AppSidebar />
+        <AppSidebar initialMenus={initialMenus} />
         <SidebarInset>
           <header className="flex border-b h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 px-4">
             <div className="flex items-center gap-2">
