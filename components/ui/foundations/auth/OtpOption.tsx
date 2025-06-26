@@ -10,7 +10,7 @@ const OtpOption = () => {
   return (
     <form className={cn("flex flex-col gap-6")}>
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-4xl font-bold">Receive Your Otp code</h1>
+        <h1 className="text-4xl font-bold">Send Your Otp code</h1>
         <p className="text-muted-foreground text-md text-balance">
           Choose how you&apos;d like to get your one-time code to login.
         </p>

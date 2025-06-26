@@ -1,4 +1,4 @@
-import Otp from '@/components/ui/foundations/auth/Otp'
+import Otp from "@/components/ui/foundations/auth/Otp"
 
 
 

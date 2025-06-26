@@ -23,9 +23,8 @@ export const axiosFunction = async ({
   token = undefined,
   isServer = false,
 }: axiosParams) => {
-  
   const url = process.env.NEXT_PUBLIC_SERVER_URL + urlPath;
-  const cookieToken = getCookie("jubilee-token")?.toString() || null;
+  const cookieToken = getCookie("jubilee-retail-token")?.toString() || null;
   const authToken = cookieToken || token;
 
   const config: AxiosRequestConfig = {
@@ -40,10 +39,11 @@ export const axiosFunction = async ({
   try {
     const result: any = await axios(config);
     return result.data;
-  } catch (err: AxiosError | any) {
+  } catch (err: any) {
     if (err.status === 401) {
       toast.error("Your session has expired. Please login again.");
-      deleteCookie("jubilee-token");
+      deleteCookie("jubilee-retail-token");
+      deleteCookie("retail-userInfo");
       window.location.href = "/login";
     }
 
@@ -54,5 +54,7 @@ export const axiosFunction = async ({
         status: "500",
       };
     }
+
+    throw err;
   }
 };

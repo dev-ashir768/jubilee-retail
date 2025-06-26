@@ -25,6 +25,7 @@ import {
 import { useSidebar } from "../../shadcn/sidebar"
 import { Button } from "../../shadcn/button"
 import Link from "next/link"
+import logoutFunction from "@/utils/logoutFunction"
 
 const UserProfile = () => {
 
@@ -77,8 +78,8 @@ const UserProfile = () => {
               User Profile
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer" asChild>
-            <Link href="/">
+          <DropdownMenuItem className="cursor-pointer" asChild onClick={logoutFunction}>
+            <Link href="/login">
               <LogOut />
               Logout
             </Link>
