@@ -1,6 +1,7 @@
-import axios, { AxiosError, AxiosRequestConfig, Method } from "axios";
-import { deleteCookie, getCookie } from "cookies-next";
+import axios, { AxiosRequestConfig, Method } from "axios";
+import { getCookie } from "cookies-next";
 import { toast } from "sonner";
+import handleLogout from "./handleLogout";
 
 type axiosParams = {
   method: Method;
@@ -42,9 +43,7 @@ export const axiosFunction = async ({
   } catch (err: any) {
     if (err.status === 401) {
       toast.error("Your session has expired. Please login again.");
-      deleteCookie("jubilee-retail-token");
-      deleteCookie("retail-userInfo");
-      window.location.href = "/login";
+      handleLogout();
     }
 
     if (isServer === false) {

@@ -1,6 +1,4 @@
-"use client"
-
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import * as Icons from 'lucide-react';
 
 import {
   Collapsible,
@@ -17,70 +15,73 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/shadcn/sidebar"
 import Link from "next/link"
+import { menusTypes } from "@/types/verifyOtpTypes"
+import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 
-const NavMain = ({
-  items,
-}: {
-  items: {
-    title: string
-    url: string
-    icon?: LucideIcon
-    isActive?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
-  }[]
-}) => {
+const NavMain = ({ menusData }: { menusData: menusTypes[] }) => {
+
+  const pathname = usePathname();
+  const [openPanel, setOpenPanel] = useState<string | null>(null);
+
   return (
     <SidebarGroup>
       <SidebarMenu>
-        {items.map((item) => (
-          item.items?.length && item.items.length > 0 ? (
-            <Collapsible
-              key={item.title}
-              asChild
-              defaultOpen={item.isActive}
-              className="group/collapsible"
-            >
-              <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title} className="cursor-pointer">
-                    {item.icon && <item.icon />}
-                    <span>{item.title}</span>
-                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {item.items?.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
-                          <Link href={subItem.url}>
-                            <span>{subItem.title}</span>
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
+        {menusData.map((item) => {
+          const Icon = item.icon ? (Icons[item.icon as keyof typeof Icons] as React.ElementType) : null;
+          const hasChildren = item.items?.length && item.items.length > 0;
+          const panelIsOpen = openPanel === item.url;
+
+          return (
+            hasChildren ? (
+              <Collapsible
+                key={item.menu_id}
+                open={panelIsOpen}
+                onOpenChange={(open) => {
+                  setOpenPanel(open ? item.url : null);
+                }}
+                className="group/collapsible"
+                asChild
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip={item.menu_name} data-active={pathname.startsWith(item.url)} className="cursor-pointer">
+                      {Icon && <Icon />}
+                      <span>{item.menu_name}</span>
+                      <Icons.ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {item.items?.map((subItem) => (
+                        <SidebarMenuSubItem key={subItem.menu_name}>
+                          <SidebarMenuSubButton data-active={pathname === subItem.url} asChild>
+                            <Link href={subItem.url}>
+                              <span>{subItem.menu_name}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            ) : (
+              <SidebarMenuItem key={item.menu_id}>
+                <SidebarMenuButton tooltip={item.menu_name} className="cursor-pointer" asChild>
+                  <Link href={item.url}>
+                    {Icon && <Icon />}
+                    <span>{item.menu_name}</span>
+                  </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
-            </Collapsible>
-          ) : (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title} className="cursor-pointer" asChild>
-                <Link href={item.url}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            )
           )
-        ))}
+        }
+        )}
       </SidebarMenu>
     </SidebarGroup>
   )
-
 }
 
 export default NavMain

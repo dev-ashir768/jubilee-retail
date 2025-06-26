@@ -10,18 +10,17 @@ import {
   InputOTPSlot,
 } from "@/components/ui/shadcn/input-otp"
 import { useMutation } from '@tanstack/react-query'
-import { axiosFunction, axiosReturnType } from '@/utils/axiosFunction'
+import { axiosFunction } from '@/utils/axiosFunction'
 import { AxiosError } from 'axios'
 import { Button } from '../../shadcn/button'
-import { getCookie, setCookie } from 'cookies-next'
-import { LoginPayloadType } from '@/types/loginTypes'
+import { deleteCookie, getCookie, setCookie } from 'cookies-next'
 import { toast } from 'sonner'
 import { useForm, Controller } from 'react-hook-form'
 import { otpSchema, OtpSchemaType } from '@/schemas/otpSchema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { sendOtpResponseType } from '@/types/sendOtpTypes'
-import { verifyOtpResponseType } from '@/types/verifyOtpTypes'
+import { userInfoTypes, verifyOtpResponseType } from '@/types/verifyOtpTypes'
 
 
 const Otp = () => {
@@ -31,8 +30,8 @@ const Otp = () => {
   const [sendOtpOption, setSendOtpOption] = useState("")
 
   // UserInfo from cookies
-  const retailUserInfoFromCookie: LoginPayloadType = useMemo(() => {
-    return JSON.parse(getCookie("retail-userInfo")?.toString() || "{}");
+  const userInfoFromCookie: userInfoTypes = useMemo(() => {
+    return JSON.parse(getCookie("userInfo")?.toString() || "{}");
   }, []);
 
   // Send Otp
@@ -60,10 +59,10 @@ const Otp = () => {
 
   const handleSendOtp = (type: string) => {
     useSendOtpMutation.mutate({
-      username: retailUserInfoFromCookie.username,
+      username: userInfoFromCookie.username,
       type
     })
-    setSendOtpOption((prevState) => prevState = type)
+    setSendOtpOption(type)
   }
 
   // Verify Otp
@@ -77,8 +76,8 @@ const Otp = () => {
   })
 
   useEffect(() => {
-    if (retailUserInfoFromCookie) setValue("username", retailUserInfoFromCookie.username)
-  }, [retailUserInfoFromCookie, setValue])
+    if (userInfoFromCookie) setValue("username", userInfoFromCookie.username)
+  }, [userInfoFromCookie, setValue])
 
   const useVerifyOtpMutation = useMutation<verifyOtpResponseType, AxiosError<verifyOtpResponseType>, { username: string, otp: string }>({
     mutationFn: (record) => {
@@ -99,6 +98,9 @@ const Otp = () => {
     onSuccess: (data) => {
       toast.success("Otp Verified Successfully!")
       setCookie('jubilee-retail-token', JSON.stringify(data.payload[0].token))
+      setCookie('userInfo', JSON.stringify(data.payload[0].user_info))
+      setCookie('menus', JSON.stringify(data.payload[0].menus))
+      deleteCookie("otp-session");
       router.push('/')
     }
   })

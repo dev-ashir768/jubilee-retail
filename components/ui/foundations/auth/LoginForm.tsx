@@ -12,8 +12,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema, LoginSchemaType } from '@/schemas/loginSchema'
 import { useMutation } from '@tanstack/react-query'
-import { axiosFunction, axiosReturnType } from '@/utils/axiosFunction'
-import { AxiosError, AxiosResponse } from 'axios'
+import { axiosFunction } from '@/utils/axiosFunction'
+import { AxiosError } from 'axios'
 import { toast } from 'sonner'
 import { setCookie } from 'cookies-next'
 import { useRouter } from 'next/navigation'
@@ -59,9 +59,12 @@ const LoginForm = () => {
     },
     onSuccess: (data) => {
       toast.success("User Authenticated Successfully")
-      setCookie("retail-userInfo", JSON.stringify({
+      setCookie("userInfo", JSON.stringify({
         username: data.payload[0].username
       }))
+      setCookie('otp-session', true, {
+        maxAge: 300, // 5 minutes
+      })
       router.push('/otp')
     }
   })

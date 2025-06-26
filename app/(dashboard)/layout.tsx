@@ -14,7 +14,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/shadcn/sidebar"
 import { AppSidebar } from "@/components/ui/foundations/sidebar/app-sidebar"
-import { User } from "lucide-react"
 import UserProfile from "@/components/ui/foundations/sidebar/user-profile"
 
 const DashboardLayout = ({ children }: { children: ReactNode }) => {
