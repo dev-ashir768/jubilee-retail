@@ -21,10 +21,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/shadcn/dropdown-menu"
-import { useSidebar } from "../../shadcn/sidebar"
-import { Button } from "../../shadcn/button"
+import { useSidebar } from "@/components/ui/shadcn/sidebar"
+import { Button } from "@/components/ui/shadcn/button"
 import Link from "next/link"
-import handleLogout from "@/utils/handleLogout"
+import { handleLogout } from "@/utils/handleLogout"
 
 const UserProfile = () => {
 
@@ -77,9 +77,11 @@ const UserProfile = () => {
               User Profile
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
-            <LogOut />
-            Logout
+          <DropdownMenuItem className="cursor-pointer" onClick={handleLogout} asChild>
+            <Link href="/login">
+              <LogOut />
+              Logout
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

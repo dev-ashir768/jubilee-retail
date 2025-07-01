@@ -1,5 +1,5 @@
 import React from 'react'
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '../../shadcn/sidebar'
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/shadcn/sidebar'
 import Link from 'next/link'
 import Image from 'next/image'
 

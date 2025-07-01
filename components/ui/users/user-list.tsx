@@ -1,0 +1,227 @@
+"use client";
+
+import React, { useMemo } from 'react'
+import SubNav from '../foundations/sub-nav'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../shadcn/card'
+import { useQuery } from '@tanstack/react-query'
+import { fetchUsersList } from '@/helperFunctions/usersFunction'
+import { Edit, Loader2, MoreHorizontal, Trash } from 'lucide-react'
+import DataTable from '../datatable/data-table';
+import { UsersListPayloadType, UsersListResponseType } from '@/types/usersTypes';
+import { ColumnDef } from '@tanstack/react-table';
+import DatatableColumnHeader from '../datatable/datatable-column-header';
+import { ColumnMeta } from '@/types/dataTableTypes';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../shadcn/dropdown-menu';
+import { Button } from '../shadcn/button';
+import { Badge } from '../shadcn/badge';
+import Loader from '../foundations/Loader';
+import Error from '../foundations/Error';
+
+const UserList = () => {
+
+  // Fetch user list data using react-query
+
+  const { data: userListResponse, isLoading: userListLoading, isError: userListIsError, error } = useQuery<UsersListResponseType | null>({
+    queryKey: ['users-list'],
+    queryFn: fetchUsersList
+  })
+
+  // Column filter options
+
+  const fullnameFilterOptions = useMemo(() => {
+    const allFullname = userListResponse?.payload?.map((item) => item.fullname) || [];
+    const uniqueFullname = Array.from(new Set(allFullname));
+    return uniqueFullname.map((fullname) => ({
+      label: fullname,
+      value: fullname,
+    }));
+  }, [userListResponse]);
+
+  const usernameFilterOptions = useMemo(() => {
+    const allUsername = userListResponse?.payload?.map((item) => item.username) || [];
+    const uniqueUsername = Array.from(new Set(allUsername));
+    return uniqueUsername.map((username) => ({
+      label: username,
+      value: username,
+    }));
+  }, [userListResponse]);
+
+  const emailFilterOptions = useMemo(() => {
+    const allEmail = userListResponse?.payload?.map((item) => item.email) || [];
+    const uniqueEmail = Array.from(new Set(allEmail));
+    return uniqueEmail.map((email) => ({
+      label: email,
+      value: email,
+    }));
+  }, [userListResponse]);
+
+  const phoneFilterOptions = useMemo(() => {
+    const allPhone = userListResponse?.payload?.map((item) => item.phone) || [];
+    const uniquePhone = Array.from(new Set(allPhone));
+    return uniquePhone.map((phone) => ({
+      label: phone,
+      value: phone,
+    }));
+  }, [userListResponse]);
+
+  // Define columns for the data table
+
+  const columns: ColumnDef<UsersListPayloadType>[] = [
+    {
+      accessorKey: 'fullname',
+      header: ({ column }) => <DatatableColumnHeader column={column} title="Fullname" />,
+      cell: ({ row }) => (
+        <div>{row.getValue("fullname")}</div>
+      ),
+      filterFn: "multiSelect",
+      meta: {
+        filterType: "multiselect",
+        filterOptions: fullnameFilterOptions,
+        filterPlaceholder: "Filter fullname...",
+      } as ColumnMeta,
+    },
+    {
+      accessorKey: 'username',
+      header: ({ column }) => <DatatableColumnHeader column={column} title='Username' />,
+      cell: ({ row }) => (
+        <div>{row.getValue("username")}</div>
+      ),
+      filterFn: "multiSelect",
+      meta: {
+        filterType: "multiselect",
+        filterOptions: usernameFilterOptions,
+        filterPlaceholder: "Filter username...",
+      }
+    },
+    {
+      accessorKey: 'email',
+      header: ({ column }) => <DatatableColumnHeader column={column} title='Email' />,
+      cell: ({ row }) => (
+        <div>{row.getValue("email")}</div>
+      ),
+      filterFn: "multiSelect",
+      meta: {
+        filterType: "multiselect",
+        filterOption: emailFilterOptions,
+        filterPlaceholder: "Filter email...",
+      }
+    },
+    {
+      accessorKey: 'phone',
+      header: ({ column }) => <DatatableColumnHeader column={column} title='Phone' />,
+      cell: ({ row }) => (
+        <div>{row.getValue("phone")}</div>
+      ),
+      filterFn: "multiSelect",
+      meta: {
+        filterType: "multiselect",
+        filterOption: phoneFilterOptions,
+        filterPlaceholder: "Filter phone...",
+      }
+    },
+    {
+      accessorKey: 'user_type',
+      header: ({ column }) => <DatatableColumnHeader column={column} title='User Type' />,
+      cell: ({ row }) => (
+        <div>{row.getValue("user_type")}</div>
+      ),
+      filterFn: "multiSelect",
+      meta: {
+        filterType: "multiselect",
+        filterOptions: [
+          { label: "Dashboard User", value: "dashboard_user" },
+          { label: "API User", value: "api_user" },
+        ],
+        filterPlaceholder: "Filter user type...",
+      }
+    },
+    {
+      accessorKey: 'is_active',
+      header: ({ column }) => <DatatableColumnHeader column={column} title='Status' />,
+      accessorFn: (row) => (row.is_active ? "active" : "inactive"),
+      cell: ({ row }) => {
+        const status = row.getValue("is_active") as string;
+        return (
+          <Badge
+            className={`justify-center py-1 min-w-[50px] w-[70px]`} variant={status === "active" ? "success" : "danger"}>
+            {status}
+          </Badge>
+        )
+      },
+      filterFn: "multiSelect",
+      meta: {
+        filterType: "multiSelect",
+        filterOptions: [
+          { label: "Active", value: "active" },
+          { label: "Inactive", value: "inactive" }
+        ],
+        filterPlaceholder: "Filter status...",
+      }
+    },
+    {
+      id: 'actions',
+      header: "Actions",
+      cell: () => {
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Edit className='mr-2 h-4 w-4' />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Trash className='mr-2 h-4 w-4' />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      }
+    }
+  ]
+
+  // loading state while fetching user list data
+
+  if (userListLoading) {
+    return <Loader />
+  }
+
+  if (userListIsError) {
+    return <Error err={error} />
+  }
+
+  // Empty state
+  if (!userListResponse?.payload || userListResponse.payload.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>There are no users in the system.</CardTitle>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  return (
+    <>
+      <SubNav
+        title="User Management"
+      />
+
+      <DataTable
+        columns={columns}
+        data={userListResponse?.payload || []}
+        title='List of all users in the system'
+      />
+    </>
+  )
+}
+
+export default UserList

@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/shadcn/button'
-import { Input } from '../../shadcn/input'
+import { Input } from '../shadcn/input'
 
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 

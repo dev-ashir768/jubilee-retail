@@ -1,14 +1,14 @@
 import axios, { AxiosRequestConfig, Method } from "axios";
 import { getCookie } from "cookies-next";
 import { toast } from "sonner";
-import handleLogout from "./handleLogout";
+import { handleLogout } from "./handleLogout";
 
 type axiosParams = {
   method: Method;
   urlPath: string;
-  data: any;
+  data?: any;
   token?: string;
-  isServer: boolean;
+  isServer?: boolean;
 };
 
 export type axiosReturnType = {
@@ -44,6 +44,7 @@ export const axiosFunction = async ({
     if (err.status === 401) {
       toast.error("Your session has expired. Please login again.");
       handleLogout();
+      window.location.href = `/login`;
     }
 
     if (isServer === false) {

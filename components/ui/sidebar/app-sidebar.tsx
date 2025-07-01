@@ -1,10 +1,10 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 
-import NavLogo from "@/components/ui/foundations/sidebar/nav-logo"
-import NavMain from "@/components/ui/foundations/sidebar/nav-main"
-import NavLogout from "@/components/ui/foundations/sidebar/nav-logout"
+import NavLogo from "@/components/ui/sidebar/nav-logo"
+import NavMain from "@/components/ui/sidebar/nav-main"
+import NavLogout from "@/components/ui/sidebar/nav-logout"
 import {
   Sidebar,
   SidebarContent,
@@ -13,25 +13,17 @@ import {
   SidebarRail,
 } from "@/components/ui/shadcn/sidebar"
 import { menusTypes } from "@/types/verifyOtpTypes"
-import { getCookie } from "cookies-next"
+import { useMenusStore } from "@/hooks/useMenus"
 
 
 
-export function AppSidebar({ initialMenus = [], ...props }: { initialMenus?: menusTypes[] } & React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ menusFromCookies = [], ...props }: { menusFromCookies?: menusTypes[] } & React.ComponentProps<typeof Sidebar>) {
 
-  const [menus, setMenus] = useState<menusTypes[]>(initialMenus)
+  const { setMenus, menus } = useMenusStore();
 
-  useEffect(() => {
-    if (menus.length === 0) {
-      const menusFromCookies = getCookie('menus')?.toString()
-      const cookiesMenus = menusFromCookies ? (JSON.parse(menusFromCookies) as menusTypes[]) : []
-      setMenus(cookiesMenus)
-    }
-  }, [menus.length])
-
-  const organizeMenu = useCallback((menus: menusTypes[]) => {
+  const organizeMenu = useCallback((menusFromCookies: menusTypes[]) => {
     // Add items array to each menu item
-    const menusWithChildren = menus.map(item => ({ ...item, items: [] as menusTypes[] }));
+    const menusWithChildren = menusFromCookies.map(item => ({ ...item, items: [] as menusTypes[] }));
 
     // Separate top-level items and children
     const result: menusTypes[] = [];
@@ -51,7 +43,11 @@ export function AppSidebar({ initialMenus = [], ...props }: { initialMenus?: men
     return result;
   }, []);
 
-  const cacheMenu = useMemo(() => organizeMenu(menus), [menus, organizeMenu])
+  const organizedMenus = useMemo(() => organizeMenu(menusFromCookies), [menusFromCookies, organizeMenu]);
+
+  useEffect(() => {
+    setMenus(organizedMenus);
+  }, [organizedMenus, setMenus]);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -59,7 +55,7 @@ export function AppSidebar({ initialMenus = [], ...props }: { initialMenus?: men
         <NavLogo />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain menusData={cacheMenu} />
+        <NavMain menusData={menus} />
       </SidebarContent>
       <SidebarFooter className="border-t">
         <NavLogout />

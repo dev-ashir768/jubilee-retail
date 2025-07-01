@@ -12,7 +12,7 @@ import {
 import { useMutation } from '@tanstack/react-query'
 import { axiosFunction } from '@/utils/axiosFunction'
 import { AxiosError } from 'axios'
-import { Button } from '../../shadcn/button'
+import { Button } from '../shadcn/button'
 import { deleteCookie, getCookie, setCookie } from 'cookies-next'
 import { toast } from 'sonner'
 import { useForm, Controller } from 'react-hook-form'
@@ -23,7 +23,7 @@ import { sendOtpResponseType } from '@/types/sendOtpTypes'
 import { userInfoTypes, verifyOtpResponseType } from '@/types/verifyOtpTypes'
 
 
-const Otp = () => {
+const OtpForm = () => {
 
   const [step, setStep] = useState(1)
   const router = useRouter()
@@ -97,7 +97,7 @@ const Otp = () => {
     },
     onSuccess: (data) => {
       toast.success("Otp Verified Successfully!")
-      setCookie('jubilee-retail-token', JSON.stringify(data.payload[0].token))
+      setCookie('jubilee-retail-token', data.payload[0].token)
       setCookie('userInfo', JSON.stringify(data.payload[0].user_info))
       setCookie('menus', JSON.stringify(data.payload[0].menus))
       deleteCookie("otp-session");
@@ -115,7 +115,7 @@ const Otp = () => {
       {step === 1 && (
         <div className={cn("flex flex-col gap-6")}>
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-4xl font-bold">Send Your Otp code</h1>
+            <h1 className="text-4xl font-bold">Send Your Otp</h1>
             <p className="text-muted-foreground text-md text-balance">
               Choose how you&apos;d like to get your one-time code to login.
             </p>
@@ -180,4 +180,4 @@ const Otp = () => {
   )
 }
 
-export default Otp
+export default OtpForm

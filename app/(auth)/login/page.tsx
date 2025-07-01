@@ -1,4 +1,10 @@
-import LoginForm from '@/components/ui/foundations/auth/LoginForm'
+import { Metadata } from 'next'
+import LoginForm from '@/components/ui/auth/login-form'
+
+export const metadata: Metadata = {
+  title: 'Login | Jubilee Retail',
+  description: 'Login to your Jubilee Retail account to access exclusive features and manage your profile.',
+}
 
 const page = () => {
   return (
