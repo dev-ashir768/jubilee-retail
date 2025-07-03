@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react'
 import SubNav from '../foundations/sub-nav';
 import DataTable from '../datatable/data-table';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchApiUsersList } from '@/helperFunctions/usersFunction';
 import Loader from '../foundations/loader';
 import Error from '../foundations/error';
@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 const ApiUserList = () => {
 
   const router = useRouter();
+  const queryClient = useQueryClient()
 
   // rights
 
@@ -67,6 +68,7 @@ const ApiUserList = () => {
     onSuccess: (data) => {
       const message = data.message
       toast.success(message)
+      queryClient.invalidateQueries({ queryKey: ['api-user-list'] })
     }
   })
 

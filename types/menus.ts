@@ -16,7 +16,7 @@ export type allMenusPayloadType = {
   parent_id: number | null;
   sorting: number;
   description: string;
-  childs: menuChildsTypes[]
+  childs: menuChildsTypes[];
 };
 
 export type allMenusResponse = {
@@ -24,3 +24,9 @@ export type allMenusResponse = {
   message: string;
   payload: allMenusPayloadType[];
 };
+
+export type RightsType = "can_view" | "can_add" | "can_edit" | "can_delete";
+
+export type MenuRightsTypes = {
+  menu_id: number | null;
+} & Record<RightsType, boolean>;

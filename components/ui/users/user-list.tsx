@@ -116,7 +116,7 @@ const UserList = () => {
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
-        filterOption: emailFilterOptions,
+        filterOptions: emailFilterOptions,
         filterPlaceholder: "Filter email...",
       }
     },
@@ -129,7 +129,7 @@ const UserList = () => {
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
-        filterOption: phoneFilterOptions,
+        filterOptions: phoneFilterOptions,
         filterPlaceholder: "Filter phone...",
       }
     },

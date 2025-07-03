@@ -21,13 +21,14 @@ import { convertToBase64 } from '@/utils/convertToBase64';
 import { getCookie } from 'cookies-next';
 import { userInfoTypes } from '@/types/verifyOtpTypes';
 import { useQuery } from '@tanstack/react-query';
-import { allMenusResponse } from '@/types/menus';
+import { allMenusResponse, MenuRightsTypes, RightsType } from '@/types/menus';
 import { fetchAllMenus } from '@/helperFunctions/allMenusFunction';
 import Loader from '../foundations/loader';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import * as Icons from 'lucide-react';
 import { Checkbox } from '../shadcn/checkbox';
+import { toast } from 'sonner';
 
 
 const userTypeOptions: { value: string, label: string }[] = [
@@ -45,7 +46,8 @@ const AddUserForm = () => {
   const [toggleEye, setToggleEye] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [menuRights, setMenuRights] = useState<any[]>([]);
+  const [menuRights, setMenuRights] = useState<MenuRightsTypes[]>([]);
+
   // fetch all menus
   const { data: allMenusResponse, isLoading: allMenusLoading, isError: allMenusIsError, error } = useQuery<allMenusResponse | null>({
     queryKey: ["all-menus"],
@@ -98,21 +100,34 @@ const AddUserForm = () => {
     }
   }
 
-  const handlePermission = ({ menu_id, right, value }: { menu_id: number, right: string, value: boolean }) => {
-    setMenuRights((prev) => {
-      const updated = [...prev];
-      const index = updated.findIndex((item) => item.menu_id === menu_id);
-      if (index > -1) {
-        updated[index][right] = value;
+  const handleRights = ({ menu_id, right, value }: { menu_id: number, right: RightsType, value: boolean }) => {
+    setMenuRights((prevState) => {
+      const existingIndex = prevState.findIndex((entry) => entry.menu_id === menu_id);
+
+      if (existingIndex !== -1) {
+        // If the menu_id already exists, update that entry
+        const updatedRights = [...prevState];
+        updatedRights[existingIndex] = {
+          ...updatedRights[existingIndex],
+          [right]: value,
+        };
+        return updatedRights;
       } else {
-        updated.push({ menu_id, [right]: value });
+        // If menu_id doesn't exist, add a new entry
+        return [
+          ...prevState,
+          {
+            menu_id,
+            can_view: false,
+            can_add: false,
+            can_edit: false,
+            can_delete: false,
+            [right]: value,
+          },
+        ];
       }
-      return updated;
     });
   };
-
-  console.log(menuRights)
-
 
 
   // handle image (file to base64)
@@ -139,23 +154,39 @@ const AddUserForm = () => {
   };
 
   const onSubmit = (data: usersSchemaType) => {
-    console.log(data)
+    if (menuRights.length === 0) {
+      toast.error('Please assign at least one right to proceed.');
+      return;
+    }
+    const finalData = {
+      username: data.username,
+      fullname: data.fullname,
+      email: data.email,
+      phone: data.phone,
+      password: data.password,
+      user_type: data.user_type,
+      is_active: data.is_active,
+      created_by: data.created_by,
+      menu_rights: menuRights,
+      ...(data.image && { image: data.image }),
+    }
+    console.log(finalData)
     reset();
     setUploadedImage(null)
+    setMenuRights([])
   }
 
   // loading state while fetching user list data
-
   if (allMenusLoading) {
     return <Loader />
   }
-
 
   return (
     <>
       <SubNav
         title='Add User'
       />
+
       <Card className='w-full shadow-none border-none'>
         <CardHeader className='border-b gap-0'>
           <CardTitle>
@@ -433,7 +464,7 @@ const AddUserForm = () => {
                                       <div key={`${right}-${child.id}`} className="flex items-center gap-3">
                                         <Checkbox
                                           id={`${right}-${child.id}`}
-                                          onCheckedChange={(val) => (handlePermission({ menu_id: child.id, right, value: !!val }))}
+                                          onCheckedChange={(val) => (handleRights({ menu_id: child.id, right: right as RightsType, value: !!val }))}
                                         />
                                         <Label htmlFor={`${right}-${child.id}`} className='capitalize'>{right.replace('can_', '').toLowerCase()}</Label>
                                       </div>
