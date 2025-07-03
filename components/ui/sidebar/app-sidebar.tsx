@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo } from "react"
+import { useCallback, useMemo } from "react"
 
 import NavLogo from "@/components/ui/sidebar/nav-logo"
 import NavMain from "@/components/ui/sidebar/nav-main"
@@ -13,13 +13,9 @@ import {
   SidebarRail,
 } from "@/components/ui/shadcn/sidebar"
 import { menusTypes } from "@/types/verifyOtpTypes"
-import { useMenusStore } from "@/hooks/useMenus"
-
 
 
 export function AppSidebar({ menusFromCookies = [], ...props }: { menusFromCookies?: menusTypes[] } & React.ComponentProps<typeof Sidebar>) {
-
-  const { setMenus, menus } = useMenusStore();
 
   const organizeMenu = useCallback((menusFromCookies: menusTypes[]) => {
     // Add items array to each menu item
@@ -45,17 +41,13 @@ export function AppSidebar({ menusFromCookies = [], ...props }: { menusFromCooki
 
   const organizedMenus = useMemo(() => organizeMenu(menusFromCookies), [menusFromCookies, organizeMenu]);
 
-  useEffect(() => {
-    setMenus(organizedMenus);
-  }, [organizedMenus, setMenus]);
-
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="border-b">
         <NavLogo />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain menusData={menus} />
+        <NavMain menusData={organizedMenus} />
       </SidebarContent>
       <SidebarFooter className="border-t">
         <NavLogout />

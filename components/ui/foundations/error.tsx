@@ -4,8 +4,8 @@ import { Alert, AlertDescription, AlertTitle } from '../shadcn/alert'
 
 const Error = ({ err }: { err: any }) => {
   return (
-    <Card>
-      <CardHeader>
+    <Card className='w-full shadow-none border-none'>
+      <CardHeader className='border-b gap-0'>
         <CardTitle>Failed to load user list</CardTitle>
       </CardHeader>
       <CardContent>

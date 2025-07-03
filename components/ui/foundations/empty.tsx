@@ -1,20 +1,24 @@
 import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
-import { Loader2 } from 'lucide-react'
 
-const Loader = () => {
+interface EmptyProps {
+  title: string;
+  description: string;
+}
+
+const Empty: React.FC<EmptyProps> = ({ title, description }) => {
   return (
     <Card className='w-full shadow-none border-none'>
       <CardHeader className='border-b gap-0'>
-        <CardTitle>Please wait while we fetch the data...</CardTitle>
+        <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex justify-center">
-          <Loader2 className='animate-spin h-6 w-6' />
-        </div>
+        <h2>
+          {description}
+        </h2>
       </CardContent>
     </Card>
   )
 }
 
-export default Loader
+export default Empty

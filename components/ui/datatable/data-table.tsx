@@ -122,7 +122,7 @@ const DataTable = <TData, TValue>({
                   <TableRow className='bg-gray-50 sticky z-20 top-0' key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
                       return (
-                        <TableHead className='text-foreground' key={header.id}>
+                        <TableHead key={header.id}>
                           {header.isPlaceholder
                             ? null
                             : flexRender(

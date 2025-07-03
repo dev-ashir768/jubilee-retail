@@ -1,6 +1,6 @@
 import type { Column, FilterFn } from "@tanstack/react-table";
 
-export type FilterType = "multiselect";
+export type FilterType = "multiselect" | "none";
 
 export interface FilterOption {
   label: string;

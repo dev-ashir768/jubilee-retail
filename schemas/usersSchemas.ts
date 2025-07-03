@@ -56,16 +56,11 @@ export const usersSchema = z.object({
     .refine((val) => !forbiddenCodeRegex.test(val), {
       message: "Invalid input: Code-like content is not allowed",
     }),
-  image: z.string().trim().optional(),
-  user_type: z
-    .enum(["dashboard_user", "api_user"], {
-      invalid_type_error:
-        "User type must be either 'dashboard_user' or 'api_user'",
-    })
-    .transform((val) => val.trim()),
-  is_active: z.boolean(),
+  image: z.string().optional(),
+  user_type: z.enum(["dashboard_user", "api_user"]).default("dashboard_user"),
+  is_active: z.boolean({ required_error: "Status is required" }),
   created_by: z.number({ invalid_type_error: "Created by must be a number" }),
   menu_rights: menu_rights.array(),
 });
 
-export type UsersSchemaType = z.infer<typeof usersSchema>;
+export type usersSchemaType = z.infer<typeof usersSchema>;

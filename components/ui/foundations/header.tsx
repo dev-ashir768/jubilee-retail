@@ -3,10 +3,15 @@ import { SidebarTrigger } from '../shadcn/sidebar'
 import { Separator } from '../shadcn/separator'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '../shadcn/breadcrumb'
 import UserProfile from '../sidebar/user-profile'
+import { userInfoTypes } from '@/types/verifyOtpTypes'
 
-const Header = () => {
+interface HeaderProps {
+  userInfo: userInfoTypes
+}
+
+const Header: React.FC<HeaderProps> = ({ userInfo }) => {
   return (
-    <header className="flex border-b h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 px-4">
+    <header className="flex border-b h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 px-4 sticky z-50 top-0 bg-white">
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1" />
         <Separator
@@ -27,7 +32,7 @@ const Header = () => {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <UserProfile />
+      <UserProfile userInfo={userInfo} />
     </header>
   )
 }

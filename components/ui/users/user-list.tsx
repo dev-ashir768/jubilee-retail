@@ -2,10 +2,10 @@
 
 import React, { useMemo } from 'react'
 import SubNav from '../foundations/sub-nav'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../shadcn/card'
+import { Card, CardHeader, CardTitle } from '../shadcn/card'
 import { useQuery } from '@tanstack/react-query'
 import { fetchUsersList } from '@/helperFunctions/usersFunction'
-import { Edit, Loader2, MoreHorizontal, Trash } from 'lucide-react'
+import { Edit, MoreHorizontal, Trash } from 'lucide-react'
 import DataTable from '../datatable/data-table';
 import { UsersListPayloadType, UsersListResponseType } from '@/types/usersTypes';
 import { ColumnDef } from '@tanstack/react-table';
@@ -14,10 +14,24 @@ import { ColumnMeta } from '@/types/dataTableTypes';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../shadcn/dropdown-menu';
 import { Button } from '../shadcn/button';
 import { Badge } from '../shadcn/badge';
-import Loader from '../foundations/Loader';
-import Error from '../foundations/Error';
+import Error from '../foundations/error';
+import { getRights } from '@/utils/getRights';
+import { useRouter } from 'next/navigation';
+import Loader from '../foundations/loader';
 
 const UserList = () => {
+
+  const router = useRouter();
+
+  // rights
+
+  const rights = useMemo(() => {
+    return getRights('/users/user-list')
+  }, [])
+
+  if (rights?.can_view === "0") {
+    router.back();
+  }
 
   // Fetch user list data using react-query
 
@@ -148,15 +162,15 @@ const UserList = () => {
           </Badge>
         )
       },
-      filterFn: "multiSelect",
-      meta: {
-        filterType: "multiSelect",
-        filterOptions: [
-          { label: "Active", value: "active" },
-          { label: "Inactive", value: "inactive" }
-        ],
-        filterPlaceholder: "Filter status...",
-      }
+      // filterFn: "none",
+      // meta: {
+      //   filterType: "multiSelect",
+      //   filterOptions: [
+      //     { label: "Active", value: "active" },
+      //     { label: "Inactive", value: "inactive" }
+      //   ],
+      //   filterPlaceholder: "Filter status...",
+      // }
     },
     {
       id: 'actions',
@@ -213,6 +227,7 @@ const UserList = () => {
     <>
       <SubNav
         title="User Management"
+        addBtnTitle="Add User"
       />
 
       <DataTable

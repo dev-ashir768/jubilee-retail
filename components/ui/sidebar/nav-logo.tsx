@@ -9,7 +9,7 @@ const NavLogo = () => {
       <SidebarMenuItem>
         <SidebarMenuButton
           size="lg"
-          className="hover:bg-transparent active:bg-transparent"
+          className="hover:bg-transparent active:bg-transparent h-12"
           asChild
         >
           <Link href="/">

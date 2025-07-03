@@ -25,11 +25,14 @@ import { useSidebar } from "@/components/ui/shadcn/sidebar"
 import { Button } from "@/components/ui/shadcn/button"
 import Link from "next/link"
 import { handleLogout } from "@/utils/handleLogout"
+import { userInfoTypes } from "@/types/verifyOtpTypes"
 
-const UserProfile = () => {
+interface UserProfileProps {
+  userInfo: userInfoTypes
+}
 
-  const { isMobile } = useSidebar()
-
+const UserProfile: React.FC<UserProfileProps> = ({ userInfo }) => {
+  const { isMobile } = useSidebar();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -41,8 +44,8 @@ const UserProfile = () => {
           {!isMobile && (
             <>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Ashir Arif</span>
-                <span className="truncate text-xs">techashir167@gmail.com</span>
+                <span className="truncate font-medium">{userInfo.fullname}</span>
+                <span className="truncate text-xs">{userInfo.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </>

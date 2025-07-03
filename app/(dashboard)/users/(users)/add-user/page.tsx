@@ -1,5 +1,4 @@
 import AddUserForm from '@/components/ui/users/add-user-form'
-import React from 'react'
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
