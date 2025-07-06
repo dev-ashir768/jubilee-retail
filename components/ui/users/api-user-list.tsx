@@ -6,7 +6,7 @@ import React, { useMemo } from 'react'
 import SubNav from '../foundations/sub-nav';
 import DataTable from '../datatable/data-table';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchApiUsersList } from '@/helperFunctions/usersFunction';
+import { fetchApiUserList } from '@/helperFunctions/userFunction';
 import Loader from '../foundations/loader';
 import Error from '../foundations/error';
 import { ApiUsersPayloadType, ApiUsersResponseType } from '@/types/usersTypes';
@@ -41,7 +41,7 @@ const ApiUserList = () => {
 
   const { data: apiUserResponse, isLoading: apiUserLoading, isError: apiUserIsError, error } = useQuery<ApiUsersResponseType | null>({
     queryKey: ['api-user-list'],
-    queryFn: fetchApiUsersList
+    queryFn: fetchApiUserList
   })
 
   // update api user mutation
@@ -176,6 +176,15 @@ const ApiUserList = () => {
           </Badge>
         )
       },
+      filterFn: "multiSelect",
+      meta: {
+        filterType: "multiselect",
+        filterOptions: [
+          { label: "Active", value: "active" },
+          { label: "Inactive", value: "inactive" }
+        ],
+        filterPlaceholder: "Filter status...",
+      } as ColumnMeta,
     },
     {
       id: 'id',

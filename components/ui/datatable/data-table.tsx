@@ -28,7 +28,7 @@ import DataTablePagination from '@/components/ui/datatable/datatable-pagination'
 import DataTableGlobalFilter from '@/components/ui/datatable/datatable-global-filter';
 import DataTableColumnVisibility from '@/components/ui/datatable/datatable-column-visibility';
 import DataTableExport from '@/components/ui/datatable/datatable-export';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../shadcn/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../shadcn/card';
 
 
 interface DataTableProps<TData, TValue> {

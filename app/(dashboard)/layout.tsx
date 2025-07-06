@@ -24,7 +24,7 @@ const DashboardLayout = async ({ children }: { children: ReactNode }) => {
         <AppSidebar menusFromCookies={menusFromCookies} />
         <SidebarInset>
           {userInfo && <Header userInfo={userInfo} />}
-          <div className="flex flex-1 flex-col gap-4 p-4 bg-gray-50">
+          <div className="flex flex-1 flex-col gap-4 p-4 bg-gray-50 contain-inline-size">
             {children}
           </div>
           <Footer />

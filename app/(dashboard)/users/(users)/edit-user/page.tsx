@@ -1,6 +1,6 @@
-import EditUserForm from '@/components/ui/users/edit-user-form'
 import React from 'react'
 import { Metadata } from "next"
+import EditUserForm from '@/components/ui/users/edit-user-form'
 
 export const metadata: Metadata = {
   title: 'Edit User | Jubilee Retail',

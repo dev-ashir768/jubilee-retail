@@ -1,6 +1,7 @@
+import { SingleUserResponseType } from "@/types/usersTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
-export const fetchUsersList = async () => {
+export const fetchUserList = async () => {
   try {
     const response = await axiosFunction({
       method: "GET",
@@ -14,7 +15,7 @@ export const fetchUsersList = async () => {
   }
 };
 
-export const fetchApiUsersList = async () => {
+export const fetchApiUserList = async () => {
   try {
     const response = axiosFunction({
       method: "GET",
@@ -37,6 +38,21 @@ export const fetchUserProfile = () => {
     return response;
   } catch (err) {
     console.error("Error fetching api users list:", err);
-    return null
+    return null;
+  }
+};
+
+export const fetchSingleUser = async (
+  userId: number | null
+): Promise<SingleUserResponseType | null> => {
+  try {
+    const response = axiosFunction({
+      method: "GET",
+      urlPath: `/users/${userId}`,
+    });
+    return response;
+  } catch (err) {
+    console.error("Error fetching single user", err);
+    return null;
   }
 };

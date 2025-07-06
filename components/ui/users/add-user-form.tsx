@@ -8,7 +8,7 @@ import { Input } from '../shadcn/input'
 import { Button } from '../shadcn/button'
 import { Eye, EyeOff } from 'lucide-react'
 import { zodResolver } from '@hookform/resolvers/zod';
-import { usersSchema, usersSchemaType } from '@/schemas/usersSchemas';
+import { AddUserSchema, AddUserSchemaType } from '@/schemas/usersSchemas';
 import { useForm, Controller } from 'react-hook-form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../shadcn/select';
 import {
@@ -20,15 +20,17 @@ import {
 import { convertToBase64 } from '@/utils/convertToBase64';
 import { getCookie } from 'cookies-next';
 import { userInfoTypes } from '@/types/verifyOtpTypes';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { allMenusResponse, MenuRightsTypes, RightsType } from '@/types/menus';
 import { fetchAllMenus } from '@/helperFunctions/allMenusFunction';
 import Loader from '../foundations/loader';
-import Error from '../foundations/error';
-import Empty from '../foundations/empty';
 import * as Icons from 'lucide-react';
 import { Checkbox } from '../shadcn/checkbox';
 import { toast } from 'sonner';
+import { axiosFunction } from '@/utils/axiosFunction';
+import { AxiosError } from 'axios';
+import { AddUserResponseType } from '@/types/usersTypes';
+import { useRouter } from 'next/navigation';
 
 
 const userTypeOptions: { value: string, label: string }[] = [
@@ -47,6 +49,8 @@ const AddUserForm = () => {
   const [dragActive, setDragActive] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [menuRights, setMenuRights] = useState<MenuRightsTypes[]>([]);
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
   // fetch all menus
   const { data: allMenusResponse, isLoading: allMenusLoading, isError: allMenusIsError, error } = useQuery<allMenusResponse | null>({
@@ -62,7 +66,7 @@ const AddUserForm = () => {
 
   // form
   const { handleSubmit, register, formState: { errors }, control, reset } = useForm({
-    resolver: zodResolver(usersSchema),
+    resolver: zodResolver(AddUserSchema),
     defaultValues: {
       username: '',
       fullname: '',
@@ -72,7 +76,7 @@ const AddUserForm = () => {
       user_type: 'dashboard_user',
       image: undefined,
       is_active: undefined,
-      created_by: +userInfo?.id,
+      created_by: userInfo ? +userInfo.id : undefined,
       menu_rights: [],
     }
   })
@@ -113,13 +117,12 @@ const AddUserForm = () => {
         };
         return updatedRights;
       } else {
-        // If menu_id doesn't exist, add a new entry
         return [
           ...prevState,
           {
             menu_id,
             can_view: false,
-            can_add: false,
+            can_create: false,
             can_edit: false,
             can_delete: false,
             [right]: value,
@@ -128,7 +131,6 @@ const AddUserForm = () => {
       }
     });
   };
-
 
   // handle image (file to base64)
   const handleImage = async (file: File) => {
@@ -153,7 +155,36 @@ const AddUserForm = () => {
     }
   };
 
-  const onSubmit = (data: usersSchemaType) => {
+  // add form mutation
+  const addUserMutation = useMutation<
+    AddUserResponseType,
+    AxiosError<AddUserResponseType>,
+    AddUserSchemaType
+  >({
+    mutationFn: (record) => {
+      return axiosFunction({
+        method: "POST",
+        urlPath: "/users/register",
+        data: record,
+        isServer: true,
+      })
+    },
+    onError: (err) => {
+      const message = err.response?.data?.message
+      console.error("Add User Mutation Error", err)
+      toast.error(message)
+    },
+    onSuccess: (data) => {
+      const message = data.message
+      toast.success(message)
+      queryClient.invalidateQueries({ queryKey: ['users-list'] })
+      reset();
+      setUploadedImage(null)
+      setMenuRights([])
+    }
+  })
+
+  const onSubmit = (data: AddUserSchemaType) => {
     if (menuRights.length === 0) {
       toast.error('Please assign at least one right to proceed.');
       return;
@@ -170,10 +201,7 @@ const AddUserForm = () => {
       menu_rights: menuRights,
       ...(data.image && { image: data.image }),
     }
-    console.log(finalData)
-    reset();
-    setUploadedImage(null)
-    setMenuRights([])
+    addUserMutation.mutate(finalData)
   }
 
   // loading state while fetching user list data
@@ -190,7 +218,12 @@ const AddUserForm = () => {
       <Card className='w-full shadow-none border-none'>
         <CardHeader className='border-b gap-0'>
           <CardTitle>
-            Add a new user to the system
+            <div className='flex items-center gap-2'>
+              <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' onClick={() => { router.back() }}>
+                <Icons.ArrowLeft className='size-6' />
+              </Button>
+              Add a new user to the system
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -455,11 +488,11 @@ const AddUserForm = () => {
                           {item.childs?.map((child) => {
                             return (
                               <div className='flex flex-wrap gap-2' key={child.id}>
-                                <h6 className='text-base font-semibold' key={child.id}>
+                                <h6 className='text-base font-semibold'>
                                   {child.name}
                                 </h6>
                                 {
-                                  ['can_view', 'can_add', 'can_edit', 'can_delete'].map((right) => {
+                                  ['can_view', 'can_create', 'can_edit', 'can_delete'].map((right) => {
                                     return (
                                       <div key={`${right}-${child.id}`} className="flex items-center gap-3">
                                         <Checkbox

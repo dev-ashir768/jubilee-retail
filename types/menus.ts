@@ -25,8 +25,8 @@ export type allMenusResponse = {
   payload: allMenusPayloadType[];
 };
 
-export type RightsType = "can_view" | "can_add" | "can_edit" | "can_delete";
+export type RightsType = "can_view" | "can_create" | "can_edit" | "can_delete";
 
 export type MenuRightsTypes = {
-  menu_id: number | null;
+  menu_id: number;
 } & Record<RightsType, boolean>;

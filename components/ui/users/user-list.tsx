@@ -2,9 +2,8 @@
 
 import React, { useMemo } from 'react'
 import SubNav from '../foundations/sub-nav'
-import { Card, CardHeader, CardTitle } from '../shadcn/card'
 import { useQuery } from '@tanstack/react-query'
-import { fetchUsersList } from '@/helperFunctions/usersFunction'
+import { fetchUserList } from '@/helperFunctions/userFunction'
 import { Edit, MoreHorizontal, Trash } from 'lucide-react'
 import DataTable from '../datatable/data-table';
 import { UsersListPayloadType, UsersListResponseType } from '@/types/usersTypes';
@@ -18,13 +17,18 @@ import Error from '../foundations/error';
 import { getRights } from '@/utils/getRights';
 import { useRouter } from 'next/navigation';
 import Loader from '../foundations/loader';
+import Empty from '../foundations/empty';
+import Link from 'next/link';
+import useUserIdStore from '@/hooks/useAddUserIdStore';
 
 const UserList = () => {
 
   const router = useRouter();
 
-  // rights
+  // zustand
+  const { setUserId } = useUserIdStore()
 
+  // rights
   const rights = useMemo(() => {
     return getRights('/users/user-list')
   }, [])
@@ -34,14 +38,12 @@ const UserList = () => {
   }
 
   // Fetch user list data using react-query
-
   const { data: userListResponse, isLoading: userListLoading, isError: userListIsError, error } = useQuery<UsersListResponseType | null>({
     queryKey: ['users-list'],
-    queryFn: fetchUsersList
+    queryFn: fetchUserList
   })
 
   // Column filter options
-
   const fullnameFilterOptions = useMemo(() => {
     const allFullname = userListResponse?.payload?.map((item) => item.fullname) || [];
     const uniqueFullname = Array.from(new Set(allFullname));
@@ -79,7 +81,6 @@ const UserList = () => {
   }, [userListResponse]);
 
   // Define columns for the data table
-
   const columns: ColumnDef<UsersListPayloadType>[] = [
     {
       accessorKey: 'fullname',
@@ -162,20 +163,21 @@ const UserList = () => {
           </Badge>
         )
       },
-      // filterFn: "none",
-      // meta: {
-      //   filterType: "multiSelect",
-      //   filterOptions: [
-      //     { label: "Active", value: "active" },
-      //     { label: "Inactive", value: "inactive" }
-      //   ],
-      //   filterPlaceholder: "Filter status...",
-      // }
+      filterFn: "multiSelect",
+      meta: {
+        filterType: "multiselect",
+        filterOptions: [
+          { label: "Active", value: "active" },
+          { label: "Inactive", value: "inactive" }
+        ],
+        filterPlaceholder: "Filter status...",
+      } as ColumnMeta,
     },
     {
       id: 'actions',
       header: "Actions",
-      cell: () => {
+      cell: ({ row }) => {
+        const record = row.original
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -187,14 +189,21 @@ const UserList = () => {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Edit className='mr-2 h-4 w-4' />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Trash className='mr-2 h-4 w-4' />
-                Delete
-              </DropdownMenuItem>
+              {rights?.can_edit === "1" &&
+                <DropdownMenuItem onClick={() => setUserId(record.id)} asChild>
+                  <Link href={`/users/edit-user`}>
+                    <Edit className='mr-2 h-4 w-4' />
+                    Edit
+                  </Link>
+                </DropdownMenuItem>
+              }
+              {
+                rights?.can_edit === "1" &&
+                <DropdownMenuItem>
+                  <Trash className='mr-2 h-4 w-4' />
+                  Delete
+                </DropdownMenuItem>
+              }
             </DropdownMenuContent>
           </DropdownMenu>
         )
@@ -203,7 +212,6 @@ const UserList = () => {
   ]
 
   // loading state while fetching user list data
-
   if (userListLoading) {
     return <Loader />
   }
@@ -214,13 +222,7 @@ const UserList = () => {
 
   // Empty state
   if (!userListResponse?.payload || userListResponse.payload.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>There are no users in the system.</CardTitle>
-        </CardHeader>
-      </Card>
-    );
+    return <Empty title='Not Found' description='Not Found' />;
   }
 
   return (
@@ -228,6 +230,7 @@ const UserList = () => {
       <SubNav
         title="User Management"
         addBtnTitle="Add User"
+        urlPath='/'
       />
 
       <DataTable

@@ -1,4 +1,4 @@
-// api user
+// user
 
 export type UsersListPayloadType = {
   id: number;
@@ -77,3 +77,92 @@ export type UserProfileResponseType = {
   message: string;
   payload: UserProfilePayloadType[];
 };
+
+// add user
+
+export type AddUserPayloadType = {
+  id: number;
+  fullname: string;
+  email: string;
+  phone: string;
+  image: string;
+  username: string;
+  user_type: string;
+  is_admin: boolean;
+  is_active: boolean;
+  is_deleted: boolean;
+  email_verified_at: string;
+  failed_attempt: number;
+  lock_time: string;
+  last_login_date: string;
+  last_password_change: string;
+  is_locked: boolean;
+  otp_token: string;
+  otp_time: string;
+  password: string;
+  remember_token: string;
+  created_by: number;
+  deleted_by: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+};
+
+export type AddUserResponseType = {
+  status: 1 | 0;
+  message: string;
+  payload: AddUserPayloadType[];
+};
+
+// single user
+
+export type MenuTypes = {
+  id: number;
+  name: string;
+  description: string;
+  parent_id: number;
+  url: string;
+  icon: string;
+  sorting: number;
+  created_by: number;
+  deleted_by: number;
+  is_active: boolean;
+  is_deleted: boolean;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string;
+}
+
+export type rightsType = {
+  id: number;
+  user_id: number;
+  menu_id: number;
+  can_view: boolean;
+  can_create: boolean;
+  can_edit: boolean;
+  can_delete: boolean;
+  created_at: string;
+  updated_at: string;
+  menu: MenuTypes;
+};
+export type SingleUserPayloadType = {
+  id: number;
+  username: string;
+  fullname: string;
+  email: string;
+  contact: string;
+  image: string;
+  isActive: boolean;
+  isLocked: boolean;
+  userType: string;
+  rights: rightsType[];
+};
+
+export type SingleUserResponseType = {
+  status: 1 | 0;
+  message: string;
+  payload: SingleUserPayloadType[];
+};
+
+// edit user response (reuse AddUserResponseType for now)
+export type EditUserResponseType = AddUserResponseType;

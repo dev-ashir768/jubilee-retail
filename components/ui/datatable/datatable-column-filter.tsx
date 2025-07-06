@@ -45,12 +45,12 @@ const DataTableColumnFilter = <TData, TValue>({ column }: DataTableColumnFilterP
         column.setFilterValue(newSelectedValues.length > 0 ? newSelectedValues : undefined)
     }
 
-    const handleCheckboxChange = (value: string, checked: boolean) => {
-        const newSelectedValues = checked ? [...selectedValues, value] : selectedValues.filter((item) => item !== value)
+    // const handleCheckboxChange = (value: string, checked: boolean) => {
+    //     const newSelectedValues = checked ? [...selectedValues, value] : selectedValues.filter((item) => item !== value)
 
-        setSelectedValues(newSelectedValues)
-        column.setFilterValue(newSelectedValues.length > 0 ? newSelectedValues : undefined)
-    }
+    //     setSelectedValues(newSelectedValues)
+    //     column.setFilterValue(newSelectedValues.length > 0 ? newSelectedValues : undefined)
+    // }
 
     const clearFilters = () => {
         setSelectedValues([]);
