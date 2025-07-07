@@ -290,7 +290,7 @@ const BranchList = () => {
 
   // Error state
   if (branchListIsError) {
-    return <Error err={error} />
+    return <Error err={error?.message} />
   }
 
   // Empty state

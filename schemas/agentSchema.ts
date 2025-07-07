@@ -1,51 +1,3 @@
-// import { boolean, z } from "zod";
-
-// const forbiddenCodeRegex =
-//   /(<\?php|<script|function\s*\(|SELECT\s+|INSERT\s+|UPDATE\s+|DELETE\s+|DROP\s+|CREATE\s+|EXEC\s+|system\(|eval\(|require\(|import\s+|export\s+)/i;
-
-// const AgentSchema = z.object({
-//   name: z
-//     .string()
-//     .min(1, "Name is required")
-//     .max(50, "Name cannot exceed 50 characters")
-//     .trim()
-//     .refine((value) => !forbiddenCodeRegex.test(value), {
-//       message: "Name contains forbidden code patterns",
-//     }),
-//   igis_code: z
-//     .string()
-//     .min(1, "IGIS code is required")
-//     .max(10, "IGIS code cannot exceed 10 characters")
-//     .trim()
-//     .refine((value) => !forbiddenCodeRegex.test(value), {
-//       message: "IGIS code contains forbidden code patterns",
-//     }),
-//   igis_agent_code: z
-//     .string()
-//     .min(1, "IGIS agent code is required")
-//     .max(10, "IGIS agent code cannot exceed 10 characters")
-//     .trim()
-//     .refine((value) => !forbiddenCodeRegex.test(value), {
-//       message: "IGIS agent code contains forbidden code patterns",
-//     }),
-//   branch_id: z.number({
-//     required_error: "Branch ID is required",
-//     invalid_type_error: "Branch ID must be a number",
-//   }),
-//   development_officer_id: z.number({
-//     required_error: "Branch ID is required",
-//     invalid_type_error: "Branch ID must be a number",
-//   }),
-//   idev_affiliate: z.boolean().optional(),
-//   idev_id: z.number({
-//     required_error: "Branch ID is required",
-//     invalid_type_error: "Branch ID must be a number",
-//   }),
-// });
-
-// export default AgentSchema;
-
-// export type AgentSchemaType = z.infer<typeof AgentSchema>;
 import { z } from "zod";
 
 const forbiddenCodeRegex =
@@ -58,7 +10,7 @@ const AgentSchema = z
       .min(1, "Name is required")
       .max(50)
       .trim()
-      .refine((v) => !forbiddenCodeRegex.test(v), {
+      .refine((val) => !forbiddenCodeRegex.test(val), {
         message: "Name contains forbidden code patterns",
       }),
     igis_code: z
@@ -66,7 +18,7 @@ const AgentSchema = z
       .min(1, "IGIS code is required")
       .max(10)
       .trim()
-      .refine((v) => !forbiddenCodeRegex.test(v), {
+      .refine((val) => !forbiddenCodeRegex.test(val), {
         message: "IGIS code contains forbidden code patterns",
       }),
     igis_agent_code: z
@@ -74,7 +26,7 @@ const AgentSchema = z
       .min(1, "IGIS agent code is required")
       .max(10)
       .trim()
-      .refine((v) => !forbiddenCodeRegex.test(v), {
+      .refine((val) => !forbiddenCodeRegex.test(val), {
         message: "IGIS agent code contains forbidden code patterns",
       }),
     branch_id: z.number({

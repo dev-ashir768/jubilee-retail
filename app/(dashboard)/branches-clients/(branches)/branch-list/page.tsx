@@ -4,7 +4,7 @@ import { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: 'Branch List | Jubilee Retail',
-  description: 'View and manage all branch in the Jubilee Retail system',
+  description: 'View all branches in the Jubilee Retail system',
 }
 const page = () => {
   return (

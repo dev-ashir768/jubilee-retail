@@ -20,6 +20,8 @@ import Link from 'next/link';
 import SubNav from '../foundations/sub-nav';
 import DataTable from '../datatable/data-table';
 import useDevelopmentOfficerIdStore from '@/hooks/useDevelopmentOfficerStore';
+import { fetchBranchList } from '@/helperFunctions/branchFunction';
+import { BranchResponseTypes } from '@/types/branchTypes';
 
 const DevelopmentOfficersList = () => {
   const router = useRouter();
@@ -37,11 +39,26 @@ const DevelopmentOfficersList = () => {
     router.back();
   }
 
+  // Fetch branch list data using react-query
+  const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseTypes | null>({
+    queryKey: ['get-branch-list'],
+    queryFn: fetchBranchList
+  })
+
   // Fetch development officer list data using react-query
-  const { data: developmentOfficerListResponse, isLoading: developmentOfficerListLoading, isError: developmentOfficerListIsError, error } = useQuery<DevelopmentOfficerResponseTypes | null>({
+  const { data: developmentOfficerListResponse, isLoading: developmentOfficerListLoading, isError: developmentOfficerListIsError, error: developmentOfficerListError } = useQuery<DevelopmentOfficerResponseTypes | null>({
     queryKey: ['development-officers-list'],
     queryFn: fetchDevelopmentOfficerList,
   });
+
+  // Create a branch ID to name mapping
+  const branchNameMap = useMemo(() => {
+    const map = new Map<number, string>();
+    branchListResponse?.payload.forEach((item) => {
+      map.set(item.id, item.name);
+    });
+    return map;
+  }, [branchListResponse?.payload]);
 
   // Column filter options
   const nameFilterOptions = useMemo(() => {
@@ -62,14 +79,15 @@ const DevelopmentOfficersList = () => {
     }));
   }, [developmentOfficerListResponse]);
 
-  const branchIdFilterOptions = useMemo(() => {
+  const branchNameFilterOptions = useMemo(() => {
     const allBranchIds = developmentOfficerListResponse?.payload?.map((item) => item.branch_id.toString()) || [];
     const uniqueBranchIds = Array.from(new Set(allBranchIds));
-    return uniqueBranchIds.map((branch_id) => ({
-      label: branch_id,
-      value: branch_id,
-    }));
-  }, [developmentOfficerListResponse]);
+    return uniqueBranchIds
+      .map((branch_id) => ({
+        label: branchNameMap.get(+branch_id),
+        value: branchNameMap.get(+branch_id)
+      }))
+  }, [developmentOfficerListResponse, branchNameMap]);
 
   // Define columns for the data table
   const columns: ColumnDef<DevelopmentOfficerPayloadTypes>[] = [
@@ -119,12 +137,13 @@ const DevelopmentOfficersList = () => {
     },
     {
       accessorKey: 'branch_id',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Branch ID" />,
+      header: ({ column }) => <DatatableColumnHeader column={column} title="Branch Name" />,
+      accessorFn: (row) => branchNameMap.get(row.branch_id) || row.branch_id,
       cell: ({ row }) => <div>{row.getValue("branch_id")}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
-        filterOptions: branchIdFilterOptions,
+        filterOptions: branchNameFilterOptions,
         filterPlaceholder: "Filter branch ID...",
       } as ColumnMeta,
     },
@@ -146,7 +165,7 @@ const DevelopmentOfficersList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem onClick={() => setDevelopmentOfficerId(record.id)} asChild>
-                  <Link href="/branches-clients/edit-development-officer">
+                  <Link href="/agents-dos/edit-development-officers">
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -166,13 +185,13 @@ const DevelopmentOfficersList = () => {
   ];
 
   // Loading state
-  if (developmentOfficerListLoading) {
+  if (developmentOfficerListLoading || branchListLoading) {
     return <Loader />;
   }
 
   // Error state
-  if (developmentOfficerListIsError) {
-    return <Error err={error} />;
+  if (developmentOfficerListIsError || branchListIsError) {
+    return <Error err={developmentOfficerListError?.message || branchListError?.message} />;
   }
 
   // Empty state
@@ -182,7 +201,7 @@ const DevelopmentOfficersList = () => {
 
   return (
     <>
-      <SubNav title="Development Officer List" addBtnTitle="Add Development Officer" urlPath='/' />
+      <SubNav title="Development Officer List" addBtnTitle="Add Development Officer" urlPath='/agents-dos/add-development-officers' />
       <DataTable
         columns={columns}
         data={developmentOfficerListResponse?.payload || []}

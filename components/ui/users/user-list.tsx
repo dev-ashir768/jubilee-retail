@@ -217,7 +217,7 @@ const UserList = () => {
   }
 
   if (userListIsError) {
-    return <Error err={error} />
+    return <Error err={error?.message} />
   }
 
   // Empty state
@@ -230,7 +230,7 @@ const UserList = () => {
       <SubNav
         title="User Management"
         addBtnTitle="Add User"
-        urlPath='/'
+        urlPath='/users/add-user'
       />
 
       <DataTable

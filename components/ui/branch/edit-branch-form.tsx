@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import SubNav from '../foundations/sub-nav';
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card';
 import { Button } from '../shadcn/button';
@@ -27,6 +27,8 @@ const EditBranchForm = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { branchId } = useBranchIdStore();
+  // Define constants
+  const LISTING_ROUTE = '/branches-clients/branch-list';
 
   // Fetch single branch data using React Query
   const { data: singleBranchResponse, isLoading: singleBranchLoading, isError: singleBranchIsError, error } = useQuery({
@@ -34,13 +36,6 @@ const EditBranchForm = () => {
     queryFn: () => fetchSingleBranch(branchId!),
     enabled: !!branchId // Only fetch if branchId is available
   })
-
-  // Memoize single branch response to prevent unnecessary re-renders
-  const memoizeSingleBranchResponse = useMemo(() => {
-    if (singleBranchResponse) return singleBranchResponse?.payload[0];
-    return null; // Return null if no data is available
-  }, [singleBranchResponse]);
-
 
   // Initialize form with React Hook Form and Zod validation
   const {
@@ -69,23 +64,23 @@ const EditBranchForm = () => {
 
   // Effect to populate form fields with fetched branch data
   useEffect(() => {
-    if (memoizeSingleBranchResponse) {
+    if (singleBranchResponse?.payload[0]) {
       reset({
-        name: memoizeSingleBranchResponse.name || '',
-        igis_branch_code: memoizeSingleBranchResponse.igis_branch_code || '',
-        igis_takaful_code: memoizeSingleBranchResponse.igis_branch_takaful_code || '',
-        address: memoizeSingleBranchResponse.address || '',
-        phone: memoizeSingleBranchResponse.telephone || '',
-        email: memoizeSingleBranchResponse.email || '',
-        his_code: memoizeSingleBranchResponse.his_code || '',
-        his_code_takaful: memoizeSingleBranchResponse.his_code_takaful || '',
-        sales_tax_perc: memoizeSingleBranchResponse.sales_tax_perc || '',
-        fed_insurance_fee: memoizeSingleBranchResponse.fed_insurance_fee || '',
-        stamp_duty: memoizeSingleBranchResponse.stamp_duty || 0,
-        admin_rate: memoizeSingleBranchResponse.admin_rate || '',
+        name: singleBranchResponse?.payload[0].name || '',
+        igis_branch_code: singleBranchResponse?.payload[0].igis_branch_code || '',
+        igis_takaful_code: singleBranchResponse?.payload[0].igis_branch_takaful_code || '',
+        address: singleBranchResponse?.payload[0].address || '',
+        phone: singleBranchResponse?.payload[0].telephone || '',
+        email: singleBranchResponse?.payload[0].email || '',
+        his_code: singleBranchResponse?.payload[0].his_code || '',
+        his_code_takaful: singleBranchResponse?.payload[0].his_code_takaful || '',
+        sales_tax_perc: singleBranchResponse?.payload[0].sales_tax_perc || '',
+        fed_insurance_fee: singleBranchResponse?.payload[0].fed_insurance_fee || '',
+        stamp_duty: singleBranchResponse?.payload[0].stamp_duty || 0,
+        admin_rate: singleBranchResponse?.payload[0].admin_rate || '',
       });
     }
-  }, [reset, memoizeSingleBranchResponse])
+  }, [reset, singleBranchResponse?.payload])
 
   // Mutation to handle branch update via PUT request
   const editBranchMutation = useMutation<
@@ -110,14 +105,14 @@ const EditBranchForm = () => {
       const message = data?.message
       toast.success(message)
       reset()
+      queryClient.invalidateQueries({ queryKey: ['single-branch', branchId] })
       queryClient.invalidateQueries({ queryKey: ['branch-list'] })
-      router.push('/branches-clients/branch-list')
+      router.push(LISTING_ROUTE)
     }
   })
 
   // Submit handler to trigger mutation
   const onSubmit = (data: BranchSchemaType) => {
-    console.log("Form submitted:", data);
     editBranchMutation.mutate({ ...data, branch_id: branchId! })
   };
 
@@ -128,16 +123,16 @@ const EditBranchForm = () => {
 
   // Error state
   if (singleBranchIsError) {
-    return <Error err={error} />
+    return <Error err={error?.message} />
   }
 
   // Empty and redirect state
   if (!branchId) {
     setTimeout(() => {
-      router.push('/branches-clients/branch-list')
+      router.push(LISTING_ROUTE)
     }, 1500);
 
-    return <Empty title='Not Found' description='No Single User Found. Redirecting to Branch List...' />;
+    return <Empty title="Not Found" description="Branch Id not Found. Redirecting to Branch List..." />;
   }
 
   return (
@@ -152,7 +147,7 @@ const EditBranchForm = () => {
                 variant="ghost"
                 size="icon"
                 className="rounded-full border border-gray-200"
-                onClick={() => router.push('/branches-clients/branch-list')}
+                onClick={() => router.push(LISTING_ROUTE)}
               >
                 <ArrowLeft className="size-6" />
               </Button>

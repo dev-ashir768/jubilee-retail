@@ -44,7 +44,7 @@ interface DataTableProps<TData, TValue> {
 }
 
 // Custom filter function for multi-select
-const multiSelectFilter: FilterFn<any> = (row, columnId, filterValue) => {
+const multiSelectFilter: FilterFn<unknown> = (row, columnId, filterValue) => {
   if (!filterValue?.length) return true;
   const cellValue = String(row.getValue(columnId));
   return filterValue.includes(cellValue);

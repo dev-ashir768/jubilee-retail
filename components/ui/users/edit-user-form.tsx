@@ -61,7 +61,7 @@ const EditUserForm = () => {
   // rights
   const rights = useMemo(() => {
     return getRights(pathname)
-  }, [])
+  }, [pathname])
 
   if (rights?.can_edit === "0") {
     router.back();

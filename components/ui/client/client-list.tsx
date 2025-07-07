@@ -187,7 +187,7 @@ const ClientList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem onClick={() => setClientId(record.id)} asChild>
-                  <Link href="/branches-clients/edit-client">
+                  <Link href="/branches-clients/edit-clients">
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -213,7 +213,7 @@ const ClientList = () => {
 
   // Error state
   if (clientListIsError) {
-    return <Error err={error} />;
+    return <Error err={error?.message} />;
   }
 
   // Empty state
@@ -223,7 +223,7 @@ const ClientList = () => {
 
   return (
     <>
-      <SubNav title="Client List" addBtnTitle="Add Client" urlPath='/' />
+      <SubNav title="Client List" addBtnTitle="Add Client" urlPath='/branches-clients/add-clients' />
       <DataTable
         columns={columns}
         data={clientListResponse?.payload || []}

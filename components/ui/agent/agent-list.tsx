@@ -20,6 +20,8 @@ import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import SubNav from '../foundations/sub-nav';
 import DataTable from '../datatable/data-table';
+import { DevelopmentOfficerResponseTypes } from '@/types/developmentOfficerTypes';
+import { fetchDevelopmentOfficerList } from '@/helperFunctions/developmentOfficerFunction';
 
 const AgentList = () => {
   const router = useRouter();
@@ -37,8 +39,23 @@ const AgentList = () => {
     router.back();
   }
 
+  // Fetch development officer list data using react-query
+  const { data: developmentOfficerListResponse, isLoading: developmentOfficerListLoading, isError: developmentOfficerListIsError, error: developmentOfficerListError } = useQuery<DevelopmentOfficerResponseTypes | null>({
+    queryKey: ['get-development-officers-list'],
+    queryFn: fetchDevelopmentOfficerList,
+  });
+
+  // Create a development officer ID to name mapping
+  const developmentOfficerNameMap = useMemo(() => {
+    const map = new Map<number, string>();
+    developmentOfficerListResponse?.payload.forEach((item) => {
+      map.set(item.id, item.name);
+    });
+    return map;
+  }, [developmentOfficerListResponse]);
+
   // Fetch agent list data using react-query
-  const { data: agentListResponse, isLoading: agentListLoading, isError: agentListIsError, error } = useQuery<AgentResponseTypes | null>({
+  const { data: agentListResponse, isLoading: agentListLoading, isError: agentListIsError, error: agentListError } = useQuery<AgentResponseTypes | null>({
     queryKey: ['agents-list'],
     queryFn: fetchAgentList,
   });
@@ -75,10 +92,10 @@ const AgentList = () => {
     const allDevelopmentOfficerIds = agentListResponse?.payload?.map((item) => item.development_officer_id.toString()) || [];
     const uniqueDevelopmentOfficerIds = Array.from(new Set(allDevelopmentOfficerIds));
     return uniqueDevelopmentOfficerIds.map((development_officer_id) => ({
-      label: development_officer_id,
-      value: development_officer_id,
+      label: developmentOfficerNameMap.get(+development_officer_id),
+      value: developmentOfficerNameMap.get(+development_officer_id),
     }));
-  }, [agentListResponse]);
+  }, [agentListResponse, developmentOfficerNameMap]);
 
   // Define columns for the data table
   const columns: ColumnDef<AgentPayloadTypes>[] = [
@@ -118,6 +135,7 @@ const AgentList = () => {
     {
       accessorKey: 'development_officer_id',
       header: ({ column }) => <DatatableColumnHeader column={column} title="Development Officer ID" />,
+      accessorFn: (row) => developmentOfficerNameMap.get(row.development_officer_id) || row.development_officer_id,
       cell: ({ row }) => <div>{row.getValue("development_officer_id")}</div>,
       filterFn: "multiSelect",
       meta: {
@@ -186,17 +204,17 @@ const AgentList = () => {
   ];
 
   // Loading state
-  if (agentListLoading) {
+  if (agentListLoading || developmentOfficerListLoading) {
     return <Loader />;
   }
 
   // Error state
-  if (agentListIsError) {
-    return <Error err={error} />;
+  if (agentListIsError || developmentOfficerListIsError) {
+    return <Error err={agentListError?.message || developmentOfficerListError?.message} />;
   }
 
   // Empty state
-  if (!agentListResponse?.payload || agentListResponse.payload.length === 0) {
+  if ((!agentListResponse?.payload || agentListResponse.payload.length === 0) && (!developmentOfficerListResponse?.payload || developmentOfficerListResponse.payload.length === 0)) {
     return <Empty title="Not Found" description="No agents found" />;
   }
 

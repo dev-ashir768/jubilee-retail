@@ -21,6 +21,8 @@ import { BranchResponseTypes } from '@/types/branchTypes';
 const AddBranchForm = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
+  // Define constants
+  const LISTING_ROUTE = '/branches-clients/branch-list'
 
   // Form
   const {
@@ -71,7 +73,7 @@ const AddBranchForm = () => {
       toast.success(message)
       reset()
       queryClient.invalidateQueries({ queryKey: ['branch-list'] })
-      router.push('/branches-clients/branch-list')
+      router.push(LISTING_ROUTE)
     }
   })
 
@@ -93,7 +95,7 @@ const AddBranchForm = () => {
                 variant="ghost"
                 size="icon"
                 className="rounded-full border border-gray-200"
-                onClick={() => router.push('/branches-clients/branch-list')}
+                onClick={() => router.push(LISTING_ROUTE)}
               >
                 <ArrowLeft className="size-6" />
               </Button>

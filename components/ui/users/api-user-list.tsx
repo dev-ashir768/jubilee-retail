@@ -221,7 +221,7 @@ const ApiUserList = () => {
   }
 
   if (apiUserIsError) {
-    return <Error err={error} />
+    return <Error err={error?.message} />
   }
 
   if (!apiUserResponse?.payload || apiUserResponse.payload.length === 0) {

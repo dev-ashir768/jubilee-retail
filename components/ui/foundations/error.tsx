@@ -2,7 +2,7 @@ import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import { Alert, AlertDescription, AlertTitle } from '../shadcn/alert'
 
-const Error = ({ err }: { err: any }) => {
+const Error = ({ err }: { err: string | undefined }) => {
   return (
     <Card className='w-full shadow-none border-none'>
       <CardHeader className='border-b gap-0'>
@@ -11,7 +11,7 @@ const Error = ({ err }: { err: any }) => {
       <CardContent>
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{err?.message || "An unexpected error occurred"}</AlertDescription>
+          <AlertDescription>{err || "An unexpected error occurred"}</AlertDescription>
         </Alert>
       </CardContent>
     </Card>

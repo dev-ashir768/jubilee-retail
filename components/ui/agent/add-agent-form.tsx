@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import SubNav from '../foundations/sub-nav'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import { Button } from '../shadcn/button'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import AgentSchema, { AgentSchemaType } from '@/schemas/agentSchema'
@@ -25,15 +25,28 @@ import { Checkbox } from '../shadcn/checkbox';
 import Loader from '../foundations/loader';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
+import { getRights } from '@/utils/getRights';
 
 const AddAgentForm = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const [isChecked, setIsChecked] = useState(false);
+  const pathname = usePathname();
+  // Define constants
+  const LISTING_ROUTE = '/agents-dos/agents'
+
+  // rights
+  const rights = useMemo(() => {
+    return getRights(pathname)
+  }, [pathname])
+
+  if (rights?.can_create === "0") {
+    router.back();
+  }
 
   // Fetch branch list data using react-query
   const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseTypes | null>({
-    queryKey: ['branch-list'],
+    queryKey: ['get-branch-list'],
     queryFn: fetchBranchList
   })
 
@@ -44,7 +57,7 @@ const AddAgentForm = () => {
 
   // Fetch development officer list data using react-query
   const { data: developmentOfficerListResponse, isLoading: developmentOfficerListLoading, isError: developmentOfficerListIsError, error: developmentOfficerListError } = useQuery<DevelopmentOfficerResponseTypes | null>({
-    queryKey: ['development-officers-list'],
+    queryKey: ['get-development-officers-list'],
     queryFn: fetchDevelopmentOfficerList,
   });
 
@@ -98,7 +111,7 @@ const AddAgentForm = () => {
       toast.success(message)
       reset()
       queryClient.invalidateQueries({ queryKey: ['agent-list'] })
-      router.push('/agents-dos/agents')
+      router.push(LISTING_ROUTE)
     }
   })
 
@@ -134,7 +147,7 @@ const AddAgentForm = () => {
 
   // error state
   if (branchListIsError || developmentOfficerListIsError) {
-    return <Error err={branchListError || developmentOfficerListError} />
+    return <Error err={branchListError?.message || developmentOfficerListError?.message} />
   }
 
   // empty state
@@ -156,7 +169,7 @@ const AddAgentForm = () => {
                 variant="ghost"
                 size="icon"
                 className="rounded-full border border-gray-200"
-                onClick={() => router.push('/agents-dos/agents')}
+                onClick={() => router.push(LISTING_ROUTE)}
               >
                 <ArrowLeft className="size-6" />
               </Button>
@@ -274,7 +287,10 @@ const AddAgentForm = () => {
                 <div className="flex gap-2">
                   <Checkbox
                     id="idev_affiliate"
-                    onCheckedChange={(checked) => { setValue("idev_affiliate", checked as boolean), setIsChecked(checked as boolean) }}
+                    onCheckedChange={(checked) => {
+                      setValue("idev_affiliate", checked as boolean);
+                      setIsChecked(checked as boolean)
+                    }}
                   />
                   <Label htmlFor="idev_affiliate" className="gap-1 text-gray-600">
                     IDEV Affiliate

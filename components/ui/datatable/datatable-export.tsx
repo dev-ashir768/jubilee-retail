@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import type { Table } from "@tanstack/react-table"
+import type { HeaderContext, Table } from "@tanstack/react-table"
 import { Button } from "@/components/ui/shadcn/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/shadcn/dropdown-menu"
 import {
@@ -43,7 +43,7 @@ const DataTableExport = <TData,>({
       if (typeof header === "string") return header
       if (typeof header === "function") {
         // Try to extract text from header function
-        const headerContent = header({ column } as any)
+        const headerContent = header({ column, table } as HeaderContext<TData, unknown>)
         if (typeof headerContent === "string") return headerContent
         return column.id
       }

@@ -5,7 +5,7 @@ import SubNav from '../foundations/sub-nav'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import { Button } from '../shadcn/button'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import AgentSchema, { AgentSchemaType } from '@/schemas/agentSchema'
@@ -27,29 +27,42 @@ import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import useAgentIdStore from '@/hooks/useAgentIdStore';
 import { fetchSingleAgent } from '@/helperFunctions/agentFunction';
+import { getRights } from '@/utils/getRights';
 
 const EditAgentForm = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const [isChecked, setIsChecked] = useState(false);
   const { agentId } = useAgentIdStore()
+  const pathname = usePathname();
+  // Define constants
+  const LISTING_ROUTE = '/agents-dos/agents'
+
+  // rights
+  const rights = useMemo(() => {
+    return getRights(pathname)
+  }, [pathname])
+
+  if (rights?.can_edit === "0") {
+    router.back();
+  }
 
   // Fetch single agent data using react-query
   const { data: singleAgentResponse, isLoading: singleAgentLoading, isError: singleAgentIsError, error: singleAgentError } = useQuery<AgentResponseTypes | null>({
-    queryKey: ['agent-list'],
+    queryKey: ['single-agent', agentId],
     queryFn: () => fetchSingleAgent(agentId!),
     enabled: !!agentId // Only fetch if agentId is available
   })
 
-  // Memoize single agent response to prevent unnecessary re-renders
+  // Memoize via useMemo
   const memoizeSingleAgentResponse = useMemo(() => {
-    if (singleAgentResponse) return singleAgentResponse?.payload[0];
-    return null; // Return null if no data is available
-  }, [singleAgentResponse]);
+    if (singleAgentResponse) return singleAgentResponse?.payload[0]
+    return null
+  }, [singleAgentResponse])
 
   // Fetch branch list data using react-query
   const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseTypes | null>({
-    queryKey: ['branch-list'],
+    queryKey: ['get-branch-list'],
     queryFn: fetchBranchList
   })
 
@@ -60,7 +73,7 @@ const EditAgentForm = () => {
 
   // Fetch development officer list data using react-query
   const { data: developmentOfficerListResponse, isLoading: developmentOfficerListLoading, isError: developmentOfficerListIsError, error: developmentOfficerListError } = useQuery<DevelopmentOfficerResponseTypes | null>({
-    queryKey: ['development-officers-list'],
+    queryKey: ['get-development-officers-list'],
     queryFn: fetchDevelopmentOfficerList,
   });
 
@@ -113,6 +126,7 @@ const EditAgentForm = () => {
     AxiosError<AgentResponseTypes>,
     AgentSchemaType
   >({
+    mutationKey: ['edit-agent', agentId],
     mutationFn: (record) => {
       return axiosFunction({
         method: "PUT",
@@ -129,9 +143,10 @@ const EditAgentForm = () => {
     onSuccess: (data) => {
       const message = data?.message
       toast.success(message)
-      reset()
-      queryClient.invalidateQueries({ queryKey: ['agent-list'] })
-      router.push('/agents-dos/agents')
+      reset();
+      queryClient.invalidateQueries({ queryKey: ['single-agent', agentId] });
+      queryClient.invalidateQueries({ queryKey: ['agents-list'] })
+      router.push(LISTING_ROUTE)
     }
   })
 
@@ -167,15 +182,15 @@ const EditAgentForm = () => {
 
   // Error state
   if (branchListIsError || developmentOfficerListIsError || singleAgentIsError) {
-    return <Error err={branchListError || developmentOfficerListError || singleAgentError} />
+    return <Error err={branchListError?.message || developmentOfficerListError?.message || singleAgentError?.message} />
   }
 
   // Empty and redirect state
   if (!agentId) {
     setTimeout(() => {
-      router.push('/')
+      router.push(LISTING_ROUTE)
     })
-    return <Empty title="Not Found" description="No branches or development officers found to populate the form." />;
+    return <Empty title="Not Found" description="Agent Id not Found. Redirecting to Agent List..." />;
   }
 
 
@@ -191,7 +206,7 @@ const EditAgentForm = () => {
                 variant="ghost"
                 size="icon"
                 className="rounded-full border border-gray-200"
-                onClick={() => router.push('/agents-dos/agents')}
+                onClick={() => router.push(LISTING_ROUTE)}
               >
                 <ArrowLeft className="size-6" />
               </Button>
@@ -310,7 +325,10 @@ const EditAgentForm = () => {
                   <Checkbox
                     id="idev_affiliate"
                     checked={isChecked}
-                    onCheckedChange={(checked) => { setValue("idev_affiliate", checked as boolean), setIsChecked(checked as boolean) }}
+                    onCheckedChange={(checked) => {
+                      setValue("idev_affiliate", checked as boolean);
+                      setIsChecked(checked as boolean)
+                    }}
                   />
                   <Label htmlFor="idev_affiliate" className="gap-1 text-gray-600">
                     IDEV Affiliate

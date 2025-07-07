@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import SubNav from '../foundations/sub-nav'
 import { Label } from '../shadcn/label'
@@ -53,7 +53,7 @@ const AddUserForm = () => {
   const router = useRouter();
 
   // fetch all menus
-  const { data: allMenusResponse, isLoading: allMenusLoading, isError: allMenusIsError, error } = useQuery<allMenusResponse | null>({
+  const { data: allMenusResponse, isLoading: allMenusLoading } = useQuery<allMenusResponse | null>({
     queryKey: ["all-menus"],
     queryFn: fetchAllMenus
   })
