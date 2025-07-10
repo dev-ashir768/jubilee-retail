@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 interface useDevelopmentOfficerIdStoreProps {
   developmentOfficerId: number | null;
-  setDevelopmentOfficerId: (agentId: number) => void;
+  setDevelopmentOfficerId: (developmentOfficerId: number) => void;
 }
 
 const useDevelopmentOfficerIdStore = create<useDevelopmentOfficerIdStoreProps>(

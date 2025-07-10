@@ -20,7 +20,11 @@ import CityDatatable from './city-datatable';
 import { getRights } from '@/utils/getRights';
 import { Badge } from '../shadcn/badge';
 
-const CityList = () => {
+const CityList = () => {  // Define constants
+  // Define constants
+  const ADD_URL = '/cites-couiers/add-cities'
+  const EDIT_URL = '/cites-couiers/edit-cities'
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -29,7 +33,7 @@ const CityList = () => {
     return getRights(pathname);
   }, [pathname]);
 
-  if (rights?.can_view === "1") {
+  if (rights?.can_view !== "1") {
     setTimeout(() => {
       router.back();
     }, 1500);
@@ -145,7 +149,7 @@ const CityList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={`/cities/edit/${record.id}`}>
+                  <Link href={EDIT_URL}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -181,7 +185,7 @@ const CityList = () => {
 
   return (
     <>
-      <SubNav title="City List" addBtnTitle="Add City" urlPath='/cities/add-cities' />
+      <SubNav title="City List" addBtnTitle="Add City" urlPath={ADD_URL} />
       <CityDatatable columns={columns} payload={cityListResponse?.payload || []} />
     </>
   );

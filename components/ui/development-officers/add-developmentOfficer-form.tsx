@@ -36,7 +36,7 @@ const AddDevelopmentOfficerForm = () => {
     return getRights(LISTING_ROUTE)
   }, [LISTING_ROUTE])
 
-  if (rights?.can_create === "1") {
+  if (rights?.can_create !==  "1") {
     setTimeout(() => {
       router.back();
     }, 1500);

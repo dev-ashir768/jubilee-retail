@@ -21,6 +21,10 @@ import { BusinessRegionPayloadType, BusinessRegionResponseType } from '@/types/b
 import BusinessRegionDatatable from './business-region-datatable';
 
 const BusinessRegionList = () => {
+  // Define constants
+  const ADD_URL = '/branches-clients/add-business-regions'
+  const EDIT_URL = '/branches-clients/add-business-regions'
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -29,7 +33,7 @@ const BusinessRegionList = () => {
     return getRights(pathname);
   }, [pathname]);
 
-  if (rights?.can_view === "1") {
+  if (rights?.can_view !== "1") {
     setTimeout(() => {
       router.back();
     }, 1500);
@@ -47,8 +51,8 @@ const BusinessRegionList = () => {
     const allNames = businessRegionListResponse?.payload?.map((item) => item.business_region_name) || [];
     const uniqueNames = Array.from(new Set(allNames.filter((name) => name != null)));
     return uniqueNames.map((name) => ({
-      label: name || "N/A",
-      value: name || "N/A",
+      label: name,
+      value: name,
     }));
   }, [businessRegionListResponse]);
 
@@ -56,8 +60,8 @@ const BusinessRegionList = () => {
     const allCodes = businessRegionListResponse?.payload?.map((item) => item.igis_business_region_code) || [];
     const uniqueCodes = Array.from(new Set(allCodes.filter((code) => code != null)));
     return uniqueCodes.map((code) => ({
-      label: code || "N/A",
-      value: code || "N/A",
+      label: code,
+      value: code,
     }));
   }, [businessRegionListResponse]);
 
@@ -125,7 +129,7 @@ const BusinessRegionList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={`/business-regions/edit/${record.id}`}>
+                  <Link href={EDIT_URL}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -161,7 +165,7 @@ const BusinessRegionList = () => {
 
   return (
     <>
-      <SubNav title="Business Region List" addBtnTitle="Add Business Region" urlPath='/business-regions/add' />
+      <SubNav title="Business Region List" addBtnTitle="Add Business Region" urlPath={ADD_URL} />
       <BusinessRegionDatatable columns={columns} payload={businessRegionListResponse.payload} />
     </>
   );

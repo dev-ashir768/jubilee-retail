@@ -5,7 +5,6 @@ import SubNav from '../foundations/sub-nav'
 import { useQuery } from '@tanstack/react-query'
 import { fetchUserList } from '@/helperFunctions/userFunction'
 import { Edit, MoreHorizontal, Trash } from 'lucide-react'
-import DataTable from '../datatable/data-table';
 import { UsersListPayloadType, UsersListResponseType } from '@/types/usersTypes';
 import { ColumnDef } from '@tanstack/react-table';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
@@ -37,7 +36,7 @@ const UserList = () => {
     return getRights(pathname)
   }, [pathname])
 
-  if (rights?.can_view === "1") {
+  if (rights?.can_view !== "1") {
     setTimeout(() => {
       router.back();
     }, 1500);

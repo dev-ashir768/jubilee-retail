@@ -19,10 +19,13 @@ import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import SubNav from '../foundations/sub-nav';
-import DataTable from '../datatable/data-table';
 import BranchDatatable from './branch-datatable';
 
 const BranchList = () => {
+  // Define constants
+  const ADD_URL = '/branches-clients/add-branch'
+  const EDIT_URL = '/branches-clients/edit-branch'
+  
   const router = useRouter();
   const pathname = usePathname();
 
@@ -267,7 +270,7 @@ const BranchList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" &&
                 <DropdownMenuItem onClick={() => setBranchId(record.id)} asChild>
-                  <Link href={`/branches-clients/edit-branch`}>
+                  <Link href={EDIT_URL}>
                     <Edit className='mr-2 h-4 w-4' />
                     Edit
                   </Link>
@@ -307,7 +310,7 @@ const BranchList = () => {
       <SubNav
         title="Branch List"
         addBtnTitle="Add Branch"
-        urlPath='/branches-clients/add-branch'
+        urlPath={ADD_URL}
       />
       <BranchDatatable
         columns={columns}

@@ -30,7 +30,7 @@ const IgisMakeList = () => {
     return getRights(pathname);
   }, [pathname]);
 
-  if (rights?.can_view === "1") {
+  if (rights?.can_view !== "1") {
     setTimeout(() => {
       router.back();
     }, 1500);

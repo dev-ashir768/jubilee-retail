@@ -19,10 +19,13 @@ import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import SubNav from '../foundations/sub-nav';
-import DataTable from '../datatable/data-table';
 import ClientDatatable from './client-datatable';
 
 const ClientList = () => {
+  // Define constants
+  const ADD_URL = '/branches-clients/add-clients'
+  const EDIT_URL = '/branches-clients/edit-clients'
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -34,7 +37,7 @@ const ClientList = () => {
     return getRights(pathname)
   }, [pathname])
 
-  if (rights?.can_view === "1") {
+  if (rights?.can_view !== "1") {
     setTimeout(() => {
       router.back();
     }, 1500);
@@ -50,7 +53,7 @@ const ClientList = () => {
   // Column filter options
   const nameFilterOptions = useMemo(() => {
     const allNames = clientListResponse?.payload?.map((item) => item.name) || [];
-    const uniqueNames = Array.from(new Set(allNames));
+    const uniqueNames = Array.from(new Set(allNames.filter((name) => name !== null)));
     return uniqueNames.map((name) => ({
       label: name,
       value: name,
@@ -191,7 +194,7 @@ const ClientList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem onClick={() => setClientId(record.id)} asChild>
-                  <Link href="/branches-clients/edit-clients">
+                  <Link href={EDIT_URL}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -227,7 +230,7 @@ const ClientList = () => {
 
   return (
     <>
-      <SubNav title="Client List" addBtnTitle="Add Client" urlPath='/branches-clients/add-clients' />
+      <SubNav title="Client List" addBtnTitle="Add Client" urlPath={ADD_URL} />
       <ClientDatatable columns={columns} payload={clientListResponse?.payload || []} />
     </>
   );

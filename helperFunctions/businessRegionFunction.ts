@@ -17,12 +17,12 @@ export const fetchBusinessRegionList =
   };
 
 export const fetchSingleBusinessRegion = async (
-  agentId: number
+  businessRegionId: number
 ): Promise<BusinessRegionResponseType | null> => {
   try {
     const response = await axiosFunction({
       method: "GET",
-      urlPath: `/business-regions/${agentId}`,
+      urlPath: `/business-regions/${businessRegionId}`,
     });
 
     return response;

@@ -20,7 +20,12 @@ import { CourierResponseType, CourierPayloadType } from '@/types/courierTypes';
 import CourierDatatable from './courier-datatable';
 import { getRights } from '@/utils/getRights';
 
+
 const CourierList = () => {
+  // Define constants
+  const ADD_URL = '/cites-couiers/add-couriers'
+  const EDIT_URL = '/cites-couiers/edit-couriers'
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -29,7 +34,7 @@ const CourierList = () => {
     return getRights(pathname);
   }, [pathname]);
 
-  if (rights?.can_view === "1") {
+  if (rights?.can_view !== "1") {
     setTimeout(() => {
       router.back();
     }, 1500);
@@ -148,7 +153,7 @@ const CourierList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={`/couriers/edit/${record.id}`}>
+                  <Link href={EDIT_URL}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -184,7 +189,7 @@ const CourierList = () => {
 
   return (
     <>
-      <SubNav title="Courier List" addBtnTitle="Add Courier" urlPath='/couriers/add' />
+      <SubNav title="Courier List" addBtnTitle="Add Courier" urlPath={ADD_URL} />
       <CourierDatatable columns={columns} payload={courierListResponse?.payload || []} />
     </>
   );

@@ -2,10 +2,10 @@ import { create } from "zustand";
 
 interface useIgisMakeIdStoreProps {
   igisMakeId: number | null;
-  setIgisMakeId: (agentId: number) => void;
+  setIgisMakeId: (igisMakeId: number) => void;
 }
 
-const useDevelopmentOfficerIdStore = create<useIgisMakeIdStoreProps>(
+const useIgisMakeIdStore = create<useIgisMakeIdStoreProps>(
   (set) => ({
     igisMakeId: null,
     setIgisMakeId: (newIgisMakeId: number) =>
@@ -13,4 +13,4 @@ const useDevelopmentOfficerIdStore = create<useIgisMakeIdStoreProps>(
   })
 );
 
-export default useDevelopmentOfficerIdStore;
+export default useIgisMakeIdStore;

@@ -21,6 +21,10 @@ import { getRights } from '@/utils/getRights';
 import CallUsDatatable from './call-us-datatable';
 
 const CallUsList = () => {
+  // Define constants
+  const ADD_URL = '/customer-service/add-call-us'
+  const EDIT_URL = '/customer-service/edit-call-us'
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -29,7 +33,7 @@ const CallUsList = () => {
     return getRights(pathname);
   }, [pathname]);
 
-  if (rights?.can_view === "1") {
+  if (rights?.can_view !== "1") {
     setTimeout(() => {
       router.back();
     }, 1500);
@@ -145,7 +149,7 @@ const CallUsList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={`/call-us/edit/${record.id}`}>
+                  <Link href={EDIT_URL}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -181,7 +185,7 @@ const CallUsList = () => {
 
   return (
     <>
-      <SubNav title="Call Us List" addBtnTitle="Add Call Us" urlPath='/call-us/add' />
+      <SubNav title="Call Us List" addBtnTitle="Add Call Us" urlPath={ADD_URL} />
       <CallUsDatatable columns={columns} payload={callUsListResponse?.payload || []} />
     </>
   );

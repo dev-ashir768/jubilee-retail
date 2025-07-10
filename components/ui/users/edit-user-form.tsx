@@ -30,15 +30,13 @@ import { toast } from 'sonner';
 import { axiosFunction } from '@/utils/axiosFunction';
 import { AxiosError } from 'axios';
 import { AddUserResponseType, SingleUserPayloadType, SingleUserResponseType } from '@/types/usersTypes';
-import { usePathname, useRouter } from 'next/navigation';
+import {useRouter } from 'next/navigation';
 import Empty from '../foundations/empty';
-import { getRights } from '@/utils/getRights';
-import { fetchSingleUser } from '@/helperFunctions/userFunction';
 import useUserIdStore from '@/hooks/useAddUserIdStore';
 import { fetchImageAsBase64 } from '@/utils/fetchImageAsBase64';
 
 
-const userTypeOptions: { value: string, label: string }[] = [
+const userTypeOptions: {  value: string, label: string }[] = [
   { value: "api_user", label: "Api User" },
   { value: "dashboard_user", label: "Dashboard User" },
 ];

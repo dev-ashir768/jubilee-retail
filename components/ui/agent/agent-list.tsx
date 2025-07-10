@@ -24,6 +24,9 @@ import { fetchDevelopmentOfficerList } from '@/helperFunctions/developmentOffice
 import AgentDatatable from './agent-datatable';
 
 const AgentList = () => {
+  // Define constants
+  const ADD_ROUTES = '/agents-dos/add-agent'
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -35,7 +38,7 @@ const AgentList = () => {
     return getRights(pathname)
   }, [pathname])
 
-  if (rights?.can_view === "1") {
+  if (rights?.can_view !== "1") {
     setTimeout(() => {
       router.back();
     }, 1500);
@@ -66,7 +69,7 @@ const AgentList = () => {
   // Column filter options
   const nameFilterOptions = useMemo(() => {
     const allNames = agentListResponse?.payload?.map((item) => item.name) || [];
-    const uniqueNames = Array.from(new Set(allNames));
+    const uniqueNames = Array.from(new Set(allNames.filter((name) => name != null)));
     return uniqueNames.map((name) => ({
       label: name,
       value: name,
@@ -75,19 +78,19 @@ const AgentList = () => {
 
   const igisCodeFilterOptions = useMemo(() => {
     const allIgisCodes = agentListResponse?.payload?.map((item) => item.igis_code) || [];
-    const uniqueIgisCodes = Array.from(new Set(allIgisCodes));
+    const uniqueIgisCodes = Array.from(new Set(allIgisCodes.filter((igisCode) => igisCode != null)));
     return uniqueIgisCodes.map((igis_code) => ({
       label: igis_code,
-      value: igis_code,
+      value: igis_code
     }));
   }, [agentListResponse]);
 
   const igisAgentCodeFilterOptions = useMemo(() => {
     const allIgisAgentCodes = agentListResponse?.payload?.map((item) => item.igis_agent_code) || [];
-    const uniqueIgisAgentCodes = Array.from(new Set(allIgisAgentCodes));
+    const uniqueIgisAgentCodes = Array.from(new Set(allIgisAgentCodes.filter((igisAgentCode) => igisAgentCode != null)));
     return uniqueIgisAgentCodes.map((igis_agent_code) => ({
       label: igis_agent_code,
-      value: igis_agent_code,
+      value: igis_agent_code
     }));
   }, [agentListResponse]);
 
@@ -223,7 +226,7 @@ const AgentList = () => {
 
   return (
     <>
-      <SubNav title="Agent List" addBtnTitle="Add Agent" urlPath='/agents-dos/add-agent' />
+      <SubNav title="Agent List" addBtnTitle="Add Agent" urlPath={ADD_ROUTES} />
       <AgentDatatable columns={columns} payload={agentListResponse?.payload || []} />
     </>
   );
