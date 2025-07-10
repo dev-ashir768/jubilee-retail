@@ -3,5 +3,5 @@ import { deleteCookie } from "cookies-next";
 export const handleLogout = () => {
   deleteCookie("jubilee-retail-token");
   deleteCookie("userInfo");
-  deleteCookie("menus");
+  localStorage.removeItem("menus");
 };

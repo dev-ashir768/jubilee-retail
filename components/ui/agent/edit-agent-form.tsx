@@ -38,13 +38,16 @@ const EditAgentForm = () => {
   // Define constants
   const LISTING_ROUTE = '/agents-dos/agents'
 
-  // rights
+  // Rights
   const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
+    return getRights(LISTING_ROUTE)
+  }, [LISTING_ROUTE])
 
-  if (rights?.can_edit === "0") {
-    router.back();
+  if (rights?.can_edit === "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to edit existing agent" />;
   }
 
   // Fetch single agent data using react-query

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import NavLogo from "@/components/ui/sidebar/nav-logo"
 import NavMain from "@/components/ui/sidebar/nav-main"
@@ -15,11 +15,25 @@ import {
 import { menusTypes } from "@/types/verifyOtpTypes"
 
 
-export function AppSidebar({ menusFromCookies = [], ...props }: { menusFromCookies?: menusTypes[] } & React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
-  const organizeMenu = useCallback((menusFromCookies: menusTypes[]) => {
+  const [menus, setMenus] = useState<menusTypes[]>([])
+
+  useEffect(() => {
+    const localMenus = localStorage.getItem("menus")
+    if (localMenus) {
+      try {
+        const parsed = JSON.parse(localMenus)
+        setMenus(parsed)
+      } catch (error) {
+        console.error("Error parsing localStorage menus:", error)
+      }
+    }
+  }, [])
+
+  const organizeMenu = useCallback((menus: menusTypes[]) => {
     // Add items array to each menu item
-    const menusWithChildren = menusFromCookies.map(item => ({ ...item, items: [] as menusTypes[] }));
+    const menusWithChildren = menus.map(item => ({ ...item, items: [] as menusTypes[] }));
 
     // Separate top-level items and children
     const result: menusTypes[] = [];
@@ -39,7 +53,7 @@ export function AppSidebar({ menusFromCookies = [], ...props }: { menusFromCooki
     return result;
   }, []);
 
-  const organizedMenus = useMemo(() => organizeMenu(menusFromCookies), [menusFromCookies, organizeMenu]);
+  const organizedMenus = useMemo(() => organizeMenu(menus), [menus, organizeMenu]);
 
   return (
     <Sidebar collapsible="icon" {...props}>

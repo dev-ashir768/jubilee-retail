@@ -1,7 +1,7 @@
 "use client";
 
 import { getRights } from '@/utils/getRights';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React, { useMemo } from 'react'
 import SubNav from '../foundations/sub-nav';
 import DataTable from '../datatable/data-table';
@@ -21,20 +21,24 @@ import Empty from '../foundations/empty';
 import { AxiosError } from 'axios';
 import { axiosFunction } from '@/utils/axiosFunction';
 import { toast } from 'sonner';
+import ApiUserDatatable from './api-user-datatable';
 
 const ApiUserList = () => {
 
   const router = useRouter();
   const queryClient = useQueryClient()
+  const pathname = usePathname();
 
-  // rights
-
+  // Rights
   const rights = useMemo(() => {
-    return getRights('/users/api-list')
-  }, [])
+    return getRights(pathname)
+  }, [pathname])
 
-  if (rights?.can_view === "0") {
-    router.back();
+  if (rights?.can_view === "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view api user listing." />;
   }
 
   // Fetch api user list data using react-query
@@ -233,10 +237,9 @@ const ApiUserList = () => {
       <SubNav
         title='Api User List'
       />
-      <DataTable
+      <ApiUserDatatable
         columns={columns}
-        data={apiUserResponse?.payload || []}
-        title='List of all api users in the system'
+        payload={apiUserResponse?.payload || []}
       />
     </>
   )

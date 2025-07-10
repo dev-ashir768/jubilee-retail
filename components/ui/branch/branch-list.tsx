@@ -20,6 +20,7 @@ import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import SubNav from '../foundations/sub-nav';
 import DataTable from '../datatable/data-table';
+import BranchDatatable from './branch-datatable';
 
 const BranchList = () => {
   const router = useRouter();
@@ -28,13 +29,16 @@ const BranchList = () => {
   // zustand
   const { setBranchId } = useBranchIdStore()
 
-  // rights
+  // Rights
   const rights = useMemo(() => {
     return getRights(pathname)
   }, [pathname])
 
-  if (rights?.can_view === "0") {
-    router.back();
+  if (rights?.can_view === "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view branch listing." />;
   }
 
   // Fetch branch list data using react-query
@@ -305,12 +309,11 @@ const BranchList = () => {
         addBtnTitle="Add Branch"
         urlPath='/branches-clients/add-branch'
       />
-
-      <DataTable
+      <BranchDatatable
         columns={columns}
-        data={branchListResponse?.payload || []}
-        title='List of all branches in the system'
+        payload={branchListResponse?.payload || []}
       />
+
     </>
   )
 }

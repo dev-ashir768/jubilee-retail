@@ -99,7 +99,7 @@ const OtpForm = () => {
       toast.success("Otp Verified Successfully!")
       setCookie('jubilee-retail-token', data.payload[0].token)
       setCookie('userInfo', JSON.stringify(data.payload[0].user_info))
-      setCookie('menus', JSON.stringify(data.payload[0].menus))
+      localStorage.setItem('menus', JSON.stringify(data.payload[0].menus))
       deleteCookie("otp-session");
       router.push('/')
     }

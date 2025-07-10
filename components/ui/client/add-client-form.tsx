@@ -33,13 +33,16 @@ const AddClientForm = () => {
   // Define constants
   const LISTING_ROUTE = '/branches-clients/Clients-list'
 
-  // rights
+  // Rights
   const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
+    return getRights(LISTING_ROUTE)
+  }, [LISTING_ROUTE])
 
-  if (rights?.can_create === "0") {
-    router.back();
+  if (rights?.can_create === "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to add a new client." />;
   }
 
   // Fetch branch list data using react-query

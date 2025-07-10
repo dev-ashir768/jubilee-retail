@@ -31,6 +31,7 @@ import { axiosFunction } from '@/utils/axiosFunction';
 import { AxiosError } from 'axios';
 import { AddUserResponseType } from '@/types/usersTypes';
 import { useRouter } from 'next/navigation';
+import { getRights } from '@/utils/getRights';
 
 
 const userTypeOptions: { value: string, label: string }[] = [
@@ -51,6 +52,17 @@ const AddUserForm = () => {
   const [menuRights, setMenuRights] = useState<MenuRightsTypes[]>([]);
   const queryClient = useQueryClient();
   const router = useRouter();
+  // Define constants
+  const LISTING_ROUTE = '/users/user-list'
+
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(LISTING_ROUTE)
+  }, [LISTING_ROUTE])
+
+  if (rights?.can_edit === "1") {
+    router.back();
+  }
 
   // fetch all menus
   const { data: allMenusResponse, isLoading: allMenusLoading } = useQuery<allMenusResponse | null>({
@@ -91,7 +103,7 @@ const AddUserForm = () => {
     }
   }
 
-  const handleDrop = async (e: React.DragEvent, onChange: (value: any) => void) => {
+  const handleDrop = async (e: React.DragEvent, onChange: (value: string | undefined) => void) => {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
@@ -146,7 +158,7 @@ const AddUserForm = () => {
     return undefined;
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: any) => void) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: string | undefined) => void) => {
     const file = e.target.files?.[0];
     if (file) {
       const base64 = await handleImage(file);
@@ -178,6 +190,7 @@ const AddUserForm = () => {
       const message = data.message
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ['users-list'] })
+      router.push(LISTING_ROUTE)
       reset();
       setUploadedImage(null)
       setMenuRights([])
@@ -190,7 +203,7 @@ const AddUserForm = () => {
       return;
     }
     const finalData = {
-      username: data.username,
+      username: data.username.toLocaleLowerCase().replace(' ', ''),
       fullname: data.fullname,
       email: data.email,
       phone: data.phone,
@@ -514,8 +527,14 @@ const AddUserForm = () => {
                 </Accordion>
               </div>
               <div>
-                <Button type='submit' className='min-w-[150px] cursor-pointer' size='lg'>
-                  Submit
+                <Button
+                  type="submit"
+                  className="min-w-[150px] cursor-pointer"
+                  size="lg"
+                  disabled={addUserMutation.isPending}
+                >
+                  {addUserMutation.isPending ? 'Submitting' : 'Submit'}
+                  {addUserMutation.isPending && <span className="animate-spin"><Icons.Loader2 /></span>}
                 </Button>
               </div>
             </form>

@@ -1,5 +1,4 @@
 import { AgentResponseTypes } from "@/types/agentTypes";
-import { BranchResponseTypes } from "@/types/branchTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
 export const fetchAgentList = async (): Promise<AgentResponseTypes | null> => {

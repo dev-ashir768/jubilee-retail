@@ -19,9 +19,9 @@ import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import SubNav from '../foundations/sub-nav';
-import DataTable from '../datatable/data-table';
 import { DevelopmentOfficerResponseTypes } from '@/types/developmentOfficerTypes';
 import { fetchDevelopmentOfficerList } from '@/helperFunctions/developmentOfficerFunction';
+import AgentDatatable from './agent-datatable';
 
 const AgentList = () => {
   const router = useRouter();
@@ -32,11 +32,14 @@ const AgentList = () => {
 
   // Rights
   const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
+    return getRights(pathname)
+  }, [pathname])
 
-  if (rights?.can_view === "0") {
-    router.back();
+  if (rights?.can_view === "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view agent listing." />;
   }
 
   // Fetch development officer list data using react-query
@@ -221,11 +224,7 @@ const AgentList = () => {
   return (
     <>
       <SubNav title="Agent List" addBtnTitle="Add Agent" urlPath='/agents-dos/add-agent' />
-      <DataTable
-        columns={columns}
-        data={agentListResponse?.payload || []}
-        title="List of all agents in the system"
-      />
+      <AgentDatatable columns={columns} payload={agentListResponse?.payload || []} />
     </>
   );
 };

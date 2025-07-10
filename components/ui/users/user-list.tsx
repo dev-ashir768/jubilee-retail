@@ -15,26 +15,33 @@ import { Button } from '../shadcn/button';
 import { Badge } from '../shadcn/badge';
 import Error from '../foundations/error';
 import { getRights } from '@/utils/getRights';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Loader from '../foundations/loader';
 import Empty from '../foundations/empty';
 import Link from 'next/link';
 import useUserIdStore from '@/hooks/useAddUserIdStore';
+import UserDatatable from './user-datatable';
 
 const UserList = () => {
 
   const router = useRouter();
+  const pathname = usePathname();
+  // Define constants
+  const ADD_ROUTE = '/users/add-user'
 
   // zustand
   const { setUserId } = useUserIdStore()
 
-  // rights
+  // Rights
   const rights = useMemo(() => {
-    return getRights('/users/user-list')
-  }, [])
+    return getRights(pathname)
+  }, [pathname])
 
-  if (rights?.can_view === "0") {
-    router.back();
+  if (rights?.can_view === "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view user listing." />;
   }
 
   // Fetch user list data using react-query
@@ -230,13 +237,12 @@ const UserList = () => {
       <SubNav
         title="User Management"
         addBtnTitle="Add User"
-        urlPath='/users/add-user'
+        urlPath={ADD_ROUTE}
       />
 
-      <DataTable
+      <UserDatatable
         columns={columns}
-        data={userListResponse?.payload || []}
-        title='List of all users in the system'
+        payload={userListResponse?.payload || []}
       />
     </>
   )

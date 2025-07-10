@@ -20,6 +20,7 @@ import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import SubNav from '../foundations/sub-nav';
 import DataTable from '../datatable/data-table';
+import ClientDatatable from './client-datatable';
 
 const ClientList = () => {
   const router = useRouter();
@@ -30,11 +31,14 @@ const ClientList = () => {
 
   // Rights
   const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
+    return getRights(pathname)
+  }, [pathname])
 
-  if (rights?.can_view === "0") {
-    router.back();
+  if (rights?.can_view === "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view client listing." />;
   }
 
   // Fetch client list data using react-query
@@ -224,11 +228,7 @@ const ClientList = () => {
   return (
     <>
       <SubNav title="Client List" addBtnTitle="Add Client" urlPath='/branches-clients/add-clients' />
-      <DataTable
-        columns={columns}
-        data={clientListResponse?.payload || []}
-        title="List of all clients in the system"
-      />
+      <ClientDatatable columns={columns} payload={clientListResponse?.payload || []} />
     </>
   );
 };

@@ -22,6 +22,7 @@ import DataTable from '../datatable/data-table';
 import useDevelopmentOfficerIdStore from '@/hooks/useDevelopmentOfficerStore';
 import { fetchBranchList } from '@/helperFunctions/branchFunction';
 import { BranchResponseTypes } from '@/types/branchTypes';
+import DevelopmentOfficerDatatable from './development-officer-datatable';
 
 const DevelopmentOfficersList = () => {
   const router = useRouter();
@@ -32,11 +33,14 @@ const DevelopmentOfficersList = () => {
 
   // Rights
   const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
+    return getRights(pathname)
+  }, [pathname])
 
-  if (rights?.can_view === "0") {
-    router.back();
+  if (rights?.can_view === "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view development officer listing." />;
   }
 
   // Fetch branch list data using react-query
@@ -202,10 +206,9 @@ const DevelopmentOfficersList = () => {
   return (
     <>
       <SubNav title="Development Officer List" addBtnTitle="Add Development Officer" urlPath='/agents-dos/add-development-officers' />
-      <DataTable
+      <DevelopmentOfficerDatatable
         columns={columns}
-        data={developmentOfficerListResponse?.payload || []}
-        title="List of all development officers in the system"
+        payload={developmentOfficerListResponse?.payload || []}
       />
     </>
   );

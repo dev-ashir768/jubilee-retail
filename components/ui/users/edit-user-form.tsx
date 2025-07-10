@@ -21,7 +21,7 @@ import { convertToBase64 } from '@/utils/convertToBase64';
 import { getCookie } from 'cookies-next';
 import { userInfoTypes } from '@/types/verifyOtpTypes';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { allMenusResponse, MenuRightsTypes, RightsType } from '@/types/menus';
+import { allMenusPayloadType, allMenusResponse, MenuRightsTypes, RightsType } from '@/types/menus';
 import { fetchAllMenus } from '@/helperFunctions/allMenusFunction';
 import Loader from '../foundations/loader';
 import * as Icons from 'lucide-react';
@@ -29,12 +29,13 @@ import { Checkbox } from '../shadcn/checkbox';
 import { toast } from 'sonner';
 import { axiosFunction } from '@/utils/axiosFunction';
 import { AxiosError } from 'axios';
-import { AddUserResponseType, SingleUserResponseType } from '@/types/usersTypes';
+import { AddUserResponseType, SingleUserPayloadType, SingleUserResponseType } from '@/types/usersTypes';
 import { usePathname, useRouter } from 'next/navigation';
 import Empty from '../foundations/empty';
 import { getRights } from '@/utils/getRights';
 import { fetchSingleUser } from '@/helperFunctions/userFunction';
 import useUserIdStore from '@/hooks/useAddUserIdStore';
+import { fetchImageAsBase64 } from '@/utils/fetchImageAsBase64';
 
 
 const userTypeOptions: { value: string, label: string }[] = [
@@ -47,7 +48,12 @@ const statusOptions: { value: string, label: string }[] = [
   { value: "true", label: "Active" },
 ];
 
-const EditUserForm = () => {
+interface EditUserFormProps {
+  allMenus: allMenusPayloadType | undefined;
+  singleUser: SingleUserPayloadType | undefined;
+}
+
+const EditUserForm: React.FC<EditUserFormProps> = ({ allMenus, singleUser }) => {
 
   const [toggleEye, setToggleEye] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -55,81 +61,35 @@ const EditUserForm = () => {
   const [menuRights, setMenuRights] = useState<MenuRightsTypes[]>([]);
   const queryClient = useQueryClient();
   const router = useRouter();
-  const pathname = usePathname();
   const { userId } = useUserIdStore()
-
-  // rights
-  const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
-
-  if (rights?.can_edit === "0") {
-    router.back();
-  }
-
-  // fetch all menus and single user
-  const { data: allMenusResponse, isLoading: allMenusLoading } = useQuery<allMenusResponse | null>({
-    queryKey: ["all-menus"],
-    queryFn: fetchAllMenus
-  })
-
-  const { data: singleUserResponse, isLoading: singleUserLoading, isSuccess } = useQuery<SingleUserResponseType | null>({
-    queryKey: ["single-user", userId],
-    queryFn: () => fetchSingleUser(userId),
-    enabled: !!userId,
-  });
-
-  // user info from cookie
-  const userInfo: userInfoTypes = useMemo(() => {
-    const userInfoFromCookie = getCookie('userInfo')
-    return userInfoFromCookie ? JSON.parse(userInfoFromCookie?.toString()) : null
-  }, [])
 
   // form
   const { handleSubmit, register, formState: { errors }, control, reset } = useForm({
     resolver: zodResolver(EditUserSchema),
     defaultValues: {
-      username: '',
-      fullname: '',
-      email: '',
-      phone: '',
+      username: singleUser ? singleUser.username : "",
+      fullname: singleUser ? singleUser.fullname : "",
+      email: singleUser ? singleUser.email : "",
+      phone: singleUser ? singleUser.contact : "",
       password: '',
       image: undefined,
-      userType: undefined,
-      isActive: undefined,
-      updated_by: undefined,
+      user_type: singleUser ? singleUser.user_type : "dashboard_user",
+      is_active: singleUser ? singleUser.is_active : true,
       menu_rights: [],
     }
   })
 
-  const memoizeSingleUserData = useMemo(() => {
-    if (singleUserResponse) {
-      return singleUserResponse?.payload[0]
-    }
-
-  }, [singleUserResponse])
+  console.log(singleUser ? singleUser.user_type : "")
+  console.log(singleUser)
 
   useEffect(() => {
-    if (isSuccess && memoizeSingleUserData) {
-      reset({
-        username: memoizeSingleUserData.username,
-        fullname: memoizeSingleUserData.fullname,
-        email: memoizeSingleUserData.email,
-        phone: memoizeSingleUserData.contact,
-        password: '',
-        image: memoizeSingleUserData.image || undefined,
-        userType: memoizeSingleUserData.userType as 'dashboard_user' | 'api_user',
-        isActive: memoizeSingleUserData.isActive,
-        updated_by: userInfo?.id,
-        menu_rights: [],
-      });
-
-      if (memoizeSingleUserData.image) {
+    if (singleUser) {
+      if (singleUser.image) {
         setUploadedImage('Current Profile Image');
       }
 
-      if (memoizeSingleUserData.rights?.length > 0) {
-        const existingRights = memoizeSingleUserData.rights.map(right => ({
+      if (singleUser.rights?.length > 0) {
+        const existingRights = singleUser.rights.map(right => ({
           menu_id: right.menu_id,
           can_view: right.can_view,
           can_create: right.can_create,
@@ -139,7 +99,8 @@ const EditUserForm = () => {
         setMenuRights(existingRights);
       }
     }
-  }, [memoizeSingleUserData, reset, userInfo, isSuccess]);
+  }, [singleUser, reset, allMenus]);
+
   const handleDrag = (e: React.DragEvent): void => {
     e.preventDefault()
     e.stopPropagation()
@@ -150,7 +111,7 @@ const EditUserForm = () => {
     }
   }
 
-  const handleDrop = async (e: React.DragEvent, onChange: (value: any) => void) => {
+  const handleDrop = async (e: React.DragEvent, onChange: (value: string | undefined) => void) => {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
@@ -204,7 +165,7 @@ const EditUserForm = () => {
     return undefined;
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: any) => void) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: string | undefined) => void) => {
     const file = e.target.files?.[0];
     if (file) {
       const base64 = await handleImage(file);
@@ -217,14 +178,13 @@ const EditUserForm = () => {
   const editUserMutation = useMutation<
     AddUserResponseType,
     AxiosError<AddUserResponseType>,
-    EditUserSchemaType & { user_id: number }
+    EditUserSchemaType
   >({
     mutationFn: (record) => {
-      const { user_id, ...data } = record;
       return axiosFunction({
         method: "PUT",
-        urlPath: `/users/${user_id}`,
-        data: data,
+        urlPath: `/users`,
+        data: record,
         isServer: true,
       })
     },
@@ -242,7 +202,7 @@ const EditUserForm = () => {
     }
   })
 
-  const onSubmit = (data: EditUserSchemaType) => {
+  const onSubmit = async (data: EditUserSchemaType) => {
     if (menuRights.length === 0) {
       toast.error('Please assign at least one right to proceed.');
       return;
@@ -253,21 +213,24 @@ const EditUserForm = () => {
       return;
     }
 
+    // Only fetch existing image if uploadedImage is 'Current Profile Image'
+    let imageBase64: string | undefined = data.image;
+    if (!imageBase64 && uploadedImage === 'Current Profile Image' && singleUser?.image) {
+      imageBase64 = await fetchImageAsBase64(`/users/${singleUser.image}`);
+    }
+
     const finalData = {
-      user_id: userId,
       username: data.username,
       fullname: data.fullname,
       email: data.email,
       phone: data.phone,
-      userType: data.userType,
-      isActive: data.isActive,
-      updated_by: data.updated_by,
+      user_type: data.user_type,
+      is_active: data.is_active,
       menu_rights: menuRights,
-      ...(data.password && { password: data.password }),
-      ...(data.image && { image: data.image }),
+      // ...(data.password && { password: data.password }),
+      // ...(imageBase64 && { image: imageBase64 }),
     }
-    // editUserMutation.mutate(finalData)
-    console.log("final data", finalData)
+    editUserMutation.mutate(finalData)
   }
 
   if (!userId) {
@@ -278,12 +241,6 @@ const EditUserForm = () => {
     return <Empty title="Not Found" description="User ID is missing. Redirecting to user list..." />
   }
 
-  // loading state while fetching user list data
-  if (allMenusLoading || singleUserLoading) {
-    return <Loader />
-  }
-
-  console.log(menuRights.length > 0 ? menuRights.map((right) => String(right.menu_id)) : [])
   return (
     <>
       <SubNav
@@ -409,8 +366,8 @@ const EditUserForm = () => {
                   </Label>
                   <div className='space-y-2'>
                     <Controller
-                      name='userType'
-                      defaultValue={memoizeSingleUserData?.userType as 'dashboard_user' | 'api_user'}
+                      name='user_type'
+                      defaultValue={singleUser?.user_type as 'dashboard_user' | 'api_user'}
                       control={control}
                       render={({ field }) => {
                         return (
@@ -431,9 +388,9 @@ const EditUserForm = () => {
                         )
                       }}
                     />
-                    {errors.userType && (
+                    {errors.user_type && (
                       <p className='text-red-500 text-sm'>
-                        {errors.userType.message}
+                        {errors.user_type.message}
                       </p>
                     )}
                   </div>
@@ -444,8 +401,8 @@ const EditUserForm = () => {
                   </Label>
                   <div className='space-y-2'>
                     <Controller
-                      name='isActive'
-                      defaultValue={memoizeSingleUserData?.isActive as boolean}
+                      name='is_active'
+                      defaultValue={singleUser?.is_active as boolean}
                       control={control}
                       render={({ field }) => (
                         <Select
@@ -466,9 +423,9 @@ const EditUserForm = () => {
                         </Select>
                       )}
                     />
-                    {errors.isActive && (
+                    {errors.is_active && (
                       <p className='text-red-500 text-sm'>
-                        {errors.isActive.message}
+                        {errors.is_active.message}
                       </p>
                     )}
                   </div>
@@ -495,7 +452,7 @@ const EditUserForm = () => {
                           <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-md p-3">
                             <div className="flex items-center gap-2">
                               <Icons.Check className="w-4 h-4 text-green-600" />
-                              <span className="text-sm text-green-700">{uploadedImage}</span>
+                              <span className="text-sm text-green-700">{singleUser?.image}</span>
                               {uploadedImage === 'Current Profile Image' && (
                                 <span className="text-xs text-blue-600">(Existing)</span>
                               )}
@@ -533,7 +490,7 @@ const EditUserForm = () => {
                   />
                 </div>
               </div>
-              <div className='space-y-6'>
+              {/* <div className='space-y-6'>
                 <div>
                   <h3 className='font-semibold text-xl'>Menu Rights</h3>
                 </div>
@@ -542,7 +499,7 @@ const EditUserForm = () => {
                     <Accordion
                       type="multiple"
                       className="w-full space-y-3"
-                      defaultValue={menuRights.length > 0 ? menuRights.map((right) => String(right.menu_id)) : []}
+                      defaultValue={defaultOpen}
                     >
                       {allMenusResponse?.payload.map((item) => {
                         const Icon = item.icon ? (Icons[item.icon as keyof typeof Icons] as React.ElementType) : null;
@@ -589,15 +546,16 @@ const EditUserForm = () => {
                     <div>No Menu Rights Available!</div>
                   )
                 }
-              </div>
+              </div> */}
               <div>
                 <Button
-                  type='submit'
-                  className='min-w-[150px] cursor-pointer'
-                  size='lg'
+                  type="submit"
+                  className="min-w-[150px] cursor-pointer"
+                  size="lg"
                   disabled={editUserMutation.isPending}
                 >
-                  {editUserMutation.isPending ? 'Updating...' : 'Update User'}
+                  {editUserMutation.isPending ? 'Submitting' : 'Submit'}
+                  {editUserMutation.isPending && <span className="animate-spin"><Icons.Loader2 /></span>}
                 </Button>
               </div>
             </form>

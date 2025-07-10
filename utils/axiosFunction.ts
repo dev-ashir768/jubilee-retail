@@ -24,7 +24,7 @@ export const axiosFunction = async ({
   token = undefined,
   isServer = false,
 }: axiosParams) => {
-  const url = process.env.NEXT_PUBLIC_SERVER_URL + urlPath;
+  const url = process.env.NEXT_PUBLIC_API_BASE_URL + urlPath;
   const cookieToken = getCookie("jubilee-retail-token")?.toString() || null;
   const authToken = cookieToken || token;
 
@@ -45,6 +45,10 @@ export const axiosFunction = async ({
       toast.error("Your session has expired. Please login again.");
       handleLogout();
       window.location.href = `/login`;
+    }
+
+    if (err.status === 404) {
+      toast.error("API endpoint not found. Please try again.");
     }
 
     if (isServer === false) {

@@ -152,9 +152,9 @@ export type SingleUserPayloadType = {
   email: string;
   contact: string;
   image: string;
-  isActive: boolean;
-  isLocked: boolean;
-  userType: string;
+  is_active: boolean;
+  is_locked: boolean;
+  user_type: string;
   rights: rightsType[];
 };
 
