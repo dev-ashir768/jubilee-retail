@@ -28,23 +28,10 @@ import { fetchSingleDevelopmentOfficer } from '@/helperFunctions/developmentOffi
 
 const EditDevelopmentOfficerForm = () => {
   const queryClient = useQueryClient();
-  const pathname = usePathname();
   const router = useRouter();
   const { developmentOfficerId } = useDevelopmentOfficerIdStore();
   // Define constants
   const LISTING_ROUTE = '/agents-dos/development-officers'
-
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(LISTING_ROUTE)
-  }, [LISTING_ROUTE])
-
-  if (rights?.can_edit !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to edit existing development officer." />;
-  }
 
   // Fetch single development officer data using react-query
   const { data: singleDevelopmentOfficerResponse, isLoading: singleDevelopmentOfficerLoading, isError: singleDevelopmentOfficerIsError, error: singleDevelopmentOfficerError } = useQuery<DevelopmentOfficerResponseTypes | null>({
@@ -142,6 +129,18 @@ const EditDevelopmentOfficerForm = () => {
     defaultValue: undefined,
     rules: { required: true },
   });
+
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(LISTING_ROUTE)
+  }, [LISTING_ROUTE])
+
+  if (rights?.can_edit !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to edit existing development officer." />;
+  }
 
   // loading state
   if (branchListLoading || singleDevelopmentOfficerLoading) {

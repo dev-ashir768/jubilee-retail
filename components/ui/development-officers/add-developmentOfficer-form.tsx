@@ -26,22 +26,9 @@ import Select from 'react-select'
 
 const AddDevelopmentOfficerForm = () => {
   const queryClient = useQueryClient();
-  const pathname = usePathname();
   const router = useRouter();
   // Define constants
   const LISTING_ROUTE = '/agents-dos/development-officers'
-
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(LISTING_ROUTE)
-  }, [LISTING_ROUTE])
-
-  if (rights?.can_create !==  "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to add a new development officer." />;
-  }
 
   // Fetch branch list data using react-query
   const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseTypes | null>({
@@ -113,6 +100,18 @@ const AddDevelopmentOfficerForm = () => {
     defaultValue: undefined,
     rules: { required: true },
   });
+
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(LISTING_ROUTE)
+  }, [LISTING_ROUTE])
+
+  if (rights?.can_create !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to add a new development officer." />;
+  }
 
   // loading state
   if (branchListLoading) {

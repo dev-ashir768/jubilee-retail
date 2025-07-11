@@ -32,17 +32,6 @@ const ClientList = () => {
   // Zustand
   const { setClientId } = useClientIdStore();
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
-
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view client listing." />;
-  }
 
   // Fetch client list data using react-query
   const { data: clientListResponse, isLoading: clientListLoading, isError: clientListIsError, error } = useQuery<ClientResponseType | null>({
@@ -212,6 +201,18 @@ const ClientList = () => {
       },
     },
   ];
+
+   // Rights
+   const rights = useMemo(() => {
+    return getRights(pathname)
+  }, [pathname])
+
+  if (rights?.can_view !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view client listing." />;
+  }
 
   // Loading state
   if (clientListLoading) {

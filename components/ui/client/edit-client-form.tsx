@@ -30,23 +30,10 @@ import { fetchSingleClient } from '@/helperFunctions/clientFunction';
 const EditClientForm = () => {
 
   const queryClient = useQueryClient();
-  const pathname = usePathname();
   const router = useRouter();
   const { clientId } = useClientIdStore();
   // Define constants
   const LISTING_ROUTE = '/branches-clients/Clients-list'
-
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(LISTING_ROUTE)
-  }, [LISTING_ROUTE])
-
-  if (rights?.can_edit !==  "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to edit existing client." />;
-  }
 
   // Fetch single client data using react-query
   const { data: singleClientResponse, isLoading: singleClientLoading, isError: singleClientIsError, error: singleClientError } = useQuery<ClientResponseType | null>({
@@ -149,6 +136,18 @@ const EditClientForm = () => {
     defaultValue: undefined,
     rules: { required: true },
   });
+
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(LISTING_ROUTE)
+  }, [LISTING_ROUTE])
+
+  if (rights?.can_edit !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to edit existing client." />;
+  }
 
   // loading state
   if (branchListLoading || singleClientLoading) {

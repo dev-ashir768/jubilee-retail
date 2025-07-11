@@ -80,7 +80,7 @@ export type UserProfileResponseType = {
 
 // add user
 
-export type AddUserPayloadType = {
+export type UserPayloadType = {
   id: number;
   fullname: string;
   email: string;
@@ -108,10 +108,10 @@ export type AddUserPayloadType = {
   deleted_at: string;
 };
 
-export type AddUserResponseType = {
+export type UserResponseType = {
   status: 1 | 0;
   message: string;
-  payload: AddUserPayloadType[];
+  payload: UserPayloadType[];
 };
 
 // single user
@@ -164,5 +164,5 @@ export type SingleUserResponseType = {
   payload: SingleUserPayloadType[];
 };
 
-// edit user response (reuse AddUserResponseType for now)
-export type EditUserResponseType = AddUserResponseType;
+// edit user response (reuse UserResponseType for now)
+export type EditUserResponseType = UserResponseType;

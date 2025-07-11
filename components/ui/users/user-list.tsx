@@ -31,18 +31,6 @@ const UserList = () => {
   // zustand
   const { setUserId } = useUserIdStore()
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
-
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view user listing." />;
-  }
-
   // Fetch user list data using react-query
   const { data: userListResponse, isLoading: userListLoading, isError: userListIsError, error } = useQuery<UsersListResponseType | null>({
     queryKey: ['users-list'],
@@ -216,6 +204,18 @@ const UserList = () => {
       }
     }
   ]
+
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(pathname)
+  }, [pathname])
+
+  if (rights?.can_view !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view user listing." />;
+  }
 
   // loading state while fetching user list data
   if (userListLoading) {

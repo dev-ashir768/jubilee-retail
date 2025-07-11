@@ -24,18 +24,6 @@ const IgisSubMakeList = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
-
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view IGIS sub-make listing." />;
-  }
-
   // Fetch IGIS make list data for make_id to make_name mapping
   const { data: igisMakeListResponse, isLoading: igisMakeListLoading, isError: igisMakeListIsError, error: igisMakeListError } = useQuery<IgisMakeResponseType | null>({
     queryKey: ['get-igis-make-list'],
@@ -204,6 +192,18 @@ const IgisSubMakeList = () => {
       },
     },
   ];
+
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(pathname);
+  }, [pathname]);
+
+  if (rights?.can_view !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view IGIS sub-make listing." />;
+  }
 
   // Loading state
   if (igisSubMakeListLoading || igisMakeListLoading) {

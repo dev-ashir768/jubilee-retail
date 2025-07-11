@@ -25,18 +25,6 @@ const IgisMakeList = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
-
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view IGIS make listing." />;
-  }
-
   // Fetch IGIS make list data using react-query
   const { data: igisMakeListResponse, isLoading: igisMakeListLoading, isError: igisMakeListIsError, error: igisMakeListError } = useQuery<IgisMakeResponseType | null>({
     queryKey: ['igis-make-list'],
@@ -149,6 +137,19 @@ const IgisMakeList = () => {
       },
     },
   ];
+
+
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(pathname);
+  }, [pathname]);
+
+  if (rights?.can_view !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view IGIS make listing." />;
+  }
 
   // Loading state
   if (igisMakeListLoading) {

@@ -27,18 +27,18 @@ import Loader from '../foundations/loader';
 
 const AddClientForm = () => {
 
-  const queryClient = useQueryClient();
-  const pathname = usePathname();
-  const router = useRouter();
   // Define constants
   const LISTING_ROUTE = '/branches-clients/Clients-list'
+
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
   // Rights
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE)
   }, [LISTING_ROUTE])
 
-  if (rights?.can_create !==  "1") {
+  if (rights?.can_create !== "1") {
     setTimeout(() => {
       router.back();
     }, 1500);

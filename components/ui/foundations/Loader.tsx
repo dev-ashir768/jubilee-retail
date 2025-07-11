@@ -4,13 +4,13 @@ import { Loader2 } from 'lucide-react'
 
 const Loader = () => {
   return (
-    <Card className='w-full shadow-none border-none'>
+    <Card className='w-full shadow-none border-none h-full'>
       <CardHeader className='border-b gap-0'>
         <CardTitle>Please wait while we fetch the data...</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="flex justify-center">
-          <Loader2 className='animate-spin h-6 w-6' />
+      <CardContent className='h-full'>
+        <div className="flex justify-center items-center h-full">
+          <Loader2 className='animate-spin size-14 stroke-primary' />
         </div>
       </CardContent>
     </Card>

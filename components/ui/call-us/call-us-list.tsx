@@ -28,18 +28,6 @@ const CallUsList = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
-
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view call us listing." />;
-  }
-
   // Fetch call us list data using react-query
   const { data: callUsListResponse, isLoading: callUsListLoading, isError: callUsListIsError, error: callUsListError } = useQuery<CallUsResponseType | null>({
     queryKey: ['call-us-list'],
@@ -167,6 +155,18 @@ const CallUsList = () => {
       },
     },
   ];
+
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(pathname);
+  }, [pathname]);
+
+  if (rights?.can_view !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view call us listing." />;
+  }
 
   // Loading state
   if (callUsListLoading) {

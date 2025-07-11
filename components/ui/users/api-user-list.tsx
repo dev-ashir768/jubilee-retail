@@ -4,7 +4,6 @@ import { getRights } from '@/utils/getRights';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useMemo } from 'react'
 import SubNav from '../foundations/sub-nav';
-import DataTable from '../datatable/data-table';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchApiUserList } from '@/helperFunctions/userFunction';
 import Loader from '../foundations/loader';
@@ -28,18 +27,6 @@ const ApiUserList = () => {
   const router = useRouter();
   const queryClient = useQueryClient()
   const pathname = usePathname();
-
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
-
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view api user listing." />;
-  }
 
   // Fetch api user list data using react-query
 
@@ -216,6 +203,18 @@ const ApiUserList = () => {
       }
     }
   ]
+
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(pathname)
+  }, [pathname])
+
+  if (rights?.can_view !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view api user listing." />;
+  }
 
 
   // loading, error or empty state while fetching user list data

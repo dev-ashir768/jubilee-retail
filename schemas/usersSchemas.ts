@@ -119,7 +119,6 @@ export const EditUserSchema = z.object({
     .optional()
     .or(z.literal("")),
   image: z.string().optional(),
-  // user_type: z.enum(["dashboard_user", "api_user"]),
   user_type:  z.string({ required_error: "User type is required" }),
   is_active: z.boolean({ required_error: "Status is required" }),
   menu_rights: menu_rights.array(),

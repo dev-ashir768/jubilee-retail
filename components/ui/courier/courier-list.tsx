@@ -29,20 +29,6 @@ const CourierList = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
-
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view courier listing." />;
-  }
-
-  console.log(rights?.can_view)
-
   // Fetch courier list data using react-query
   const { data: courierListResponse, isLoading: courierListLoading, isError: courierListIsError, error: courierListError } = useQuery<CourierResponseType | null>({
     queryKey: ['courier-list'],
@@ -139,7 +125,6 @@ const CourierList = () => {
       id: 'actions',
       header: "Actions",
       cell: ({ row }) => {
-        const record = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -171,6 +156,18 @@ const CourierList = () => {
       },
     },
   ];
+
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(pathname);
+  }, [pathname]);
+
+  if (rights?.can_view !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view courier listing." />;
+  }
 
   // Loading state
   if (courierListLoading) {

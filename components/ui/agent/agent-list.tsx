@@ -33,18 +33,6 @@ const AgentList = () => {
   // Zustand
   const { setAgentId } = useAgentIdStore();
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
-
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view agent listing." />;
-  }
-
   // Fetch development officer list data using react-query
   const { data: developmentOfficerListResponse, isLoading: developmentOfficerListLoading, isError: developmentOfficerListIsError, error: developmentOfficerListError } = useQuery<DevelopmentOfficerResponseTypes | null>({
     queryKey: ['get-development-officers-list'],
@@ -208,6 +196,18 @@ const AgentList = () => {
       },
     },
   ];
+
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(pathname)
+  }, [pathname])
+
+  if (rights?.can_view !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view agent listing." />;
+  }
 
   // Loading state
   if (agentListLoading || developmentOfficerListLoading) {

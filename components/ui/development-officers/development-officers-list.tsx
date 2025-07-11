@@ -18,7 +18,6 @@ import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import SubNav from '../foundations/sub-nav';
-import DataTable from '../datatable/data-table';
 import useDevelopmentOfficerIdStore from '@/hooks/useDevelopmentOfficerStore';
 import { fetchBranchList } from '@/helperFunctions/branchFunction';
 import { BranchResponseTypes } from '@/types/branchTypes';
@@ -30,18 +29,6 @@ const DevelopmentOfficersList = () => {
 
   // Zustand
   const { setDevelopmentOfficerId } = useDevelopmentOfficerIdStore();
-
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
-
-  if (rights?.can_view !==  "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view development officer listing." />;
-  }
 
   // Fetch branch list data using react-query
   const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseTypes | null>({
@@ -187,6 +174,18 @@ const DevelopmentOfficersList = () => {
       },
     },
   ];
+
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(pathname)
+  }, [pathname])
+
+  if (rights?.can_view !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view development officer listing." />;
+  }
 
   // Loading state
   if (developmentOfficerListLoading || branchListLoading) {

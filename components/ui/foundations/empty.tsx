@@ -8,14 +8,12 @@ interface EmptyProps {
 
 const Empty: React.FC<EmptyProps> = ({ title, description }) => {
   return (
-    <Card className='w-full shadow-none border-none'>
+    <Card className='w-full shadow-none border-none h-full'>
       <CardHeader className='border-b gap-0'>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <h2>
-          {description}
-        </h2>
+      <CardContent className='flex justify-center items-center h-full'>
+        <h2>{description}</h2>
       </CardContent>
     </Card>
   )

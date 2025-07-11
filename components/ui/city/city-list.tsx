@@ -28,18 +28,6 @@ const CityList = () => {  // Define constants
   const router = useRouter();
   const pathname = usePathname();
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
-
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view city listing." />;
-  }
-
   // Fetch city list data using react-query
   const { data: cityListResponse, isLoading: cityListLoading, isError: cityListIsError, error: cityListError } = useQuery<CityResponseType | null>({
     queryKey: ['city-list'],
@@ -167,6 +155,18 @@ const CityList = () => {  // Define constants
       },
     },
   ];
+
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(pathname);
+  }, [pathname]);
+
+  if (rights?.can_view !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view city listing." />;
+  }
 
   // Loading state
   if (cityListLoading) {

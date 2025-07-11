@@ -29,7 +29,7 @@ import { Checkbox } from '../shadcn/checkbox';
 import { toast } from 'sonner';
 import { axiosFunction } from '@/utils/axiosFunction';
 import { AxiosError } from 'axios';
-import { AddUserResponseType } from '@/types/usersTypes';
+import { UserResponseType } from '@/types/usersTypes';
 import { useRouter } from 'next/navigation';
 import { getRights } from '@/utils/getRights';
 
@@ -169,8 +169,8 @@ const AddUserForm = () => {
 
   // add form mutation
   const addUserMutation = useMutation<
-    AddUserResponseType,
-    AxiosError<AddUserResponseType>,
+  UserResponseType,
+    AxiosError<UserResponseType>,
     AddUserSchemaType
   >({
     mutationFn: (record) => {
