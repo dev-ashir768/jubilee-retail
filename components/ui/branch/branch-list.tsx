@@ -9,7 +9,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import React, { useMemo } from 'react'
 import Error from '../foundations/error';
 import { ColumnDef } from '@tanstack/react-table';
-import Loader from '../foundations/loader';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnMeta } from '@/types/dataTableTypes';
@@ -20,6 +19,7 @@ import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import SubNav from '../foundations/sub-nav';
 import BranchDatatable from './branch-datatable';
+import LoadingState from '../foundations/loading-state';
 
 const BranchList = () => {
   // Define constants
@@ -292,7 +292,7 @@ const BranchList = () => {
 
   // Loading state
   if (branchListLoading) {
-    return <Loader />
+    return <LoadingState />
   }
 
   // Error state

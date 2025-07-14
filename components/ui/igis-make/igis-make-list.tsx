@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
-import Loader from '../foundations/loader';
+import Loader from '../foundations/loading-state';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnDef } from '@tanstack/react-table';
@@ -20,10 +20,17 @@ import { IgisMakeResponseType, IgisMakePayloadType } from '@/types/igisTypes';
 import { getRights } from '@/utils/getRights';
 import IgisMakeDatatable from './igis-make-datatable';
 import { fetchIgisMakeList } from '@/helperFunctions/igisFunction';
+import useIgisMakeIdStore from '@/hooks/useIgisMakeIdStore';
+import LoadingState from '../foundations/loading-state';
 
 const IgisMakeList = () => {
+  // Constants
+  const EDIT_ROUTE = '/igis/edit-igis-makes'
+  const ADD_ROUTE = '/igis/add-igis-makes'
+
   const router = useRouter();
   const pathname = usePathname();
+  const { setIgisMakeId } = useIgisMakeIdStore();
 
   // Fetch IGIS make list data using react-query
   const { data: igisMakeListResponse, isLoading: igisMakeListLoading, isError: igisMakeListIsError, error: igisMakeListError } = useQuery<IgisMakeResponseType | null>({
@@ -119,7 +126,7 @@ const IgisMakeList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={`/igis-makes/edit/${record.id}`}>
+                  <Link href={EDIT_ROUTE} onClick={() => setIgisMakeId(row.original.id)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -153,7 +160,7 @@ const IgisMakeList = () => {
 
   // Loading state
   if (igisMakeListLoading) {
-    return <Loader />;
+    return <LoadingState />;
   }
 
   // Error state
@@ -168,7 +175,7 @@ const IgisMakeList = () => {
 
   return (
     <>
-      <SubNav title="IGIS Make List" addBtnTitle="Add IGIS Make" urlPath='/igis-makes/add' />
+      <SubNav title="IGIS Make List" addBtnTitle="Add IGIS Make" urlPath={ADD_ROUTE} />
       <IgisMakeDatatable columns={columns} payload={igisMakeListResponse?.payload || []} />
     </>
   );

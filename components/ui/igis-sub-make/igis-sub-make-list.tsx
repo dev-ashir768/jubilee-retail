@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
-import Loader from '../foundations/loader';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnDef } from '@tanstack/react-table';
@@ -19,10 +18,17 @@ import SubNav from '../foundations/sub-nav';
 import { IgisSubMakeResponseType, IgisSubMakePayloadType, IgisMakeResponseType } from '@/types/igisTypes';
 import { getRights } from '@/utils/getRights';
 import IgisSubMakeDatatable from './igis-sub-make-datatable';
+import LoadingState from '../foundations/loading-state';
+import useIgisSubMakeIdStore from '@/hooks/useIgisSubMakeIdStore';
 
 const IgisSubMakeList = () => {
+  // Constants
+  const ADD_URL = '/igis/add-igis-sub-makes'
+  const EDIT_URL = '/igis/edit-igis-sub-makes'
+
   const router = useRouter();
   const pathname = usePathname();
+  const { setIgisMakeId } = useIgisSubMakeIdStore();
 
   // Fetch IGIS make list data for make_id to make_name mapping
   const { data: igisMakeListResponse, isLoading: igisMakeListLoading, isError: igisMakeListIsError, error: igisMakeListError } = useQuery<IgisMakeResponseType | null>({
@@ -174,7 +180,7 @@ const IgisSubMakeList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={`/igis-sub-makes/edit/${record.id}`}>
+                  <Link href={EDIT_URL} onClick={() => setIgisMakeId(row.original.id)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -202,12 +208,12 @@ const IgisSubMakeList = () => {
     setTimeout(() => {
       router.back();
     }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view IGIS sub-make listing." />;
+    return <Empty title="Permission Denied" description="You do not have permission to view IGIS sub make listing." />;
   }
 
   // Loading state
   if (igisSubMakeListLoading || igisMakeListLoading) {
-    return <Loader />;
+    return <LoadingState />;
   }
 
   // Error state
@@ -222,7 +228,7 @@ const IgisSubMakeList = () => {
 
   return (
     <>
-      <SubNav title="IGIS Sub-Make List" addBtnTitle="Add IGIS Sub-Make" urlPath='/igis-sub-makes/add' />
+      <SubNav title="IGIS Sub Make List" addBtnTitle="Add IGIS Sub-Make" urlPath={ADD_URL} />
       <IgisSubMakeDatatable columns={columns} payload={igisSubMakeListResponse?.payload || []} />
     </>
   );

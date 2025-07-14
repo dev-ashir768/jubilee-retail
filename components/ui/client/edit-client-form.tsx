@@ -23,9 +23,10 @@ import { AxiosError } from 'axios';
 import { axiosFunction } from '@/utils/axiosFunction';
 import { Textarea } from '../shadcn/textarea';
 import Select from 'react-select'
-import Loader from '../foundations/loader';
+import Loader from '../foundations/loading-state';
 import useClientIdStore from '@/hooks/useClientIdStore';
 import { fetchSingleClient } from '@/helperFunctions/clientFunction';
+import LoadingState from '../foundations/loading-state';
 
 const EditClientForm = () => {
 
@@ -151,7 +152,7 @@ const EditClientForm = () => {
 
   // loading state
   if (branchListLoading || singleClientLoading) {
-    return <Loader />
+    return <LoadingState />
   }
 
   // error state

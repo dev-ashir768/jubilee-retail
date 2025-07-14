@@ -1,5 +1,4 @@
 import AddUser from '@/components/ui/users/add-user'
-import AddUserForm from '@/components/ui/users/add-user-form'
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -9,7 +8,6 @@ export const metadata: Metadata = {
 const page = () => {
   return (
     <>
-      {/* <AddUserForm /> */}
       <AddUser />
     </>
   )

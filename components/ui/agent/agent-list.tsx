@@ -8,7 +8,6 @@ import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
-import Loader from '../foundations/loader';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnDef } from '@tanstack/react-table';
@@ -22,6 +21,7 @@ import SubNav from '../foundations/sub-nav';
 import { DevelopmentOfficerResponseTypes } from '@/types/developmentOfficerTypes';
 import { fetchDevelopmentOfficerList } from '@/helperFunctions/developmentOfficerFunction';
 import AgentDatatable from './agent-datatable';
+import LoadingState from '../foundations/loading-state';
 
 const AgentList = () => {
   // Define constants
@@ -211,7 +211,7 @@ const AgentList = () => {
 
   // Loading state
   if (agentListLoading || developmentOfficerListLoading) {
-    return <Loader />;
+    return <LoadingState />;
   }
 
   // Error state

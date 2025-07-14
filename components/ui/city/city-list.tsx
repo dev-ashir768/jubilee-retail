@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
-import Loader from '../foundations/loader';
+import Loader from '../foundations/loading-state';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnDef } from '@tanstack/react-table';
@@ -19,6 +19,7 @@ import { CityResponseType, CityPayloadType } from '@/types/cityTypes';
 import CityDatatable from './city-datatable';
 import { getRights } from '@/utils/getRights';
 import { Badge } from '../shadcn/badge';
+import LoadingState from '../foundations/loading-state';
 
 const CityList = () => {  // Define constants
   // Define constants
@@ -170,7 +171,7 @@ const CityList = () => {  // Define constants
 
   // Loading state
   if (cityListLoading) {
-    return <Loader />;
+    return <LoadingState />;
   }
 
   // Error state

@@ -23,7 +23,7 @@ import { AxiosError } from 'axios';
 import { axiosFunction } from '@/utils/axiosFunction';
 import { Textarea } from '../shadcn/textarea';
 import Select from 'react-select'
-import Loader from '../foundations/loader';
+import LoadingState from '../foundations/loading-state';
 
 const AddClientForm = () => {
 
@@ -121,7 +121,7 @@ const AddClientForm = () => {
 
   // loading state
   if (branchListLoading) {
-    return <Loader />
+    return <LoadingState />
   }
 
   // error state

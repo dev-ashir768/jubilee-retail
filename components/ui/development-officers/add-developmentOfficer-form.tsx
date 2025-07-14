@@ -7,7 +7,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useMemo } from 'react'
 import Error from '../foundations/error';
-import Loader from '../foundations/loader';
+import Loader from '../foundations/loading-state';
 import { useController, useForm } from 'react-hook-form';
 import Empty from '../foundations/empty';
 import { DevelopmentOfficerSchema, DevelopmentOfficerSchemaType } from '@/schemas/developmentOfficerSchema';
@@ -23,6 +23,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Label } from '../shadcn/label';
 import { Input } from '../shadcn/input';
 import Select from 'react-select'
+import LoadingState from '../foundations/loading-state';
 
 const AddDevelopmentOfficerForm = () => {
   const queryClient = useQueryClient();
@@ -115,7 +116,7 @@ const AddDevelopmentOfficerForm = () => {
 
   // loading state
   if (branchListLoading) {
-    return <Loader />
+    return <LoadingState />
   }
 
   // error state

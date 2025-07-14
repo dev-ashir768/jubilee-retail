@@ -22,12 +22,12 @@ import { BranchResponseTypes } from '@/types/branchTypes';
 import { DevelopmentOfficerResponseTypes } from '@/types/developmentOfficerTypes';
 import { fetchDevelopmentOfficerList } from '@/helperFunctions/developmentOfficerFunction';
 import { Checkbox } from '../shadcn/checkbox';
-import Loader from '../foundations/loader';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import useAgentIdStore from '@/hooks/useAgentIdStore';
 import { fetchSingleAgent } from '@/helperFunctions/agentFunction';
 import { getRights } from '@/utils/getRights';
+import LoadingState from '../foundations/loading-state';
 
 const EditAgentForm = () => {
   const queryClient = useQueryClient();
@@ -180,7 +180,7 @@ const EditAgentForm = () => {
 
   // Loading state
   if (developmentOfficerListLoading || branchListLoading || singleAgentLoading) {
-    return <Loader />
+    return <LoadingState />
   }
 
   // Error state

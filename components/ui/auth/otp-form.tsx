@@ -44,9 +44,6 @@ const OtpForm = () => {
         isServer: true
       })
     },
-    onMutate: () => {
-      toast.info("Sending Otp...")
-    },
     onError: (err) => {
       toast.error(err.response?.data?.message)
       console.log("Send Otp Mutation Error:", err)
@@ -106,7 +103,6 @@ const OtpForm = () => {
   })
 
   const submitVerifyOtp = (data: OtpSchemaType) => {
-    console.log(data)
     useVerifyOtpMutation.mutate(data)
   }
 
@@ -122,7 +118,7 @@ const OtpForm = () => {
           </div>
           <div className="grid gap-6">
             <Button type="button" size="lg" variant="secondary" onClick={() => handleSendOtp('email')} className="w-full" disabled={useSendOtpMutation.isPending}>
-              Email
+              {useSendOtpMutation.isPending ? "Sending..." : "Email"}
             </Button>
             <Button type="button" size="lg" variant="secondary" onClick={() => handleSendOtp('sms')} className="w-full" disabled={useSendOtpMutation.isPending}>
               SMS
@@ -146,7 +142,7 @@ const OtpForm = () => {
               name="otp"
               render={({ field }) => (
                 <>
-                  <InputOTP maxLength={6} onChange={(val) => {
+                  <InputOTP maxLength={6} disabled={useVerifyOtpMutation.isPending} onChange={(val) => {
                     field.onChange(val)
                     if (val.length === 6) {
                       trigger('otp').then((isValid) => {

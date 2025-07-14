@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
-import Loader from '../foundations/loader';
+import Loader from '../foundations/loading-state';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnDef } from '@tanstack/react-table';
@@ -22,6 +22,7 @@ import useDevelopmentOfficerIdStore from '@/hooks/useDevelopmentOfficerStore';
 import { fetchBranchList } from '@/helperFunctions/branchFunction';
 import { BranchResponseTypes } from '@/types/branchTypes';
 import DevelopmentOfficerDatatable from './development-officer-datatable';
+import LoadingState from '../foundations/loading-state';
 
 const DevelopmentOfficersList = () => {
   const router = useRouter();
@@ -189,7 +190,7 @@ const DevelopmentOfficersList = () => {
 
   // Loading state
   if (developmentOfficerListLoading || branchListLoading) {
-    return <Loader />;
+    return <LoadingState />;
   }
 
   // Error state

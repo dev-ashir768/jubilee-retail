@@ -8,7 +8,7 @@ import { SingleUserResponseType } from '@/types/usersTypes';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllMenus } from '@/helperFunctions/allMenusFunction';
 import { fetchSingleUser } from '@/helperFunctions/userFunction';
-import Loader from '@/components/ui/foundations/loader';
+import Loader from '@/components/ui/foundations/loading-state';
 import { getRights } from '@/utils/getRights';
 import Empty from '@/components/ui/foundations/empty';
 import { useRouter } from 'next/navigation';
@@ -17,6 +17,7 @@ import { Button } from '../shadcn/button';
 import { ArrowLeft } from 'lucide-react';
 import SubNav from '../foundations/sub-nav';
 import Link from 'next/link';
+import LoadingState from '@/components/ui/foundations/loading-state';
 
 const EditUser = () => {
   // Define constants
@@ -61,7 +62,7 @@ const EditUser = () => {
 
   // loading state while fetching user list data
   if (allMenusLoading || singleUserLoading) {
-    return <Loader />
+    return <LoadingState />
   }
 
   return (

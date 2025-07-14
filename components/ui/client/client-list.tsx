@@ -8,7 +8,7 @@ import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import Error from '../foundations/error';
-import Loader from '../foundations/loader';
+import Loader from '../foundations/loading-state';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnDef } from '@tanstack/react-table';
@@ -20,6 +20,7 @@ import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import SubNav from '../foundations/sub-nav';
 import ClientDatatable from './client-datatable';
+import LoadingState from '../foundations/loading-state';
 
 const ClientList = () => {
   // Define constants
@@ -216,7 +217,7 @@ const ClientList = () => {
 
   // Loading state
   if (clientListLoading) {
-    return <Loader />;
+    return <LoadingState />;
   }
 
   // Error state

@@ -23,7 +23,7 @@ import { userInfoTypes } from '@/types/verifyOtpTypes';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { allMenusResponse, MenuRightsTypes, RightsType } from '@/types/menus';
 import { fetchAllMenus } from '@/helperFunctions/allMenusFunction';
-import Loader from '../foundations/loader';
+import Loader from '../foundations/loading-state';
 import * as Icons from 'lucide-react';
 import { Checkbox } from '../shadcn/checkbox';
 import { toast } from 'sonner';
@@ -32,6 +32,7 @@ import { AxiosError } from 'axios';
 import { UserResponseType } from '@/types/usersTypes';
 import { useRouter } from 'next/navigation';
 import { getRights } from '@/utils/getRights';
+import LoadingState from '../foundations/loading-state';
 
 
 const userTypeOptions: { value: string, label: string }[] = [
@@ -219,7 +220,7 @@ const AddUserForm = () => {
 
   // loading state while fetching user list data
   if (allMenusLoading) {
-    return <Loader />
+    return <LoadingState />
   }
 
   return (

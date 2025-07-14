@@ -19,9 +19,9 @@ import { AxiosError } from 'axios';
 import { BranchResponseTypes } from '@/types/branchTypes';
 import useBranchIdStore from '@/hooks/useBranchIdStore';
 import { fetchSingleBranch } from '@/helperFunctions/branchFunction';
-import Loader from '../foundations/loader';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
+import LoadingState from '../foundations/loading-state';
 
 const EditBranchForm = () => {
   const queryClient = useQueryClient();
@@ -118,7 +118,7 @@ const EditBranchForm = () => {
 
   // Loading state
   if (singleBranchLoading) {
-    return <Loader />
+    return <LoadingState />
   }
 
   // Error state

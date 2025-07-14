@@ -15,11 +15,11 @@ import { Badge } from '../shadcn/badge';
 import Error from '../foundations/error';
 import { getRights } from '@/utils/getRights';
 import { usePathname, useRouter } from 'next/navigation';
-import Loader from '../foundations/loader';
 import Empty from '../foundations/empty';
 import Link from 'next/link';
 import useUserIdStore from '@/hooks/useAddUserIdStore';
 import UserDatatable from './user-datatable';
+import LoadingState from '../foundations/loading-state';
 
 const UserList = () => {
 
@@ -219,7 +219,7 @@ const UserList = () => {
 
   // loading state while fetching user list data
   if (userListLoading) {
-    return <Loader />
+    return <LoadingState />
   }
 
   if (userListIsError) {

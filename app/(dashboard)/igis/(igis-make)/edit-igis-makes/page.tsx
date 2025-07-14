@@ -1,8 +1,10 @@
-import React from 'react'
+import EditIgisMake from '@/components/ui/igis-make/edit-igis-make'
 
 const page = () => {
   return (
-    <div>page</div>
+    <>
+      <EditIgisMake />
+    </>
   )
 }
 

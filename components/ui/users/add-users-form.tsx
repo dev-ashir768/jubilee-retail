@@ -10,7 +10,7 @@ import { Input } from '../shadcn/input';
 import { useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../shadcn/select';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { axiosFunction } from '@/utils/axiosFunction';
 import { UserResponseType } from '@/types/usersTypes';
 import { AxiosError } from 'axios';
@@ -47,6 +47,7 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
   const router = useRouter()
   const [toggleEye, setToggleEye] = useState(false);
   const [menuRights, setMenuRights] = useState<MenuRightsTypes[]>([]);
+  const queryClient = useQueryClient()
 
   // Form via react hook form
   const { handleSubmit, register, formState: { errors }, control, setValue } = useForm({
@@ -85,6 +86,7 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
     onSuccess: (data) => {
       const message = data?.message
       toast.success(message)
+      queryClient.invalidateQueries({ queryKey: ['users-list'] })
       router.push(LISTING_ROUTE)
     }
   })

@@ -6,7 +6,6 @@ import React, { useMemo } from 'react'
 import SubNav from '../foundations/sub-nav';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchApiUserList } from '@/helperFunctions/userFunction';
-import Loader from '../foundations/loader';
 import Error from '../foundations/error';
 import { ApiUsersPayloadType, ApiUsersResponseType } from '@/types/usersTypes';
 import { ColumnDef } from '@tanstack/react-table';
@@ -21,6 +20,7 @@ import { AxiosError } from 'axios';
 import { axiosFunction } from '@/utils/axiosFunction';
 import { toast } from 'sonner';
 import ApiUserDatatable from './api-user-datatable';
+import LoadingState from '../foundations/loading-state';
 
 const ApiUserList = () => {
 
@@ -220,7 +220,7 @@ const ApiUserList = () => {
   // loading, error or empty state while fetching user list data
 
   if (apiUserLoading) {
-    return <Loader />
+    return <LoadingState />
   }
 
   if (apiUserIsError) {

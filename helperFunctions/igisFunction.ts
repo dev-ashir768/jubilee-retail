@@ -1,4 +1,4 @@
-import { IgisMakeResponseType } from "@/types/igisTypes";
+import { IgisMakeResponseType, IgisSubMakeResponseType } from "@/types/igisTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
 export const fetchIgisMakeList = async () => {
@@ -15,12 +15,12 @@ export const fetchIgisMakeList = async () => {
 };
 
 export const fetchSingleIgisMake = async (
-  IgisMakeId: number
+  igisMakeId: number
 ): Promise<IgisMakeResponseType | null> => {
   try {
     const response = await axiosFunction({
       method: "GET",
-      urlPath: `/igis-makes/${IgisMakeId}`,
+      urlPath: `/igis-makes/${igisMakeId}`,
     });
 
     return response;
@@ -44,12 +44,12 @@ export const fetchIgisSubMakeList = async () => {
 };
 
 export const fetchSingleIgisSubMake = async (
-  IgisSubMakeId: number
-): Promise<IgisMakeResponseType | null> => {
+  igisSubMakeId: number
+): Promise<IgisSubMakeResponseType | null> => {
   try {
     const response = await axiosFunction({
       method: "GET",
-      urlPath: `/igis-sub-makes/${IgisSubMakeId}`,
+      urlPath: `/igis-sub-makes/${igisSubMakeId}`,
     });
 
     return response;

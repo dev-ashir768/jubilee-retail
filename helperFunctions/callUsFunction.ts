@@ -16,12 +16,12 @@ export const fetchCallUsList = async (): Promise<CallUsResponseType | null> => {
 };
 
 export const fetchSingleCallUs = async (
-  agentId: number
+  callUsId: number
 ): Promise<CallUsResponseType | null> => {
   try {
     const response = await axiosFunction({
       method: "GET",
-      urlPath: `/call-us-data/${agentId}`,
+      urlPath: `/call-us-data/${callUsId}`,
     });
 
     return response;

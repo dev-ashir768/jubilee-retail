@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
-import Loader from '../foundations/loader';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnDef } from '@tanstack/react-table';
@@ -19,6 +18,8 @@ import SubNav from '../foundations/sub-nav';
 import { CallUsResponseType, CallUsPayloadType } from '@/types/callUsTypes';
 import { getRights } from '@/utils/getRights';
 import CallUsDatatable from './call-us-datatable';
+import useCallUsIdStore from '@/hooks/useCallUsIdStore';
+import LoadingState from '../foundations/loading-state';
 
 const CallUsList = () => {
   // Define constants
@@ -27,6 +28,7 @@ const CallUsList = () => {
 
   const router = useRouter();
   const pathname = usePathname();
+  const { setCallUsId } = useCallUsIdStore();
 
   // Fetch call us list data using react-query
   const { data: callUsListResponse, isLoading: callUsListLoading, isError: callUsListIsError, error: callUsListError } = useQuery<CallUsResponseType | null>({
@@ -137,7 +139,7 @@ const CallUsList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={EDIT_URL}>
+                  <Link href={EDIT_URL} onClick={() => setCallUsId(row.original.id)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -170,7 +172,7 @@ const CallUsList = () => {
 
   // Loading state
   if (callUsListLoading) {
-    return <Loader />;
+    return <LoadingState />;
   }
 
   // Error state

@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
-import Loader from '../foundations/loader';
+import Loader from '../foundations/loading-state';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnDef } from '@tanstack/react-table';
@@ -19,6 +19,7 @@ import SubNav from '../foundations/sub-nav';
 import { CourierResponseType, CourierPayloadType } from '@/types/courierTypes';
 import CourierDatatable from './courier-datatable';
 import { getRights } from '@/utils/getRights';
+import LoadingState from '../foundations/loading-state';
 
 
 const CourierList = () => {
@@ -171,7 +172,7 @@ const CourierList = () => {
 
   // Loading state
   if (courierListLoading) {
-    return <Loader />;
+    return <LoadingState />;
   }
 
   // Error state
