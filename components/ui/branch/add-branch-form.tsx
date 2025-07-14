@@ -21,7 +21,7 @@ import { BranchResponseTypes } from '@/types/branchTypes';
 const AddBranchForm = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
-  // Define constants
+  // Constants
   const LISTING_ROUTE = '/branches-clients/branch-list'
 
   // Form

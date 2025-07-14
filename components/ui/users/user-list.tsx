@@ -25,7 +25,7 @@ const UserList = () => {
 
   const router = useRouter();
   const pathname = usePathname();
-  // Define constants
+  // Constants
   const ADD_ROUTE = '/users/add-user'
 
   // zustand

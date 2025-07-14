@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo } from 'react'
-import AddCallUsForm from './add-call-us-form'
 import { useRouter } from 'next/navigation'
 import { getRights } from '@/utils/getRights'
 import SubNav from '../foundations/sub-nav'
@@ -9,10 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import { Button } from '../shadcn/button'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import AddBusinessRegionForm from './add-business-region-form';
 
-const AddCallUs = () => {
+const AddBusinessRegion = () => {
   // Constants
-  const LISTING_URL = '/customer-service/call-us'
+  const LISTING_URL = '/branches-clients/business-regions-list'
 
   const router = useRouter()
 
@@ -29,7 +29,7 @@ const AddCallUs = () => {
   return (
     <>
       <SubNav
-        title='Add Call Us'
+        title='Add Business Regions'
       />
 
       <Card className='w-full shadow-none border-none'>
@@ -41,13 +41,13 @@ const AddCallUs = () => {
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>
-              Add a new cal us data to the system
+              Add a new business region to the system
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className='w-full'>
-            <AddCallUsForm />
+            <AddBusinessRegionForm />
           </div>
         </CardContent>
       </Card>
@@ -55,4 +55,4 @@ const AddCallUs = () => {
   )
 }
 
-export default AddCallUs
+export default AddBusinessRegion

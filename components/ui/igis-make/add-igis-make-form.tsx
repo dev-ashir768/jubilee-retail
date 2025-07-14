@@ -16,7 +16,7 @@ import { Input } from '../shadcn/input';
 import { IgisMakeResponseType } from '@/types/igisTypes';
 
 const AddIgisMakeForm = () => {
-  // Define constants
+  // Constants
   const LISTING_URL = '/igis/igis-makes'
 
   const queryClient = useQueryClient()

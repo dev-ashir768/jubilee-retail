@@ -21,8 +21,8 @@ import { getRights } from '@/utils/getRights';
 import { Badge } from '../shadcn/badge';
 import LoadingState from '../foundations/loading-state';
 
-const CityList = () => {  // Define constants
-  // Define constants
+const CityList = () => {  // Constants
+  // Constants
   const ADD_URL = '/cites-couiers/add-cities'
   const EDIT_URL = '/cites-couiers/edit-cities'
 

@@ -28,7 +28,7 @@ import LoadingState from '../foundations/loading-state';
 const AddDevelopmentOfficerForm = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
-  // Define constants
+  // Constants
   const LISTING_ROUTE = '/agents-dos/development-officers'
 
   // Fetch branch list data using react-query

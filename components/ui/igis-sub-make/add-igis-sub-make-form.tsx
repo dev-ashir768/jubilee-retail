@@ -21,7 +21,7 @@ interface AddIgisSubMakeForm {
 }
 
 const AddIgisSubMakeForm: React.FC<AddIgisSubMakeForm> = ({ makeList }) => {
-  // Define constants
+  // Constants
   const LISTING_URL = '/igis/igis-sub-makes'
 
   const queryClient = useQueryClient()

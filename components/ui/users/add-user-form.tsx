@@ -53,7 +53,7 @@ const AddUserForm = () => {
   const [menuRights, setMenuRights] = useState<MenuRightsTypes[]>([]);
   const queryClient = useQueryClient();
   const router = useRouter();
-  // Define constants
+  // Constants
   const LISTING_ROUTE = '/users/user-list'
 
   // Rights

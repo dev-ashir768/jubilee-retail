@@ -24,7 +24,7 @@ import AgentDatatable from './agent-datatable';
 import LoadingState from '../foundations/loading-state';
 
 const AgentList = () => {
-  // Define constants
+  // Constants
   const ADD_ROUTES = '/agents-dos/add-agent'
 
   const router = useRouter();

@@ -17,7 +17,7 @@ import { IgisMakeResponseType } from '@/types/igisTypes';
 import Error from '../foundations/error';
 
 const AddIgisSubMake = () => {
-  // Define constants
+  // Constants
   const LISTING_URL = '/igis/igis-sub-makes'
 
   const router = useRouter()

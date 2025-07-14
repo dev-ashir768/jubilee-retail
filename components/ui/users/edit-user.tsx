@@ -20,7 +20,7 @@ import Link from 'next/link';
 import LoadingState from '@/components/ui/foundations/loading-state';
 
 const EditUser = () => {
-  // Define constants
+  // Constants
   const LISTING_ROUTE = '/users/user-list'
 
   const { userId } = useUserIdStore()

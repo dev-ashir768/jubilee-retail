@@ -27,7 +27,7 @@ const EditBranchForm = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { branchId } = useBranchIdStore();
-  // Define constants
+  // Constants
   const LISTING_ROUTE = '/branches-clients/branch-list';
 
   // Fetch single branch data using React Query

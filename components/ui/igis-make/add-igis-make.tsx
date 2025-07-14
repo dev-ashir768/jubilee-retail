@@ -11,7 +11,7 @@ import { ArrowLeft } from 'lucide-react'
 import AddIgisMakeForm from './add-igis-make-form';
 
 const AddIgisMake = () => {
-  // Define constants
+  // Constants
   const LISTING_URL = '/igis/igis-makes'
 
   const router = useRouter()

@@ -22,7 +22,7 @@ import useCallUsIdStore from '@/hooks/useCallUsIdStore';
 import LoadingState from '../foundations/loading-state';
 
 const CallUsList = () => {
-  // Define constants
+  // Constants
   const ADD_URL = '/customer-service/add-call-us'
   const EDIT_URL = '/customer-service/edit-call-us'
 

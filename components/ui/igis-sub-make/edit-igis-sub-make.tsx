@@ -16,7 +16,7 @@ import useIgisSubMakeIdStore from "@/hooks/useIgisSubMakeIdStore";
 import EditIgisSubMakeForm from "./edit-igis-sub-make-form";
 
 const EditIgisSubMake = () => {
-  // Define constants
+  // Constants
   const LISTING_URL = '/igis/igis-sub-makes'
 
   const { igisSubMakeId } = useIgisSubMakeIdStore()

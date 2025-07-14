@@ -31,7 +31,7 @@ const AddAgentForm = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const [isChecked, setIsChecked] = useState(false);
-  // Define constants
+  // Constants
   const LISTING_ROUTE = '/agents-dos/agents'
 
   // rights

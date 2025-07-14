@@ -1,10 +1,9 @@
-import AddBusinessRegionForm from '@/components/ui/business-region/add-business-region-form'
-import React from 'react'
+import AddBusinessRegion from "@/components/ui/business-region/add-business-region"
 
 const page = () => {
   return (
     <>
-      <AddBusinessRegionForm />
+      <AddBusinessRegion />
     </>
   )
 }

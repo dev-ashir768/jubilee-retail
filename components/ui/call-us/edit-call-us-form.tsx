@@ -21,7 +21,7 @@ interface EditCallUsForm {
 }
 
 const EditCallUsForm: React.FC<EditCallUsForm> = ({ singleCallUs }) => {
-  // Define constants
+  // Constants
   const LISTING_URL = '/customer-service/call-us'
 
   const { callUsId } = useCallUsIdStore()

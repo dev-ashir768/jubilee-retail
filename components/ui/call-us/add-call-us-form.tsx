@@ -16,7 +16,7 @@ import { Label } from '../shadcn/label';
 import { Input } from '../shadcn/input';
 
 const AddCallUsForm = () => {
-  // Define constants
+  // Constants
   const LISTING_URL = '/customer-service/call-us'
 
   const queryClient = useQueryClient()

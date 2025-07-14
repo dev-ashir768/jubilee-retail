@@ -27,7 +27,7 @@ import LoadingState from '../foundations/loading-state';
 
 const AddClientForm = () => {
 
-  // Define constants
+  // Constants
   const LISTING_ROUTE = '/branches-clients/Clients-list'
 
   const queryClient = useQueryClient();

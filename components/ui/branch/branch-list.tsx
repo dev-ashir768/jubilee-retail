@@ -22,7 +22,7 @@ import BranchDatatable from './branch-datatable';
 import LoadingState from '../foundations/loading-state';
 
 const BranchList = () => {
-  // Define constants
+  // Constants
   const ADD_URL = '/branches-clients/add-branch'
   const EDIT_URL = '/branches-clients/edit-branch'
   

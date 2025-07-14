@@ -21,7 +21,7 @@ interface EditIgisMakeForm {
 }
 
 const EditIgisMakeForm: React.FC<EditIgisMakeForm> = ({ singleIgisMake }) => {
-  // Define constants
+  // Constants
   const LISTING_URL = '/igis/igis-makes'
 
   const { igisMakeId } = useIgisMakeIdStore()

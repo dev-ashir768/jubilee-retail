@@ -23,7 +23,7 @@ interface EditIgisSubMakeForm {
 }
 
 const EditIgisSubMakeForm: React.FC<EditIgisSubMakeForm> = ({ singleIgisSubMake, makeList }) => {
-  // Define constants
+  // Constants
   const LISTING_URL = '/igis/igis-sub-makes'
 
   const { igisSubMakeId } = useIgisSubMakeIdStore()
@@ -34,10 +34,10 @@ const EditIgisSubMakeForm: React.FC<EditIgisSubMakeForm> = ({ singleIgisSubMake,
   const { handleSubmit, register, formState: { errors }, control } = useForm({
     resolver: zodResolver(IgisSubMakeSchema),
     defaultValues: {
-      make_id: singleIgisSubMake ? singleIgisSubMake?.make_id : undefined,
+      make_id: singleIgisSubMake ? singleIgisSubMake?.make_id : 0,
       sub_make_name: singleIgisSubMake ? singleIgisSubMake?.sub_make_name : "",
       igis_sub_make_code: singleIgisSubMake ? singleIgisSubMake?.igis_sub_make_code : "",
-      seating_capacity: singleIgisSubMake ? singleIgisSubMake?.seating_capacity : undefined,
+      seating_capacity: singleIgisSubMake ? singleIgisSubMake?.seating_capacity : 0,
       cubic_capacity: singleIgisSubMake ? singleIgisSubMake?.cubic_capacity : "",
       coi_type_code: singleIgisSubMake ? singleIgisSubMake?.coi_type_code : "",
     }

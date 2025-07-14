@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import LoadingState from '../foundations/loading-state';
 
 const AddUser = () => {
-  // Define constants
+  // Constants
   const LISTING_URL = '/users/user-list'
   
   const router = useRouter()

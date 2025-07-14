@@ -1,57 +1,56 @@
 "use client";
 
-import useIgisMakeIdStore from "@/hooks/useIgisMakeIdStore"
 import Error from "../foundations/error"
-import Loader from "../foundations/loading-state"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import { fetchSingleIgisMake } from "@/helperFunctions/igisFunction"
+import { fetchSingleBusinessRegion } from "@/helperFunctions/businessRegionFunction"
 import Empty from "../foundations/empty"
-import { IgisMakeResponseType } from "@/types/igisTypes"
 import SubNav from "../foundations/sub-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "../shadcn/card";
 import { Button } from "../shadcn/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import EditIgisMakeForm from "./edit-igis-make-form";
 import LoadingState from "../foundations/loading-state";
+import useBusinessRegionIdStore from "@/hooks/useBusinessRegionIdStore";
+import { BusinessRegionResponseType } from "@/types/businessRegionTypes";
+import EditBusinessRegionForm from "./edit-business-region-form";
 
-const EditIgisMake = () => {
+const EditBusinessRegion = () => {
   // Constants
-  const LISTING_URL = '/igis/igis-makes'
+  const LISTING_URL = '/branches-clients/business-regions-list'
 
-  const { igisMakeId } = useIgisMakeIdStore()
+  const { businessRegionId } = useBusinessRegionIdStore();
   const router = useRouter()
 
-  // Fetch single igis make
-  const { data: singleIgisMakeResponse, isLoading: singleIgisMakeLoading, isError: singleIgisMakeIsError, error } = useQuery<IgisMakeResponseType | null>({
-    queryKey: ["single-igis-make", igisMakeId],
-    queryFn: () => fetchSingleIgisMake(igisMakeId!),
-    enabled: !!igisMakeId // Only fetch if igisMakeId is available
+  // Fetch single business region
+  const { data: singleBusinessRegionResponse, isLoading: singleBusinessRegionLoading, isError: singleBusinessRegionIsError, error } = useQuery<BusinessRegionResponseType | null>({
+    queryKey: ["single-business-region", businessRegionId],
+    queryFn: () => fetchSingleBusinessRegion(businessRegionId!),
+    enabled: !!businessRegionId // Only fetch if businessRegionId is available
   })
 
   // Loading state
-  if (singleIgisMakeLoading) {
+  if (singleBusinessRegionLoading) {
     return <LoadingState />
   }
 
   // Error state
-  if (singleIgisMakeIsError) {
+  if (singleBusinessRegionIsError) {
     return <Error err={error?.message} />
   }
 
   // Empty and redirect state
-  if (!igisMakeId) {
+  if (!businessRegionId) {
     setTimeout(() => {
       router.push(LISTING_URL)
     })
-    return <Empty title="Not Found" description="Igis make Id not Found. Redirecting to Igis make List..." />;
+    return <Empty title="Not Found" description="Business Region Id not Found. Redirecting to business region List..." />;
   }
 
   return (
     <>
       <SubNav
-        title='Edit Igis Make'
+        title='Edit Business Region'
       />
 
       <Card className='w-full shadow-none border-none'>
@@ -63,13 +62,13 @@ const EditIgisMake = () => {
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>
-              Edit existing igis make to the system
+              Edit existing business region to the system
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className='w-full'>
-            <EditIgisMakeForm singleIgisMake={singleIgisMakeResponse?.payload[0]} />
+            <EditBusinessRegionForm singleBusinessRegion={singleBusinessRegionResponse?.payload[0]} />
           </div>
         </CardContent>
       </Card>
@@ -77,4 +76,4 @@ const EditIgisMake = () => {
   )
 }
 
-export default EditIgisMake
+export default EditBusinessRegion

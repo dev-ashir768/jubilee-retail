@@ -23,7 +23,7 @@ import LoadingState from '../foundations/loading-state';
 
 
 const CourierList = () => {
-  // Define constants
+  // Constants
   const ADD_URL = '/cites-couiers/add-couriers'
   const EDIT_URL = '/cites-couiers/edit-couriers'
 

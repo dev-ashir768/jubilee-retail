@@ -44,7 +44,7 @@ interface EditUserFormProps {
 }
 
 const EditUserForm: React.FC<EditUserFormProps> = ({ allMenus, singleUser }) => {
-  // Define constants
+  // Constants
   const LISTING_ROUTE = '/users/user-list'
 
   const [toggleEye, setToggleEye] = useState(false);

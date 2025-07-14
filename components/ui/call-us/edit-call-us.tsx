@@ -17,7 +17,7 @@ import { ArrowLeft } from "lucide-react";
 import LoadingState from "../foundations/loading-state";
 
 const EditCallUs = () => {
-  // Define constants
+  // Constants
   const LISTING_URL = '/customer-service/call-us'
 
   const { callUsId } = useCallUsIdStore()

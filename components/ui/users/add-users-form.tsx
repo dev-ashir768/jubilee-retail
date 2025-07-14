@@ -41,7 +41,7 @@ const statusOptions: { value: string, label: string }[] = [
 ];
 
 const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
-  // Define constants
+  // Constants
   const LISTING_ROUTE = '/users/user-list'
 
   const router = useRouter()

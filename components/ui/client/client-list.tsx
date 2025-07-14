@@ -23,7 +23,7 @@ import ClientDatatable from './client-datatable';
 import LoadingState from '../foundations/loading-state';
 
 const ClientList = () => {
-  // Define constants
+  // Constants
   const ADD_URL = '/branches-clients/add-clients'
   const EDIT_URL = '/branches-clients/edit-clients'
 

@@ -19,14 +19,16 @@ import { getRights } from '@/utils/getRights';
 import { BusinessRegionPayloadType, BusinessRegionResponseType } from '@/types/businessRegionTypes';
 import BusinessRegionDatatable from './business-region-datatable';
 import LoadingState from '../foundations/loading-state';
+import useBusinessRegionIdStore from '@/hooks/useBusinessRegionIdStore';
 
 const BusinessRegionList = () => {
-  // Define constants
+  // Constants
   const ADD_URL = '/branches-clients/add-business-regions'
-  const EDIT_URL = '/branches-clients/add-business-regions'
+  const EDIT_URL = '/branches-clients/edit-business-regions'
 
   const router = useRouter();
   const pathname = usePathname();
+  const { setBusinessRegionId } = useBusinessRegionIdStore();
 
   // Rights
   const rights = useMemo(() => {
@@ -129,7 +131,7 @@ const BusinessRegionList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={EDIT_URL}>
+                  <Link href={EDIT_URL} onClick={() => setBusinessRegionId(row.original.id)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>

@@ -33,7 +33,7 @@ const EditClientForm = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { clientId } = useClientIdStore();
-  // Define constants
+  // Constants
   const LISTING_ROUTE = '/branches-clients/Clients-list'
 
   // Fetch single client data using react-query

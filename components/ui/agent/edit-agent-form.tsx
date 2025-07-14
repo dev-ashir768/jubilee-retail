@@ -35,7 +35,7 @@ const EditAgentForm = () => {
   const [isChecked, setIsChecked] = useState(false);
   const { agentId } = useAgentIdStore()
   const pathname = usePathname();
-  // Define constants
+  // Constants
   const LISTING_ROUTE = '/agents-dos/agents'
 
   // Rights

@@ -31,7 +31,7 @@ const EditDevelopmentOfficerForm = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { developmentOfficerId } = useDevelopmentOfficerIdStore();
-  // Define constants
+  // Constants
   const LISTING_ROUTE = '/agents-dos/development-officers'
 
   // Fetch single development officer data using react-query
