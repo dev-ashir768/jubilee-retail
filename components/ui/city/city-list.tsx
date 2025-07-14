@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
-import Loader from '../foundations/loading-state';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnDef } from '@tanstack/react-table';
@@ -20,6 +19,7 @@ import CityDatatable from './city-datatable';
 import { getRights } from '@/utils/getRights';
 import { Badge } from '../shadcn/badge';
 import LoadingState from '../foundations/loading-state';
+import useCityIdStore from '@/hooks/useCityIdStore';
 
 const CityList = () => {  // Constants
   // Constants
@@ -28,6 +28,7 @@ const CityList = () => {  // Constants
 
   const router = useRouter();
   const pathname = usePathname();
+  const { setCityId } = useCityIdStore();
 
   // Fetch city list data using react-query
   const { data: cityListResponse, isLoading: cityListLoading, isError: cityListIsError, error: cityListError } = useQuery<CityResponseType | null>({
@@ -138,7 +139,7 @@ const CityList = () => {  // Constants
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={EDIT_URL}>
+                  <Link href={EDIT_URL} onClick={() => setCityId(record.id)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>

@@ -9,7 +9,7 @@ import { AxiosError } from 'axios';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation'
 import React from 'react'
-import { Controller, useController, useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner';
 import { Button } from '../shadcn/button';
 import { Label } from '../shadcn/label';

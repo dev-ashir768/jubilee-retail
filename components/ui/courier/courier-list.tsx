@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
-import Loader from '../foundations/loading-state';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnDef } from '@tanstack/react-table';
@@ -20,6 +19,7 @@ import { CourierResponseType, CourierPayloadType } from '@/types/courierTypes';
 import CourierDatatable from './courier-datatable';
 import { getRights } from '@/utils/getRights';
 import LoadingState from '../foundations/loading-state';
+import useCourierIdStore from '@/hooks/useCourierIdStore';
 
 
 const CourierList = () => {
@@ -29,6 +29,7 @@ const CourierList = () => {
 
   const router = useRouter();
   const pathname = usePathname();
+  const { setCourierId } = useCourierIdStore();
 
   // Fetch courier list data using react-query
   const { data: courierListResponse, isLoading: courierListLoading, isError: courierListIsError, error: courierListError } = useQuery<CourierResponseType | null>({
@@ -126,6 +127,7 @@ const CourierList = () => {
       id: 'actions',
       header: "Actions",
       cell: ({ row }) => {
+        const record = row.original
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -139,7 +141,7 @@ const CourierList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={EDIT_URL}>
+                  <Link href={EDIT_URL} onClick={() => setCourierId(record.id)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>

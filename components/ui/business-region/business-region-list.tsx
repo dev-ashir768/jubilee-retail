@@ -35,12 +35,6 @@ const BusinessRegionList = () => {
     return getRights(pathname);
   }, [pathname]);
 
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view business region listing." />;
-  }
 
   // Fetch business region list data using react-query
   const { data: businessRegionListResponse, isLoading: businessRegionListLoading, isError: businessRegionListIsError, error: businessRegionListError } = useQuery<BusinessRegionResponseType | null>({
@@ -131,7 +125,7 @@ const BusinessRegionList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={EDIT_URL} onClick={() => setBusinessRegionId(row.original.id)}>
+                  <Link href={EDIT_URL} onClick={() => setBusinessRegionId(record.id)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -149,6 +143,14 @@ const BusinessRegionList = () => {
       },
     },
   ];
+
+  // Rights Redirection
+  if (rights?.can_view !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view business region listing." />;
+  }
 
   // Loading state
   if (businessRegionListLoading) {

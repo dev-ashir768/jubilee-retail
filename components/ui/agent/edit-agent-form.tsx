@@ -5,7 +5,7 @@ import SubNav from '../foundations/sub-nav'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import { Button } from '../shadcn/button'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import AgentSchema, { AgentSchemaType } from '@/schemas/agentSchema'
@@ -34,7 +34,7 @@ const EditAgentForm = () => {
   const router = useRouter();
   const [isChecked, setIsChecked] = useState(false);
   const { agentId } = useAgentIdStore()
-  const pathname = usePathname();
+
   // Constants
   const LISTING_ROUTE = '/agents-dos/agents'
 
@@ -43,12 +43,6 @@ const EditAgentForm = () => {
     return getRights(LISTING_ROUTE)
   }, [LISTING_ROUTE])
 
-  if (rights?.can_edit !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to edit existing agent" />;
-  }
 
   // Fetch single agent data using react-query
   const { data: singleAgentResponse, isLoading: singleAgentLoading, isError: singleAgentIsError, error: singleAgentError } = useQuery<AgentResponseTypes | null>({
@@ -177,6 +171,14 @@ const EditAgentForm = () => {
     defaultValue: undefined,
     rules: { required: true },
   });
+
+  // Rights Redirection
+  if (rights?.can_edit !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to edit existing agent" />;
+  }
 
   // Loading state
   if (developmentOfficerListLoading || branchListLoading || singleAgentLoading) {

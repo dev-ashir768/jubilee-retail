@@ -23,7 +23,6 @@ import { userInfoTypes } from '@/types/verifyOtpTypes';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { allMenusResponse, MenuRightsTypes, RightsType } from '@/types/menus';
 import { fetchAllMenus } from '@/helperFunctions/allMenusFunction';
-import Loader from '../foundations/loading-state';
 import * as Icons from 'lucide-react';
 import { Checkbox } from '../shadcn/checkbox';
 import { toast } from 'sonner';

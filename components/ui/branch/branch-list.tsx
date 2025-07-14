@@ -25,7 +25,7 @@ const BranchList = () => {
   // Constants
   const ADD_URL = '/branches-clients/add-branch'
   const EDIT_URL = '/branches-clients/edit-branch'
-  
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -36,13 +36,6 @@ const BranchList = () => {
   const rights = useMemo(() => {
     return getRights(pathname)
   }, [pathname])
-
-  if (rights?.can_view === "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view branch listing." />;
-  }
 
   // Fetch branch list data using react-query
   const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error } = useQuery<BranchResponseTypes | null>({
@@ -289,6 +282,14 @@ const BranchList = () => {
       }
     }
   ]
+
+  // Rights Redirection
+  if (rights?.can_view === "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to view branch listing." />;
+  }
 
   // Loading state
   if (branchListLoading) {

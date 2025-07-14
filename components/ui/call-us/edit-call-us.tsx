@@ -2,9 +2,8 @@
 
 import useCallUsIdStore from "@/hooks/useCallUsIdStore"
 import Error from "../foundations/error"
-import Loader from "../foundations/loading-state"
 import EditCallUsForm from "./edit-call-us-form"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { fetchSingleCallUs } from "@/helperFunctions/callUsFunction"
 import Empty from "../foundations/empty"
@@ -21,7 +20,6 @@ const EditCallUs = () => {
   const LISTING_URL = '/customer-service/call-us'
 
   const { callUsId } = useCallUsIdStore()
-  const queryClient = useQueryClient()
   const router = useRouter()
 
   // Fetch single call us

@@ -2,7 +2,7 @@
 
 import { getRights } from '@/utils/getRights';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react'
 import SubNav from '../foundations/sub-nav';
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card';
@@ -37,13 +37,6 @@ const AddClientForm = () => {
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE)
   }, [LISTING_ROUTE])
-
-  if (rights?.can_create !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to add a new client." />;
-  }
 
   // Fetch branch list data using react-query
   const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseTypes | null>({
@@ -118,6 +111,14 @@ const AddClientForm = () => {
     defaultValue: undefined,
     rules: { required: true },
   });
+
+  // Rights Redirection
+  if (rights?.can_create !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to add a new client." />;
+  }
 
   // loading state
   if (branchListLoading) {

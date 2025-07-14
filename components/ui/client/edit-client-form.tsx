@@ -2,7 +2,7 @@
 
 import { getRights } from '@/utils/getRights';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo } from 'react'
 import SubNav from '../foundations/sub-nav';
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card';
@@ -23,7 +23,6 @@ import { AxiosError } from 'axios';
 import { axiosFunction } from '@/utils/axiosFunction';
 import { Textarea } from '../shadcn/textarea';
 import Select from 'react-select'
-import Loader from '../foundations/loading-state';
 import useClientIdStore from '@/hooks/useClientIdStore';
 import { fetchSingleClient } from '@/helperFunctions/clientFunction';
 import LoadingState from '../foundations/loading-state';

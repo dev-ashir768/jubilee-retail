@@ -2,7 +2,6 @@
 
 import useIgisMakeIdStore from "@/hooks/useIgisMakeIdStore"
 import Error from "../foundations/error"
-import Loader from "../foundations/loading-state"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { fetchSingleIgisMake } from "@/helperFunctions/igisFunction"

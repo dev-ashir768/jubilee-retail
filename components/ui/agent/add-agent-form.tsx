@@ -5,7 +5,7 @@ import SubNav from '../foundations/sub-nav'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import { Button } from '../shadcn/button'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useForm, useController } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import AgentSchema, { AgentSchemaType } from '@/schemas/agentSchema'
@@ -38,13 +38,6 @@ const AddAgentForm = () => {
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE)
   }, [LISTING_ROUTE])
-
-  if (rights?.can_create !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to add new agent." />;
-  }
 
   // Fetch branch list data using react-query
   const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseTypes | null>({
@@ -141,6 +134,14 @@ const AddAgentForm = () => {
     defaultValue: undefined,
     rules: { required: true },
   });
+
+  // Rights Redirection
+  if (rights?.can_create !== "1") {
+    setTimeout(() => {
+      router.back();
+    }, 1500);
+    return <Empty title="Permission Denied" description="You do not have permission to add new agent." />;
+  }
 
   // loading state
   if (developmentOfficerListLoading || branchListLoading) {

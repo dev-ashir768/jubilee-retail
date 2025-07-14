@@ -4,10 +4,9 @@ import { fetchBranchList } from '@/helperFunctions/branchFunction';
 import { BranchResponseTypes } from '@/types/branchTypes';
 import { getRights } from '@/utils/getRights';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo } from 'react'
 import Error from '../foundations/error';
-import Loader from '../foundations/loading-state';
 import { useController, useForm } from 'react-hook-form';
 import Empty from '../foundations/empty';
 import { DevelopmentOfficerSchema, DevelopmentOfficerSchemaType } from '@/schemas/developmentOfficerSchema';

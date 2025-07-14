@@ -1,6 +1,5 @@
 import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
-import { Alert, AlertDescription, AlertTitle } from '../shadcn/alert'
 
 const Error = ({ err }: { err: string | undefined }) => {
   return (

@@ -8,7 +8,6 @@ import { SingleUserResponseType } from '@/types/usersTypes';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllMenus } from '@/helperFunctions/allMenusFunction';
 import { fetchSingleUser } from '@/helperFunctions/userFunction';
-import Loader from '@/components/ui/foundations/loading-state';
 import { getRights } from '@/utils/getRights';
 import Empty from '@/components/ui/foundations/empty';
 import { useRouter } from 'next/navigation';

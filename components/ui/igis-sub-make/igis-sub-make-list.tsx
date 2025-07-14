@@ -180,7 +180,7 @@ const IgisSubMakeList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={EDIT_URL} onClick={() => setIgisMakeId(row.original.id)}>
+                  <Link href={EDIT_URL} onClick={() => setIgisMakeId(record.id)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>

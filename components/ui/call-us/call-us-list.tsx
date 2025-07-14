@@ -30,6 +30,11 @@ const CallUsList = () => {
   const pathname = usePathname();
   const { setCallUsId } = useCallUsIdStore();
 
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(pathname);
+  }, [pathname]);
+
   // Fetch call us list data using react-query
   const { data: callUsListResponse, isLoading: callUsListLoading, isError: callUsListIsError, error: callUsListError } = useQuery<CallUsResponseType | null>({
     queryKey: ['call-us-list'],
@@ -139,7 +144,7 @@ const CallUsList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={EDIT_URL} onClick={() => setCallUsId(row.original.id)}>
+                  <Link href={EDIT_URL} onClick={() => setCallUsId(record.id)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -158,11 +163,7 @@ const CallUsList = () => {
     },
   ];
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
-
+  // Rights Redirection
   if (rights?.can_view !== "1") {
     setTimeout(() => {
       router.back();
