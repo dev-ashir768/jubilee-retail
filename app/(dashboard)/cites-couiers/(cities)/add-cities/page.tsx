@@ -1,10 +1,10 @@
-import AddCityForm from '@/components/ui/city/add-city-form'
+import AddCity from '@/components/ui/city/add-city'
 import React from 'react'
 
 const page = () => {
   return (
     <>
-      <AddCityForm />
+      <AddCity />
     </>
   )
 }

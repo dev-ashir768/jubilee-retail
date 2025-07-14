@@ -1,9 +1,9 @@
-import AddCourierForm from '@/components/ui/courier/add-courier-form'
+import AddCourier from '@/components/ui/courier/add-courier'
 
 const page = () => {
   return (
     <>
-      <AddCourierForm />
+      <AddCourier />
     </>
   )
 }

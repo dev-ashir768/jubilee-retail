@@ -34,7 +34,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "app/(dashboard)/cites-couiers/(cities)/edit-cities"  ],
   "exclude": [
     "node_modules"
   ]

@@ -7,6 +7,7 @@ interface AgentDatatableProps {
   columns: ColumnDef<AgentPayloadTypes>[];
   payload: AgentPayloadTypes[]
 }
+
 const AgentDatatable: React.FC<AgentDatatableProps> = ({ columns, payload }) => {
   return (
     <>

@@ -1,10 +1,10 @@
-import EditCityForm from '@/components/ui/city/edit-city-form'
+import EditCity from '@/components/ui/city/edit-city'
 import React from 'react'
 
 const page = () => {
   return (
     <>
-      <EditCityForm />
+      <EditCity />
     </>
   )
 }

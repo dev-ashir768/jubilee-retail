@@ -1,10 +1,9 @@
-import EditCourierForm from '@/components/ui/courier/edit-courier-form'
-import React from 'react'
+import EditCourier from '@/components/ui/courier/edit-courier'
 
 const page = () => {
   return (
     <>
-      <EditCourierForm />
+      <EditCourier />
     </>
   )
 }
