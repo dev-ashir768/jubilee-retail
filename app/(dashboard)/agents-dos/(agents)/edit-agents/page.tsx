@@ -1,4 +1,4 @@
-import EditAgentForm from '@/components/ui/agent/edit-agent-form'
+import EditAgent from "@/components/ui/agent/edit-agent"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const page = () => {
   return (
     <>
-      <EditAgentForm />
+      <EditAgent />
     </>
   )
 }

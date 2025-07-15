@@ -17,6 +17,7 @@ import { Checkbox } from '../shadcn/checkbox';
 import { CitySchema, CitySchemaType } from '@/schemas/citySchema';
 import Select from 'react-select';
 import useCityIdStore from '@/hooks/useCityIdStore';
+import { selectStyles } from '@/utils/selectStyles';
 
 interface EditCityForm {
   singleCity: CityPayloadType | undefined
@@ -109,6 +110,7 @@ const EditCityForm: React.FC<EditCityForm> = ({ singleCity }) => {
                     onChange={(selectedVal) => field.onChange(selectedVal ? selectedVal.value : undefined)}
                     id="country_id"
                     placeholder="Select Country"
+                    styles={selectStyles}
                   />
                 )}
               />
@@ -186,12 +188,13 @@ const EditCityForm: React.FC<EditCityForm> = ({ singleCity }) => {
                     onChange={(selectedVal) => field.onChange(selectedVal?.value)}
                     id="priority"
                     placeholder="Select Priority"
+                    styles={selectStyles}
                   />
                 )}
               />
-              {errors.country_id && (
+              {errors.priority && (
                 <p className='text-red-500 text-sm'>
-                  {errors.country_id.message}
+                  {errors.priority.message}
                 </p>
               )}
             </div>

@@ -16,6 +16,7 @@ import { Label } from '../shadcn/label';
 import { Input } from '../shadcn/input';
 import useIgisSubMakeIdStore from '@/hooks/useIgisSubMakeIdStore';
 import Select from 'react-select';
+import { selectStyles } from '@/utils/selectStyles';
 
 interface EditIgisSubMakeForm {
   singleIgisSubMake: IgisSubMakePayloadType | undefined
@@ -107,15 +108,7 @@ const EditIgisSubMakeForm: React.FC<EditIgisSubMakeForm> = ({ singleIgisSubMake,
                     onChange={(selectedOption) => { field.onChange(selectedOption?.value) }}
                     placeholder="Select Make name"
                     className="w-full"
-                    styles={{
-                      control: (provided) => ({
-                        ...provided,
-                        border: '1px solid #e5e5e5',
-                        borderRadius: '8px',
-                        padding: '2px',
-                        height: '40px'
-                      }),
-                    }}
+                    styles={selectStyles}
                   />
                 )}
               />

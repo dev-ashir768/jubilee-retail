@@ -16,6 +16,7 @@ import { Label } from '../shadcn/label';
 import { Input } from '../shadcn/input';
 import Select from 'react-select';
 import { Checkbox } from '../shadcn/checkbox';
+import { selectStyles } from '@/utils/selectStyles';
 
 const AddCityForm = () => {
   // Constants
@@ -77,7 +78,7 @@ const AddCityForm = () => {
   const onSubmit = (data: CitySchemaType) => {
     addCityMutation.mutate(data);
   }
-  
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className='grid grid-cols-2 gap-6'>
@@ -97,6 +98,7 @@ const AddCityForm = () => {
                     onChange={(selectedVal) => field.onChange(selectedVal ? selectedVal.value : undefined)}
                     id="country_id"
                     placeholder="Select Country"
+                    styles={selectStyles}
                   />
                 )}
               />
@@ -174,12 +176,13 @@ const AddCityForm = () => {
                     onChange={(selectedVal) => field.onChange(selectedVal?.value)}
                     id="priority"
                     placeholder="Select Priority"
+                    styles={selectStyles}
                   />
                 )}
               />
-              {errors.country_id && (
+              {errors.priority && (
                 <p className='text-red-500 text-sm'>
-                  {errors.country_id.message}
+                  {errors.priority.message}
                 </p>
               )}
             </div>
