@@ -1,4 +1,4 @@
-import AddBranchForm from '@/components/ui/branch/add-branch-form'
+import AddBranch from "@/components/ui/branch/add-branch"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const page = () => {
   return (
     <>
-      <AddBranchForm />
+      <AddBranch />
     </>
   )
 }

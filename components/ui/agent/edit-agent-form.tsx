@@ -3,7 +3,7 @@
 import useAgentIdStore from '@/hooks/useAgentIdStore'
 import AgentSchema, { AgentSchemaType } from '@/schemas/agentSchema'
 import { AgentPayloadTypes, AgentResponseTypes } from '@/types/agentTypes'
-import { BranchPayloadTypes } from '@/types/branchTypes'
+import { BranchPayloadType } from '@/types/branchTypes'
 import { DevelopmentOfficerPayloadTypes } from '@/types/developmentOfficerTypes'
 import { axiosFunction } from '@/utils/axiosFunction'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -21,7 +21,7 @@ import { Button } from '../shadcn/button'
 import { Loader2 } from 'lucide-react'
 
 interface EditAgentFormProps {
-  branchList: BranchPayloadTypes[] | undefined
+  branchList: BranchPayloadType[] | undefined
   developmentOfficerList: DevelopmentOfficerPayloadTypes[] | undefined
   singleAgent: AgentPayloadTypes | undefined
 }

@@ -5,7 +5,7 @@ import { fetchBranchList } from '@/helperFunctions/branchFunction';
 import { fetchDevelopmentOfficerList } from '@/helperFunctions/developmentOfficerFunction';
 import useAgentIdStore from '@/hooks/useAgentIdStore';
 import { AgentResponseTypes } from '@/types/agentTypes';
-import { BranchResponseTypes } from '@/types/branchTypes';
+import { BranchResponseType } from '@/types/branchTypes';
 import { DevelopmentOfficerResponseTypes } from '@/types/developmentOfficerTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
@@ -40,7 +40,7 @@ const EditAgent = () => {
   })
 
   // Fetch branch list data using react-query
-  const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseTypes | null>({
+  const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseType | null>({
     queryKey: ['get-branch-list'],
     queryFn: fetchBranchList
   })
@@ -88,7 +88,7 @@ const EditAgent = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-full border border-gray-200"
+                className="rounded-full border border-gray-200 cursor-pointer"
                 onClick={() => router.push(LISTING_ROUTE)}
               >
                 <ArrowLeft className="size-6" />

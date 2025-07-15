@@ -15,13 +15,13 @@ import { toast } from 'sonner';
 import { Label } from '../shadcn/label';
 import { Input } from '../shadcn/input';
 import Select from 'react-select';
-import { BranchPayloadTypes } from '@/types/branchTypes';
+import { BranchPayloadType } from '@/types/branchTypes';
 import { DevelopmentOfficerPayloadTypes } from '@/types/developmentOfficerTypes';
 import { Checkbox } from '../shadcn/checkbox';
 import { selectStyles } from '@/utils/selectStyles';
 
 interface AddAgentFormProps {
-  branchList: BranchPayloadTypes[] | undefined
+  branchList: BranchPayloadType[] | undefined
   developmentOfficerList: DevelopmentOfficerPayloadTypes[] | undefined
 }
 

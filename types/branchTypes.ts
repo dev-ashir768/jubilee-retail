@@ -1,4 +1,4 @@
-export type BranchPayloadTypes = {
+export type BranchPayloadType = {
   id: number;
   name: string;
   igis_branch_code: string;
@@ -10,6 +10,9 @@ export type BranchPayloadTypes = {
   his_code_takaful: string;
   sales_tax_perc: string;
   fed_insurance_fee: string;
+  website: string;
+  igis_takaful_code: string;
+  phone: string;
   stamp_duty: number;
   admin_rate: string;
   is_active: boolean;
@@ -20,8 +23,8 @@ export type BranchPayloadTypes = {
   updated_at: string;
   deleted_at: string;
 };
-export type BranchResponseTypes = {
+export type BranchResponseType = {
   status: 1 | 0;
   message: string;
-  payload: BranchPayloadTypes[];
+  payload: BranchPayloadType[];
 };

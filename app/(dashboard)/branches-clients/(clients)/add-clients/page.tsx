@@ -1,4 +1,4 @@
-import AddClientForm from '@/components/ui/client/add-client-form'
+import AddClient from "@/components/ui/client/add-client"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const page = () => {
   return (
     <>
-      <AddClientForm />
+      <AddClient />
     </>
   )
 }

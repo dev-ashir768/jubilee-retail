@@ -1,11 +1,11 @@
 import React from 'react'
 import DataTable from '../datatable/data-table'
 import { ColumnDef } from '@tanstack/react-table'
-import { BranchPayloadTypes } from '@/types/branchTypes';
+import { BranchPayloadType } from '@/types/branchTypes';
 
 interface BranchDatatableProps {
-  columns: ColumnDef<BranchPayloadTypes>[];
-  payload: BranchPayloadTypes[]
+  columns: ColumnDef<BranchPayloadType>[];
+  payload: BranchPayloadType[]
 }
 const BranchDatatable: React.FC<BranchDatatableProps> = ({ columns, payload }) => {
   return (

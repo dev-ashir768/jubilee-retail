@@ -1,10 +1,10 @@
 import {
-  BranchResponseTypes
+  BranchResponseType
 } from "@/types/branchTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
 export const fetchBranchList =
-  async (): Promise<BranchResponseTypes | null> => {
+  async (): Promise<BranchResponseType | null> => {
     try {
       const response = await axiosFunction({
         method: "GET",
@@ -20,7 +20,7 @@ export const fetchBranchList =
 
 export const fetchSingleBranch = async (
   branchId: number
-): Promise<BranchResponseTypes | null> => {
+): Promise<BranchResponseType | null> => {
   try {
     const response = await axiosFunction({
       method: "GET",

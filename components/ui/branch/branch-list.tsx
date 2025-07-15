@@ -2,7 +2,7 @@
 
 import { fetchBranchList } from '@/helperFunctions/branchFunction';
 import useBranchIdStore from '@/hooks/useBranchIdStore';
-import { BranchPayloadTypes, BranchResponseTypes } from '@/types/branchTypes';
+import { BranchPayloadType, BranchResponseType } from '@/types/branchTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
@@ -38,7 +38,7 @@ const BranchList = () => {
   }, [pathname])
 
   // Fetch branch list data using react-query
-  const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error } = useQuery<BranchResponseTypes | null>({
+  const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error } = useQuery<BranchResponseType | null>({
     queryKey: ['branch-list'],
     queryFn: fetchBranchList
   })
@@ -117,7 +117,7 @@ const BranchList = () => {
   }, [branchListResponse]);
 
   // Define columns for the data table
-  const columns: ColumnDef<BranchPayloadTypes>[] = [
+  const columns: ColumnDef<BranchPayloadType>[] = [
     {
       accessorKey: 'name',
       header: ({ column }) => <DatatableColumnHeader column={column} title="Name" />,

@@ -1,4 +1,4 @@
-import AddDevelopmentOfficerForm from '@/components/ui/development-officers/add-developmentOfficer-form'
+import AddDevelopmentOfficer from "@/components/ui/development-officers/add-development-officer"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const page = () => {
   return (
     <>
-      <AddDevelopmentOfficerForm />
+      <AddDevelopmentOfficer />
     </>
   )
 }

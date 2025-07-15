@@ -1,6 +1,5 @@
-import React from 'react'
+import EditClient from "@/components/ui/client/edit-client"
 import { Metadata } from "next"
-import EditClientForm from '@/components/ui/client/edit-client-form'
 
 export const metadata: Metadata = {
   title: 'Edit Client | Jubilee Retail',
@@ -10,7 +9,7 @@ export const metadata: Metadata = {
 const page = () => {
   return (
     <>
-      <EditClientForm />
+      <EditClient />
     </>
   )
 }

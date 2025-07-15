@@ -94,7 +94,6 @@ const BranchSchema = z.object({
     .string()
     .min(0, "Admin rate cannot be negative")
     .max(100, "Admin rate cannot exceed 100"),
-  branch_id: z.number().optional(),
 });
 
 export default BranchSchema;

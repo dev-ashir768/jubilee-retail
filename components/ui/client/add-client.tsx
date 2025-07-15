@@ -1,25 +1,22 @@
-"use client";
-
 import React, { useMemo } from 'react'
 import SubNav from '../foundations/sub-nav'
-import AddAgentForm from './add-agent-form'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import { Button } from '../shadcn/button'
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { getRights } from '@/utils/getRights'
 import Empty from '../foundations/empty'
-import { DevelopmentOfficerResponseTypes } from '@/types/developmentOfficerTypes'
-import { fetchDevelopmentOfficerList } from '@/helperFunctions/developmentOfficerFunction'
-import { useQuery } from '@tanstack/react-query'
-import { BranchResponseType } from '@/types/branchTypes'
-import { fetchBranchList } from '@/helperFunctions/branchFunction'
 import LoadingState from '../foundations/loading-state'
 import Error from '../foundations/error'
+import AddClientForm from './add-client-form'
+import { fetchBranchList } from '@/helperFunctions/branchFunction'
+import { BranchResponseType } from '@/types/branchTypes'
+import { useQuery } from '@tanstack/react-query'
 
-const AddAgent = () => {
+const AddClient = () => {
+
   // Constants
-  const LISTING_ROUTE = '/agents-dos/agents'
+  const LISTING_ROUTE = '/branches-clients/Clients-list'
 
   const router = useRouter();
 
@@ -34,39 +31,35 @@ const AddAgent = () => {
     queryFn: fetchBranchList
   })
 
-  // Fetch development officer list data using react-query
-  const { data: developmentOfficerListResponse, isLoading: developmentOfficerListLoading, isError: developmentOfficerListIsError, error: developmentOfficerListError } = useQuery<DevelopmentOfficerResponseTypes | null>({
-    queryKey: ['get-development-officers-list'],
-    queryFn: fetchDevelopmentOfficerList,
-  });
-
   // Rights Redirection
   if (rights?.can_create !== "1") {
     setTimeout(() => {
       router.back();
     }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to add new agent." />;
+    return <Empty title="Permission Denied" description="You do not have permission to add a new client." />;
   }
 
+
   // loading state
-  if (developmentOfficerListLoading || branchListLoading) {
+  if (branchListLoading) {
     return <LoadingState />
   }
 
   // error state
-  if (branchListIsError || developmentOfficerListIsError) {
-    return <Error err={branchListError?.message || developmentOfficerListError?.message} />
+  if (branchListIsError) {
+    return <Error err={branchListError?.message} />
   }
 
   // empty state
-  if ((branchListResponse?.payload?.length === 0 || !branchListResponse?.payload) &&
-    (developmentOfficerListResponse?.payload?.length === 0 || !developmentOfficerListResponse?.payload)) {
-    return <Empty title="Not Found" description="No branches or development officers found to populate the form." />;
+  if (branchListResponse?.payload?.length === 0 || !branchListResponse?.payload) {
+    return <Empty title="Not Found" description="No branches found to populate the form." />;
   }
+
 
   return (
     <>
-      <SubNav title="Add Agent" />
+      <SubNav title="Add Client" />
+
       <Card className="w-full shadow-none border-none">
         <CardHeader className="border-b gap-0">
           <CardTitle>
@@ -79,13 +72,13 @@ const AddAgent = () => {
               >
                 <ArrowLeft className="size-6" />
               </Button>
-              Add a new agent to the system
+              Add a new client to the system
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="w-full">
-            <AddAgentForm branchList={branchListResponse?.payload} developmentOfficerList={developmentOfficerListResponse?.payload} />
+            <AddClientForm branchList={branchListResponse?.payload} />
           </div>
         </CardContent>
       </Card>
@@ -93,4 +86,4 @@ const AddAgent = () => {
   )
 }
 
-export default AddAgent
+export default AddClient
