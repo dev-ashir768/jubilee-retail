@@ -17,7 +17,7 @@ import LoadingState from "../foundations/loading-state";
 
 const EditIgisMake = () => {
   // Constants
-  const LISTING_URL = '/igis/igis-makes'
+  const LISTING_ROUTE = '/igis/igis-makes'
 
   const { igisMakeId } = useIgisMakeIdStore()
   const router = useRouter()
@@ -42,7 +42,7 @@ const EditIgisMake = () => {
   // Empty and redirect state
   if (!igisMakeId) {
     setTimeout(() => {
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
     })
     return <Empty title="Not Found" description="Igis make Id not Found. Redirecting to Igis make List..." />;
   }
@@ -58,7 +58,7 @@ const EditIgisMake = () => {
           <CardTitle>
             <div className='flex items-center gap-2'>
               <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' asChild>
-                <Link href={LISTING_URL}>
+                <Link href={LISTING_ROUTE}>
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>

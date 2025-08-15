@@ -1,3 +1,5 @@
+"use client"
+
 import { subNavTypes } from '@/types/subNavTypes'
 import { Button } from '../shadcn/button'
 import Link from 'next/link'

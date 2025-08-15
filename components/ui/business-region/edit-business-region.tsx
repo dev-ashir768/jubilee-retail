@@ -17,7 +17,7 @@ import EditBusinessRegionForm from "./edit-business-region-form";
 
 const EditBusinessRegion = () => {
   // Constants
-  const LISTING_URL = '/branches-clients/business-regions-list'
+  const LISTING_ROUTE = '/branches-clients/business-regions-list'
 
   const { businessRegionId } = useBusinessRegionIdStore();
   const router = useRouter()
@@ -42,7 +42,7 @@ const EditBusinessRegion = () => {
   // Empty and redirect state
   if (!businessRegionId) {
     setTimeout(() => {
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
     })
     return <Empty title="Not Found" description="Business Region Id not Found. Redirecting to business region List..." />;
   }
@@ -58,7 +58,7 @@ const EditBusinessRegion = () => {
           <CardTitle>
             <div className='flex items-center gap-2'>
               <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' asChild>
-                <Link href={LISTING_URL}>
+                <Link href={LISTING_ROUTE}>
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>

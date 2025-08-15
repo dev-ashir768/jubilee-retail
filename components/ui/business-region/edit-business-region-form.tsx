@@ -22,7 +22,7 @@ interface EditBusinessRegionForm {
 
 const EditBusinessRegionForm: React.FC<EditBusinessRegionForm> = ({ singleBusinessRegion }) => {
   // Constants
-  const LISTING_URL = '/branches-clients/business-regions-list'
+  const LISTING_ROUTE = '/branches-clients/business-regions-list'
 
   const { businessRegionId } = useBusinessRegionIdStore();
   const queryClient = useQueryClient()
@@ -61,7 +61,7 @@ const EditBusinessRegionForm: React.FC<EditBusinessRegionForm> = ({ singleBusine
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ["single-business-region", businessRegionId] })
       queryClient.invalidateQueries({ queryKey: ["business-region-list"] })
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
 
     }
   })

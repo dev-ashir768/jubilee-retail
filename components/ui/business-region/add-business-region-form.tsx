@@ -17,7 +17,7 @@ import { BusinessRegionResponseType } from '@/types/businessRegionTypes';
 
 const AddBusinessRegionForm = () => {
   // Constants
-  const LISTING_URL = '/branches-clients/business-regions-list'
+  const LISTING_ROUTE = '/branches-clients/business-regions-list'
 
   const queryClient = useQueryClient()
 
@@ -55,7 +55,7 @@ const AddBusinessRegionForm = () => {
       const message = data?.message
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ["business-region-list"] })
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
 
     }
   })

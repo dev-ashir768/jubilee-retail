@@ -17,7 +17,7 @@ import EditIgisSubMakeForm from "./edit-igis-sub-make-form";
 
 const EditIgisSubMake = () => {
   // Constants
-  const LISTING_URL = '/igis/igis-sub-makes'
+  const LISTING_ROUTE = '/igis/igis-sub-makes'
 
   const { igisSubMakeId } = useIgisSubMakeIdStore()
   const router = useRouter()
@@ -48,7 +48,7 @@ const EditIgisSubMake = () => {
   // Empty and redirect state
   if (!igisSubMakeId) {
     setTimeout(() => {
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
     })
     return <Empty title="Not Found" description="Igis sub make Id not Found. Redirecting to Igis make List..." />;
   }
@@ -64,7 +64,7 @@ const EditIgisSubMake = () => {
           <CardTitle>
             <div className='flex items-center gap-2'>
               <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' asChild>
-                <Link href={LISTING_URL}>
+                <Link href={LISTING_ROUTE}>
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>

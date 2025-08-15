@@ -20,11 +20,9 @@ import { selectStyles } from '@/utils/selectStyles';
 
 const AddCityForm = () => {
   // Constants
-  const LISTING_URL = '/cites-couiers/cities'
-
-  const queryClient = useQueryClient()
-
-  const router = useRouter()
+  const LISTING_ROUTE = '/cites-couiers/cities'
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
   // Form via react hook form
   const { handleSubmit, register, formState: { errors }, control } = useForm({
@@ -69,7 +67,7 @@ const AddCityForm = () => {
       const message = data?.message
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ["city-list"] })
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
 
     }
   })

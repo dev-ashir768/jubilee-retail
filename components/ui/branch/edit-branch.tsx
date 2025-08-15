@@ -1,3 +1,5 @@
+"use client";
+
 import { fetchSingleBranch } from '@/helperFunctions/branchFunction';
 import useBranchIdStore from '@/hooks/useBranchIdStore';
 import { BranchResponseType } from '@/types/branchTypes';

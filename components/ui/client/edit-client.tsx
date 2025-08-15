@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo } from 'react'
 import EditClientForm from './edit-client-form'
 import SubNav from '../foundations/sub-nav'

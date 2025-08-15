@@ -317,7 +317,6 @@ const BranchList = () => {
         columns={columns}
         payload={branchListResponse?.payload || []}
       />
-
     </>
   )
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import { fetchBranchList } from '@/helperFunctions/branchFunction';
 import { fetchSingleDevelopmentOfficer } from '@/helperFunctions/developmentOfficerFunction';
 import useDevelopmentOfficerIdStore from '@/hooks/useDevelopmentOfficerStore';

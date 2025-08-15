@@ -23,7 +23,7 @@ interface EditCourierForm {
 
 const EditCourierForm: React.FC<EditCourierForm> = ({ singleCourier }) => {
   // Constants
-  const LISTING_URL = '/cites-couiers/couriers'
+  const LISTING_ROUTE = '/cites-couiers/couriers'
 
   const { courierId } = useCourierIdStore();
   const queryClient = useQueryClient();
@@ -69,7 +69,7 @@ const EditCourierForm: React.FC<EditCourierForm> = ({ singleCourier }) => {
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ["single-courier", courierId] })
       queryClient.invalidateQueries({ queryKey: ["courier-list"] })
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
 
     }
   })

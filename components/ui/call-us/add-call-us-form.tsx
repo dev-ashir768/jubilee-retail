@@ -17,7 +17,7 @@ import { Input } from '../shadcn/input';
 
 const AddCallUsForm = () => {
   // Constants
-  const LISTING_URL = '/customer-service/call-us'
+  const LISTING_ROUTE = '/customer-service/call-us'
 
   const queryClient = useQueryClient()
 
@@ -56,7 +56,7 @@ const AddCallUsForm = () => {
       const message = data?.message
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ["call-us-list"] })
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
 
     }
   })

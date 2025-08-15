@@ -17,7 +17,7 @@ import { IgisMakeResponseType } from '@/types/igisTypes';
 
 const AddIgisMakeForm = () => {
   // Constants
-  const LISTING_URL = '/igis/igis-makes'
+  const LISTING_ROUTE = '/igis/igis-makes'
 
   const queryClient = useQueryClient()
 
@@ -55,7 +55,7 @@ const AddIgisMakeForm = () => {
       const message = data?.message
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ['igis-make-list'] })
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
 
     }
   })

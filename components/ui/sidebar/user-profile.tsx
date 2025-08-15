@@ -66,8 +66,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ userInfo }) => {
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Ashir Arif</span>
-                <span className="truncate text-xs">techashir167@gmail.com</span>
+                <span className="truncate font-medium">{userInfo.fullname}</span>
+                <span className="truncate text-xs">{userInfo.email}</span>
               </div>
             </div>
           </DropdownMenuLabel>

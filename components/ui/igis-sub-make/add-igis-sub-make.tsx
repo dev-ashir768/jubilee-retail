@@ -18,14 +18,14 @@ import Error from '../foundations/error';
 
 const AddIgisSubMake = () => {
   // Constants
-  const LISTING_URL = '/igis/igis-sub-makes'
+  const LISTING_ROUTE = '/igis/igis-sub-makes'
 
   const router = useRouter()
 
   // Rights
   const rights = useMemo(() => {
-    return getRights(LISTING_URL)
-  }, [LISTING_URL])
+    return getRights(LISTING_ROUTE)
+  }, [LISTING_ROUTE])
 
   // Fetch make name list
   const { data: igisMakeListResponse, isLoading: igisMakeListLoading, isError: igisMakeListIsError, error } = useQuery<IgisMakeResponseType | null>({
@@ -35,7 +35,7 @@ const AddIgisSubMake = () => {
 
   // Redirection
   if (rights?.can_create !== "1") {
-    router.push(LISTING_URL)
+    router.push(LISTING_ROUTE)
   }
 
   // Loading state
@@ -65,7 +65,7 @@ const AddIgisSubMake = () => {
           <CardTitle>
             <div className='flex items-center gap-2'>
               <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' asChild>
-                <Link href={LISTING_URL}>
+                <Link href={LISTING_ROUTE}>
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>

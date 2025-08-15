@@ -17,7 +17,7 @@ import LoadingState from "../foundations/loading-state";
 
 const EditCallUs = () => {
   // Constants
-  const LISTING_URL = '/customer-service/call-us'
+  const LISTING_ROUTE = '/customer-service/call-us'
 
   const { callUsId } = useCallUsIdStore()
   const router = useRouter()
@@ -42,7 +42,7 @@ const EditCallUs = () => {
   // Empty and redirect state
   if (!callUsId) {
     setTimeout(() => {
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
     })
     return <Empty title="Not Found" description="Call us Id not Found. Redirecting to Call us List..." />;
   }
@@ -58,7 +58,7 @@ const EditCallUs = () => {
           <CardTitle>
             <div className='flex items-center gap-2'>
               <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' asChild>
-                <Link href={LISTING_URL}>
+                <Link href={LISTING_ROUTE}>
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>

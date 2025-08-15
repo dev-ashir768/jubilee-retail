@@ -18,7 +18,7 @@ import { CourierResponseType } from '@/types/courierTypes';
 
 const AddCourierForm = () => {
   // Constants
-  const LISTING_URL = '/cites-couiers/couriers'
+  const LISTING_ROUTE = '/cites-couiers/couriers'
 
   const queryClient = useQueryClient()
   const [toggleEye, setToggleEye] = useState(false);
@@ -63,7 +63,7 @@ const AddCourierForm = () => {
       const message = data?.message
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ["courier-list"] })
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
     }
   })
 

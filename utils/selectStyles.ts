@@ -1,7 +1,7 @@
 import { StylesConfig } from "react-select";
 
 interface SelectOption {
-  value: number;
+  value: number | string;
   label: string;
 }
 

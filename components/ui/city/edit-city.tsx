@@ -17,7 +17,7 @@ import EditCityForm from "./edit-city-form";
 
 const EditCity = () => {
   // Constants
-    const LISTING_URL = '/cites-couiers/cities'
+    const LISTING_ROUTE = '/cites-couiers/cities'
 
   const { cityId } = useCityIdStore();
   const router = useRouter();
@@ -42,7 +42,7 @@ const EditCity = () => {
   // Empty and redirect state
   if (!cityId) {
     setTimeout(() => {
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
     })
     return <Empty title="Not Found" description="City Id not Found. Redirecting to City List..." />;
   }
@@ -58,7 +58,7 @@ const EditCity = () => {
           <CardTitle>
             <div className='flex items-center gap-2'>
               <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' asChild>
-                <Link href={LISTING_URL}>
+                <Link href={LISTING_ROUTE}>
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>

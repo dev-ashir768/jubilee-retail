@@ -17,7 +17,7 @@ import EditCourierForm from "./edit-courier-form";
 
 const EditCourier = () => {
   // Constants
-  const LISTING_URL = '/cites-couiers/couriers'
+  const LISTING_ROUTE = '/cites-couiers/couriers'
 
   const { courierId } = useCourierIdStore();
   const router = useRouter()
@@ -42,7 +42,7 @@ const EditCourier = () => {
   // Empty and redirect state
   if (!courierId) {
     setTimeout(() => {
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
     })
     return <Empty title="Not Found" description="Courier us Id not Found. Redirecting to Courier List..." />;
   }
@@ -58,7 +58,7 @@ const EditCourier = () => {
           <CardTitle>
             <div className='flex items-center gap-2'>
               <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' asChild>
-                <Link href={LISTING_URL}>
+                <Link href={LISTING_ROUTE}>
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>

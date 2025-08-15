@@ -22,7 +22,7 @@ interface EditIgisMakeForm {
 
 const EditIgisMakeForm: React.FC<EditIgisMakeForm> = ({ singleIgisMake }) => {
   // Constants
-  const LISTING_URL = '/igis/igis-makes'
+  const LISTING_ROUTE = '/igis/igis-makes'
 
   const { igisMakeId } = useIgisMakeIdStore()
   const queryClient = useQueryClient()
@@ -61,7 +61,7 @@ const EditIgisMakeForm: React.FC<EditIgisMakeForm> = ({ singleIgisMake }) => {
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ["single-igis-make", igisMakeId] })
       queryClient.invalidateQueries({ queryKey: ['igis-make-list'] })
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
     }
   })
 

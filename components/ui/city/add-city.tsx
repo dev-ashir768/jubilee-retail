@@ -11,19 +11,16 @@ import { ArrowLeft } from 'lucide-react'
 import AddCityForm from './add-city-form';
 
 const AddCity = () => {
-  // Constants
-  const LISTING_URL = '/cites-couiers/cities'
-
+  // ======== CONSTANTS & HOOKS ========
+  const LISTING_ROUTE = '/cites-couiers/cities'
   const router = useRouter()
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(LISTING_URL)
-  }, [LISTING_URL])
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
 
   if (rights?.can_create !== "1") {
-    router.push(LISTING_URL)
+    router.push(LISTING_ROUTE)
   }
 
   return (
@@ -37,7 +34,7 @@ const AddCity = () => {
           <CardTitle>
             <div className='flex items-center gap-2'>
               <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' asChild>
-                <Link href={LISTING_URL}>
+                <Link href={LISTING_ROUTE}>
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>

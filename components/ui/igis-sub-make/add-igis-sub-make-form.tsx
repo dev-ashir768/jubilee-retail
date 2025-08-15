@@ -23,7 +23,7 @@ interface AddIgisSubMakeForm {
 
 const AddIgisSubMakeForm: React.FC<AddIgisSubMakeForm> = ({ makeList }) => {
   // Constants
-  const LISTING_URL = '/igis/igis-sub-makes'
+  const LISTING_ROUTE = '/igis/igis-sub-makes'
 
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -71,7 +71,7 @@ const AddIgisSubMakeForm: React.FC<AddIgisSubMakeForm> = ({ makeList }) => {
       const message = data?.message
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ['igis-sub-make-list'] })
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
 
     }
   })

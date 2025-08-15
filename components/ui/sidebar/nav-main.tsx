@@ -1,5 +1,6 @@
-import * as Icons from 'lucide-react';
+"use client"
 
+import * as Icons from 'lucide-react';
 import {
   Collapsible,
   CollapsibleContent,

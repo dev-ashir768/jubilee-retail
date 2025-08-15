@@ -22,7 +22,7 @@ interface EditCallUsForm {
 
 const EditCallUsForm: React.FC<EditCallUsForm> = ({ singleCallUs }) => {
   // Constants
-  const LISTING_URL = '/customer-service/call-us'
+  const LISTING_ROUTE = '/customer-service/call-us'
 
   const { callUsId } = useCallUsIdStore()
   const queryClient = useQueryClient()
@@ -62,7 +62,7 @@ const EditCallUsForm: React.FC<EditCallUsForm> = ({ singleCallUs }) => {
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ["single-call-us", callUsId] })
       queryClient.invalidateQueries({ queryKey: ["call-us-list"] })
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
 
     }
   })

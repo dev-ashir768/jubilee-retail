@@ -12,18 +12,18 @@ import AddBusinessRegionForm from './add-business-region-form';
 
 const AddBusinessRegion = () => {
   // Constants
-  const LISTING_URL = '/branches-clients/business-regions-list'
+  const LISTING_ROUTE = '/branches-clients/business-regions-list'
 
   const router = useRouter()
 
   // Rights
   const rights = useMemo(() => {
-    return getRights(LISTING_URL)
-  }, [LISTING_URL])
+    return getRights(LISTING_ROUTE)
+  }, [LISTING_ROUTE])
 
 
   if (rights?.can_create !== "1") {
-    router.push(LISTING_URL)
+    router.push(LISTING_ROUTE)
   }
 
   return (
@@ -37,7 +37,7 @@ const AddBusinessRegion = () => {
           <CardTitle>
             <div className='flex items-center gap-2'>
               <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' asChild>
-                <Link href={LISTING_URL}>
+                <Link href={LISTING_ROUTE}>
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>

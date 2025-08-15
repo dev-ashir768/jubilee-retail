@@ -25,7 +25,7 @@ interface EditIgisSubMakeForm {
 
 const EditIgisSubMakeForm: React.FC<EditIgisSubMakeForm> = ({ singleIgisSubMake, makeList }) => {
   // Constants
-  const LISTING_URL = '/igis/igis-sub-makes'
+  const LISTING_ROUTE = '/igis/igis-sub-makes'
 
   const { igisSubMakeId } = useIgisSubMakeIdStore()
   const queryClient = useQueryClient()
@@ -74,7 +74,7 @@ const EditIgisSubMakeForm: React.FC<EditIgisSubMakeForm> = ({ singleIgisSubMake,
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ["single-igis-sub-make", igisSubMakeId] })
       queryClient.invalidateQueries({ queryKey: ['igis-sub-make-list'] })
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
     }
   })
 

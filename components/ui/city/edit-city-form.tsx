@@ -25,7 +25,7 @@ interface EditCityForm {
 
 const EditCityForm: React.FC<EditCityForm> = ({ singleCity }) => {
   // Constants
-  const LISTING_URL = '/cites-couiers/cities'
+  const LISTING_ROUTE = '/cites-couiers/cities'
 
   const { cityId } = useCityIdStore()
   const queryClient = useQueryClient()
@@ -75,7 +75,7 @@ const EditCityForm: React.FC<EditCityForm> = ({ singleCity }) => {
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ["single-city", cityId] })
       queryClient.invalidateQueries({ queryKey: ["city-list"] })
-      router.push(LISTING_URL)
+      router.push(LISTING_ROUTE)
 
     }
   })

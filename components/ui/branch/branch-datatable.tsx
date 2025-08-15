@@ -7,6 +7,7 @@ interface BranchDatatableProps {
   columns: ColumnDef<BranchPayloadType>[];
   payload: BranchPayloadType[]
 }
+
 const BranchDatatable: React.FC<BranchDatatableProps> = ({ columns, payload }) => {
   return (
     <>
