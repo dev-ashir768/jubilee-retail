@@ -1,6 +1,5 @@
 "use client";
 
-import { getRights } from '@/utils/getRights';
 import React, { useMemo } from 'react'
 import SubNav from '../foundations/sub-nav';
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card';
@@ -22,10 +21,6 @@ const EditProductCategory = () => {
   const { productCategoryId } = useProductCategoryIdStore();
   console.log("productCategoryId", productCategoryId)
 
-
-  // ======== MEMOIZATION ========
-  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE]);
-
   // ======== DATA FETCHING ========
   const { data: singleProductCategoryResponse, isLoading: singleProductCategoryLoading, isError: singleProductCategoryIsError, error: singleProductCategoryError } = useQuery<ProductCategoriesResponseTypes | null>({
     queryKey: ['single-product-category', productCategoryId],
@@ -45,7 +40,7 @@ const EditProductCategory = () => {
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={onError} />
   if (!productCategoryId) return <Empty title="Permission Denied" description="You do not have permission." />
-  
+
   return (
     <>
       <SubNav title='Add Product Category' />

@@ -181,8 +181,8 @@ const ProductList = () => {
       meta: {
         filterType: "multiselect",
         filterOptions: [
-          { value: "Active", label: "Active" },
-          { value: "Inactive", label: "Inactive" },
+          { value: "active", label: "Active" },
+          { value: "in_active", label: "Inactive" },
         ],
         filterPlaceholder: "Filter status...",
       } as ColumnMeta,

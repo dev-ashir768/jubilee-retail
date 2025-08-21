@@ -49,7 +49,7 @@ const PlansList = () => {
   const planList = planListResponse?.payload || []
   const usersList = usersListResponse?.payload || []
 
-  // ======== Lookups ========
+  // ======== LOOKUPS ========
   const userMap = useMemo(() => {
     if (!usersList || usersList.length === 0) return new Map();
     return new Map(usersList.map((users) => [users.id, users.fullname]))
@@ -124,8 +124,8 @@ const PlansList = () => {
       meta: {
         filterType: "multiselect",
         filterOptions: [
-          { value: "Active", label: "Active" },
-          { value: "Inactive", label: "Inactive" },
+          { value: "active", label: "Active" },
+          { value: "in_active", label: "Inactive" },
         ],
         filterPlaceholder: "Filter status...",
       } as ColumnMeta,

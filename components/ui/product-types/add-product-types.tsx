@@ -8,10 +8,6 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import AddProductTypesForm from './add-product-types-form'
 import { getRights } from '@/utils/getRights'
-import { useQuery } from '@tanstack/react-query';
-import { ProductCategoriesResponseTypes } from '@/types/productCategoriesTypes';
-import { fetchProductCategoriesList } from '@/helperFunctions/productCategoriesFunction';
-import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 

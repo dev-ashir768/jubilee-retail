@@ -129,7 +129,8 @@ const WebAppMappersList = () => {
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
-        filterOptions: [{ value: "active", label: "Active" }, { value: "inactive", label: "Inactive" }],
+        filterOptions: [{ value: "active", label: "Active" },
+        { value: "in_active", label: "Inactive" },],
         filterPlaceholder: "Filter status...",
       } as ColumnMeta,
     },

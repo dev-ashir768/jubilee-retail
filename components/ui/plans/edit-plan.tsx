@@ -7,7 +7,6 @@ import { Button } from '../shadcn/button'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import EditPlanForm from './edit-plan-form'
-import { getRights } from '@/utils/getRights'
 import { PlanResponseTypes } from '@/types/planTypes';
 import { useQuery } from '@tanstack/react-query';
 import usePlanIdStore from '@/hooks/usePlanIdStore';
@@ -20,9 +19,6 @@ const EditPlan = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = '/products-plans/plan'
   const { planId } = usePlanIdStore();
-
-  // ======== MEMOIZATION ========
-  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
   // ======== DATA FETCHING ========
   const { data: singlePlanResponse, isLoading: singlePlanLoading, isError: singlePlanIsError, error: singlePlanError } = useQuery<PlanResponseTypes | null>({
