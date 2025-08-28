@@ -54,9 +54,9 @@ const ProductOptionsList = () => {
   });
 
   // ======== PAYLOADS DATA ========
-  const productOptionsList = productOptionsListResponse?.payload || [];
-  const usersList = usersListResponse?.payload || [];
-  const productList = productListResponse?.payload || [];
+  const productOptionsList = useMemo(() => productOptionsListResponse?.payload || [], [productOptionsListResponse]);
+  const usersList = useMemo(() => usersListResponse?.payload || [], [usersListResponse]);
+  const productList = useMemo(() => productListResponse?.payload || [], [productListResponse]);
 
   // ======== LOOKUP MAPS ========
   const userMap = useMemo(() => {

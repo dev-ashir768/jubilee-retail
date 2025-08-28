@@ -40,7 +40,7 @@ const EditWebAppMappers = () => {
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights, router, webAppMapperId]);
 
   // ======== DATA FETCHING ========
   const { data: productListResponse, isLoading: productListLoading, isError: productListIsError, error: productListError } = useQuery<ProductsResponseTypes | null>({

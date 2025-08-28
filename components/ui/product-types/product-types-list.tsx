@@ -46,8 +46,9 @@ const ProductTypesList = () => {
   })
 
   // ======== PAYLOADS DATA ========
-  const productTypesList = productTypesListResponse?.payload || [];
-  const usersList = usersListResponse?.payload || [];
+  const productTypesList = useMemo(() => productTypesListResponse?.payload || [], [productTypesListResponse]);
+
+  const usersList = useMemo(() => usersListResponse?.payload || [], [usersListResponse]);
 
   // ======== LOOKUP MAPS ========
   const userMap = useMemo(() => {
@@ -56,19 +57,22 @@ const ProductTypesList = () => {
   }, [usersList]);
 
   // ======== FILTER OPTIONS ========
-  const createFilterOptions = (key: keyof ProductTypePayloadTypes) => {
+  const useCreateFilterOptions = (
+    list: ProductTypePayloadTypes[],
+    key: keyof ProductTypePayloadTypes
+  ) => {
     return useMemo(() => {
-      if (!productTypesList.length) return [];
-      const uniqueValues = Array.from(new Set(productTypesList.map(item => item[key])));
+      if (!list || !list.length) return [];
+      const uniqueValues = Array.from(new Set(list.map(item => item[key])));
       return uniqueValues.map(value => ({
         label: String(value),
         value: String(value),
       }));
-    }, [productTypesList]);
+    }, [list, key]);
   };
 
-  const nameFilterOptions = createFilterOptions('name');
-  const daysFilterOptions = createFilterOptions('days');
+  const nameFilterOptions = useCreateFilterOptions(productTypesList, 'name');
+  const daysFilterOptions = useCreateFilterOptions(productTypesList, 'days');
 
   const createdByFilterOptions = useMemo(() => {
     if (!productTypesList.length || !userMap.size) return [];

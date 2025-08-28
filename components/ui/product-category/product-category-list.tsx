@@ -46,8 +46,9 @@ const ProductCategoryList = () => {
   })
 
   // ======== PAYLOADS DATA ========
-  const productCategoriesList = productCategoriesListResponse?.payload || []
-  const usersList = usersListResponse?.payload || []
+  const productCategoriesList = useMemo(() => productCategoriesListResponse?.payload || [], [productCategoriesListResponse]);
+
+  const usersList = useMemo(() => usersListResponse?.payload || [], [usersListResponse]);
 
   // ======== Lookups ========
   const userMap = useMemo(() => {
@@ -146,7 +147,7 @@ const ProductCategoryList = () => {
       meta: {
         filterType: "multiselect",
         filterOptions: [
-           { value: "active", label: "Active" },
+          { value: "active", label: "Active" },
           { value: "in_active", label: "Inactive" },
         ],
         filterPlaceholder: "Filter status...",

@@ -25,6 +25,9 @@ import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import Link from 'next/link';
 import SubNav from '../foundations/sub-nav';
 import WebAppMappersDatatable from './web-app-mappers-datatable';
+import LoadingState from '../foundations/loading-state';
+import Error from '../foundations/error';
+import Empty from '../foundations/empty';
 
 const WebAppMappersList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -63,11 +66,15 @@ const WebAppMappersList = () => {
   });
 
   // ======== PAYLOADS DATA ========
-  const webAppMappersList = webAppMappersListResponse?.payload || [];
-  const usersList = usersListResponse?.payload || [];
-  const plansList = plansListResponse?.payload || [];
-  const productList = productListResponse?.payload || [];
-  const productOptionsList = productOptionsListResponse?.payload || [];
+  const webAppMappersList = useMemo(() => webAppMappersListResponse?.payload || [], [webAppMappersListResponse]);
+
+  const usersList = useMemo(() => usersListResponse?.payload || [], [usersListResponse]);
+
+  const plansList = useMemo(() => plansListResponse?.payload || [], [plansListResponse]);
+
+  const productList = useMemo(() => productListResponse?.payload || [], [productListResponse]);
+
+  const productOptionsList = useMemo(() => productOptionsListResponse?.payload || [], [productOptionsListResponse]);
 
   // ======== LOOKUP MAPS ========
   const userMap = useMemo(() => new Map(usersList.map(user => [user.id, user.fullname])), [usersList]);
@@ -76,13 +83,17 @@ const WebAppMappersList = () => {
   const optionMap = useMemo(() => new Map(productOptionsList.map(option => [option.id, option.option_name])), [productOptionsList]);
 
   // ======== FILTER OPTIONS ========
-  const createFilterOptions = (key: keyof WebAppMappersPayloadTypes) => useMemo(() => {
-    const uniqueValues = Array.from(new Set(webAppMappersList.map(item => item[key])));
+  const useCreateFilterOptions = (
+    list: WebAppMappersPayloadTypes[], // 1. Accept the list as an argument
+    key: keyof WebAppMappersPayloadTypes
+  ) => useMemo(() => {
+    if (!list || list.length === 0) return []; // 2. Use the argument here
+    const uniqueValues = Array.from(new Set(list.map(item => item[key])));
     return uniqueValues.map(value => ({ label: String(value), value: String(value) }));
-  }, [webAppMappersList]);
+  }, [list, key]); // 3. And in the dependency array
 
-  const parentSkuFilterOptions = createFilterOptions('parent_sku');
-  const childSkuFilterOptions = createFilterOptions('child_sku');
+  const parentSkuFilterOptions = useCreateFilterOptions(webAppMappersList, 'parent_sku');
+  const childSkuFilterOptions = useCreateFilterOptions(webAppMappersList, 'child_sku');
 
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<WebAppMappersPayloadTypes>[] = [
@@ -161,6 +172,16 @@ const WebAppMappersList = () => {
       }
     }
   ];
+
+  // ======== RENDER LOGIC ========
+  const isLoading = webAppMappersListLoading || usersListLoading
+  const isError = usersListIsError || webAppMappersListIsError
+  const onError = usersListError?.message || webAppMappersListError?.message
+
+  if (isLoading) return <LoadingState />
+  if (isError) return <Error err={onError} />
+  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have permission." />
+
 
   return (
     <>

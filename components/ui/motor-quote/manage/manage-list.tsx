@@ -24,12 +24,6 @@ import useMotorQuoteIdStore from '@/hooks/useMotorQuoteIdStore';
 import { fetchMotorQuoteList } from '@/helperFunctions/motorQuoteFunctions';
 import { IgisMakeResponseType, IgisSubMakeResponseType } from '@/types/igisTypes';
 import { fetchIgisMakeList, fetchIgisSubMakeList } from '@/helperFunctions/igisFunction';
-import { fetchAgentList } from '@/helperFunctions/agentFunction';
-import { AgentResponseTypes } from '@/types/agentTypes';
-import { fetchBranchList } from '@/helperFunctions/branchFunction';
-import { BranchResponseType } from '@/types/branchTypes';
-import { fetchCityList } from '@/helperFunctions/cityFunction';
-import { CityResponseType } from '@/types/cityTypes';
 
 const MotorQuoteList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -43,12 +37,12 @@ const MotorQuoteList = () => {
   const rights = useMemo(() => { return getRights(pathname) }, [pathname])
 
   // ======== DATA FETCHING ========
-  const { data: usersListResponse, isLoading: usersListLoading, isError: usersListIsError, error: usersListError } = useQuery<UserResponseType | null>({
+  const { isLoading: usersListLoading, isError: usersListIsError, error: usersListError } = useQuery<UserResponseType | null>({
     queryKey: ['users-list'],
     queryFn: fetchUserList
   })
 
-  const { data: igisMakeListResponse, isLoading: igisMakeListLoading, isError: igisMakeListIsError, error: igisMakeListError } = useQuery<IgisMakeResponseType | null>({
+  const { isLoading: igisMakeListLoading, isError: igisMakeListIsError, error: igisMakeListError } = useQuery<IgisMakeResponseType | null>({
     queryKey: ['igis-make-list'],
     queryFn: fetchIgisMakeList,
   });
@@ -58,47 +52,45 @@ const MotorQuoteList = () => {
     queryFn: fetchMotorQuoteList
   })
 
-  const { data: igisSubMakeListResponse, isLoading: igisSubMakeListLoading, isError: igisSubMakeListIsError, error: igisSubMakeListError } = useQuery<IgisSubMakeResponseType | null>({
+  const { isLoading: igisSubMakeListLoading, isError: igisSubMakeListIsError, error: igisSubMakeListError } = useQuery<IgisSubMakeResponseType | null>({
     queryKey: ['igis-sub-make-list'],
     queryFn: fetchIgisSubMakeList,
   });
 
-  const { data: agentListResponse, isLoading: agentListLoading, isError: agentListIsError, error: agentListError } = useQuery<AgentResponseTypes | null>({
-    queryKey: ['agents-list'],
-    queryFn: fetchAgentList,
-  });
+  // const { data: agentListResponse, isLoading: agentListLoading, isError: agentListIsError, error: agentListError } = useQuery<AgentResponseTypes | null>({
+  //   queryKey: ['agents-list'],
+  //   queryFn: fetchAgentList,
+  // });
 
-  const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error } = useQuery<BranchResponseType | null>({
-    queryKey: ['branch-list'],
-    queryFn: fetchBranchList
-  })
+  // const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error } = useQuery<BranchResponseType | null>({
+  //   queryKey: ['branch-list'],
+  //   queryFn: fetchBranchList
+  // })
 
-  const { data: cityListResponse, isLoading: cityListLoading, isError: cityListIsError, error: cityListError } = useQuery<CityResponseType | null>({
-    queryKey: ['city-list'],
-    queryFn: fetchCityList,
-  });
+  // const { data: cityListResponse, isLoading: cityListLoading, isError: cityListIsError, error: cityListError } = useQuery<CityResponseType | null>({
+  //   queryKey: ['city-list'],
+  //   queryFn: fetchCityList,
+  // });
 
   // ======== PAYLOADS DATA ========
-  const usersList = usersListResponse?.payload || []
-  const igisMakeList = igisMakeListResponse?.payload || []
-  const motorQuoteList = motorQuoteListResponse?.payload || []
-  const igisSubMakeList = igisSubMakeListResponse?.payload || []
+  // const usersList = useMemo(() => usersListResponse?.payload || [], [usersListResponse]);
+  const motorQuoteList = useMemo(() => motorQuoteListResponse?.payload || [], [motorQuoteListResponse]);
 
   // ======== LOOKUPS ========
-  const userMap = useMemo(() => {
-    if (!usersList || usersList.length === 0) return new Map();
-    return new Map(usersList.map((user) => [user.id, user.fullname]))
-  }, [usersList])
+  // const userMap = useMemo(() => {
+  //   if (!usersList || usersList.length === 0) return new Map();
+  //   return new Map(usersList.map((user) => [user.id, user.fullname]))
+  // }, [usersList])
 
-  const igisMakeMap = useMemo(() => {
-    if (!igisMakeList || igisMakeList.length === 0) return new Map();
-    return new Map(igisMakeList.map((make) => [make.id, make.make_name]))
-  }, [igisMakeList])
+  // const igisMakeMap = useMemo(() => {
+  //   if (!igisMakeList || igisMakeList.length === 0) return new Map();
+  //   return new Map(igisMakeList.map((make) => [make.id, make.make_name]))
+  // }, [igisMakeList])
 
-  const igisSubMakeMap = useMemo(() => {
-    if (!igisMakeList || igisSubMakeList.length === 0) return new Map();
-    return new Map(igisSubMakeList.map((make) => [make.id, make.sub_make_name]))
-  }, [igisSubMakeList])
+  // const igisSubMakeMap = useMemo(() => {
+  //   if (!igisMakeList || igisSubMakeList.length === 0) return new Map();
+  //   return new Map(igisSubMakeList.map((make) => [make.id, make.sub_make_name]))
+  // }, [igisSubMakeList])
 
   // ======== FILTER OPTIONS ========
   const nameFilterOptions = useMemo(() => {
@@ -108,7 +100,7 @@ const MotorQuoteList = () => {
       label: name,
       value: name,
     }))
-  }, [motorQuoteList, userMap])
+  }, [motorQuoteList])
 
   const emailFilterOptions = useMemo(() => {
     if (!motorQuoteList) return []
@@ -137,27 +129,27 @@ const MotorQuoteList = () => {
     }))
   }, [motorQuoteList]);
 
-  const vehicleMakeFilterOptions = useMemo(() => {
-    if (!motorQuoteList || !igisMakeMap.size) return []
-    const uniqueIds = Array.from(new Set(motorQuoteList.map((item) => item.vehicle_make)))
-    return uniqueIds.map((vehicle_make) => (
-      {
-        label: igisMakeMap.get(vehicle_make),
-        value: String(vehicle_make)
-      }
-    ))
-  }, [motorQuoteList, igisMakeMap])
+  // const vehicleMakeFilterOptions = useMemo(() => {
+  //   if (!motorQuoteList || !igisMakeMap.size) return []
+  //   const uniqueIds = Array.from(new Set(motorQuoteList.map((item) => item.vehicle_make)))
+  //   return uniqueIds.map((vehicle_make) => (
+  //     {
+  //       label: igisMakeMap.get(vehicle_make),
+  //       value: String(vehicle_make)
+  //     }
+  //   ))
+  // }, [motorQuoteList, igisMakeMap])
 
-  const vehicleSubMakeFilterOptions = useMemo(() => {
-    if (!motorQuoteList || !igisSubMakeMap.size) return []
-    const uniqueIds = Array.from(new Set(motorQuoteList.map((item) => item.vehicle_submake)))
-    return uniqueIds.map((vehicle_submake) => (
-      {
-        label: igisSubMakeMap.get(vehicle_submake),
-        value: String(vehicle_submake)
-      }
-    ))
-  }, [motorQuoteList, igisSubMakeMap])
+  // const vehicleSubMakeFilterOptions = useMemo(() => {
+  //   if (!motorQuoteList || !igisSubMakeMap.size) return []
+  //   const uniqueIds = Array.from(new Set(motorQuoteList.map((item) => item.vehicle_submake)))
+  //   return uniqueIds.map((vehicle_submake) => (
+  //     {
+  //       label: igisSubMakeMap.get(vehicle_submake),
+  //       value: String(vehicle_submake)
+  //     }
+  //   ))
+  // }, [motorQuoteList, igisSubMakeMap])
 
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<MotorQuotePayloadTypes>[] = [

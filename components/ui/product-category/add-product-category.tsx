@@ -2,7 +2,7 @@
 
 import { getRights } from '@/utils/getRights';
 import { useRouter } from 'next/navigation';
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import SubNav from '../foundations/sub-nav';
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card';
 import { Button } from '../shadcn/button';
@@ -14,12 +14,25 @@ const AddProductCategory = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = '/products-plans/product-category'
   const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
   // ======== RENDER LOGIC ========
-  if (rights?.can_create !== "1") return router.push(LISTING_ROUTE)
+  useEffect(() => {
+    // Perform the check after the component mounts
+    if (rights?.can_create === "1") {
+      setIsAuthorized(true);
+    } else if (rights) {
+      router.push(LISTING_ROUTE);
+    }
+  }, [rights, router, LISTING_ROUTE]);
+
+  // ======== RENDER LOGIC ========
+  if (!isAuthorized) {
+    return null;
+  }
 
   return (
     <>

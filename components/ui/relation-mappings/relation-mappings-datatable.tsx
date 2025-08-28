@@ -1,7 +1,6 @@
 import React from 'react'
 import DataTable from '../datatable/data-table'
 import { ColumnDef } from '@tanstack/react-table';
-import { PlanPayloadTypes } from '@/types/planTypes';
 import { RelationMappingsPayloadTypes } from '@/types/relationMappingsTypes';
 
 interface RelationMappingsDatatableProps {

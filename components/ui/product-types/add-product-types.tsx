@@ -8,7 +8,6 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import AddProductTypesForm from './add-product-types-form'
 import { getRights } from '@/utils/getRights'
-import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 
 const AddProductTypes = () => {

@@ -51,9 +51,11 @@ const ProductList = () => {
     queryFn: fetchProductCategoriesList
   })
   // ======== PAYLOADS DATA ========
-  const productList = productListResponse?.payload || []
-  const usersList = usersListResponse?.payload || []
-  const productCategoriesList = productCategoriesListResponse?.payload || []
+const productList = useMemo(() => productListResponse?.payload || [], [productListResponse]);
+
+const usersList = useMemo(() => usersListResponse?.payload || [], [usersListResponse]);
+
+const productCategoriesList = useMemo(() => productCategoriesListResponse?.payload || [], [productCategoriesListResponse]);
 
   // ======== Lookups ========
   const userMap = useMemo(() => {

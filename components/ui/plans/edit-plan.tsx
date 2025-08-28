@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react'
+import React from 'react'
 import SubNav from '../foundations/sub-nav'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import { Button } from '../shadcn/button'

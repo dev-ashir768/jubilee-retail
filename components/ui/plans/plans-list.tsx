@@ -46,8 +46,8 @@ const PlansList = () => {
   })
 
   // ======== PAYLOADS DATA ========
-  const planList = planListResponse?.payload || []
-  const usersList = usersListResponse?.payload || []
+  const planList = useMemo(() => planListResponse?.payload || [], [planListResponse]);
+  const usersList = useMemo(() => usersListResponse?.payload || [], [usersListResponse]);
 
   // ======== LOOKUPS ========
   const userMap = useMemo(() => {
@@ -63,7 +63,7 @@ const PlansList = () => {
       label: name,
       value: name,
     }));
-  }, [planListResponse]);
+  }, [planList]);
 
   const createdByFilterOptions = useMemo(() => {
     if (!planList.length || !userMap.size) return [];

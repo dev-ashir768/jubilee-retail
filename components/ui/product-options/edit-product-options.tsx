@@ -36,7 +36,7 @@ const EditProductOptions = () => {
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights, router, productOptionsId]);
 
   // ======== DATA FETCHING ========
   const { data: productListResponse, isLoading: productListLoading, isError: productListIsError, error: productListError } = useQuery<ProductsResponseTypes | null>({

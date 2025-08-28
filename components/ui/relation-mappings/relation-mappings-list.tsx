@@ -45,8 +45,8 @@ const RelationMappingsList = () => {
   });
 
   // ======== PAYLOADS DATA ========
-  const relationMappingsList = relationMappingsListResponse?.payload || [];
-  const usersList = usersListResponse?.payload || [];
+  const relationMappingsList = useMemo(() => relationMappingsListResponse?.payload || [], [relationMappingsListResponse]);
+  const usersList = useMemo(() => usersListResponse?.payload || [], [usersListResponse]);
 
   // ======== LOOKUP MAPS ========
   const userMap = useMemo(() => {
@@ -54,21 +54,24 @@ const RelationMappingsList = () => {
     return new Map(usersList.map((user) => [user.id, user.fullname]));
   }, [usersList]);
 
-    // ======== FILTER OPTIONS ========
-  const createFilterOptions = (key: keyof RelationMappingsPayloadTypes) => {
+  // ======== FILTER OPTIONS ========
+  const useCreateFilterOptions = (
+    list: RelationMappingsPayloadTypes[], // Accept the list as the first argument
+    key: keyof RelationMappingsPayloadTypes
+  ) => {
     return useMemo(() => {
-      if (!relationMappingsList.length) return [];
-      const uniqueValues = Array.from(new Set(relationMappingsList.map(item => item[key])));
+      if (!list || !list.length) return [];
+      const uniqueValues = Array.from(new Set(list.map(item => item[key])));
       return uniqueValues.map(value => ({
         label: String(value),
         value: String(value),
       }));
-    }, [relationMappingsList]);
+    }, [list, key]); // Now, 'list' is a proper dependency
   };
 
-  const nameFilterOptions = createFilterOptions('name');
-  const shortKeyFilterOptions = createFilterOptions('short_key');
-  const genderFilterOptions = createFilterOptions('gender');
+  const nameFilterOptions = useCreateFilterOptions(relationMappingsList, 'name');
+  const shortKeyFilterOptions = useCreateFilterOptions(relationMappingsList, 'short_key');
+  const genderFilterOptions = useCreateFilterOptions(relationMappingsList, 'gender');
 
   const createdByFilterOptions = useMemo(() => {
     if (!relationMappingsList.length || !userMap.size) return [];
@@ -142,7 +145,7 @@ const RelationMappingsList = () => {
       meta: {
         filterType: "multiselect",
         filterOptions: [
-           { value: "active", label: "Active" },
+          { value: "active", label: "Active" },
           { value: "in_active", label: "Inactive" },
         ],
         filterPlaceholder: "Filter status...",
@@ -189,7 +192,7 @@ const RelationMappingsList = () => {
 
   return (
     <>
-<SubNav
+      <SubNav
         title="Relation Mappings List"
         addBtnTitle="Add Relation"
         urlPath={ADD_URL}
