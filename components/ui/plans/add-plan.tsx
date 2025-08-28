@@ -22,7 +22,7 @@ const AddPlan = () => {
   // ======== RENDER LOGIC ========
  useEffect(() => {
     // Perform the check after the component mounts
-    if (rights?.can_create === "1") {
+    if (rights?.can_create === "1") { 
       setIsAuthorized(true);
     } else if (rights) {
       router.push(LISTING_ROUTE);
