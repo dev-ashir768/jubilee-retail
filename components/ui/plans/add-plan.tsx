@@ -1,61 +1,79 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react'
-import SubNav from '../foundations/sub-nav'
-import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
-import { Button } from '../shadcn/button'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
-import AddPlanForm from './add-plan-form'
-import { useRouter } from 'next/navigation'
-import { getRights } from '@/utils/getRights'
+import React, { useEffect, useMemo, useState } from "react";
+import SubNav from "../foundations/sub-nav";
+import { Card, CardContent, CardHeader, CardTitle } from "../shadcn/card";
+import { Button } from "../shadcn/button";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import AddPlanForm from "./add-plan-form";
+import { useRouter } from "next/navigation";
+import { getRights } from "@/utils/getRights";
+import Empty from "../foundations/empty";
 
 const AddPlan = () => {
+  
   // ======== CONSTANTS & HOOKS ========
-  const LISTING_ROUTE = '/products-plans/plan'
+  const LISTING_ROUTE = "/products-plans/plan";
   const router = useRouter();
-   const [isAuthorized, setIsAuthorized] = useState(false);
 
   // ======== MEMOIZATION ========
-  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
+  const rights = useMemo(() => {
+    return getRights(LISTING_ROUTE);
+  }, [LISTING_ROUTE]);
+
+  console.log(rights);
 
   // ======== RENDER LOGIC ========
- useEffect(() => {
-    // Perform the check after the component mounts
-    if (rights?.can_create === "1") { 
-      setIsAuthorized(true);
-    } else if (rights) {
-      router.push(LISTING_ROUTE);
+  useEffect(() => {
+    if (rights && rights?.can_create === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
     }
-  }, [rights, router, LISTING_ROUTE]);
+  }, [rights, router]);
 
-  // ======== RENDER LOGIC ========
-  if (!isAuthorized) {
-    return null;
+  if (rights && rights?.can_create === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have permission."
+      />
+    );
   }
-
 
   return (
     <>
-      <SubNav title='Add Plan' />
+      <SubNav title="Add Plan" />
 
-      <Card className='w-full shadow-none border-none'>
-        <CardHeader className='border-b gap-0'>
+      <Card className="w-full shadow-none border-none">
+        <CardHeader className="border-b gap-0">
           <CardTitle>
-            <div className='flex items-center gap-2'>
-              <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' asChild>
-                <Link href={LISTING_ROUTE}><ArrowLeft className='size-6' /></Link>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full border border-gray-200"
+                asChild
+              >
+                <Link href={LISTING_ROUTE}>
+                  <ArrowLeft className="size-6" />
+                </Link>
               </Button>
               Add a new plan to the system
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className='w-full'><AddPlanForm /></div>
+          <div className="w-full">
+            <AddPlanForm />
+          </div>
         </CardContent>
       </Card>
     </>
-  )
-}
+  );
+};
 
 export default AddPlan;
