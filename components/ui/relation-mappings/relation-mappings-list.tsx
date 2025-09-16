@@ -7,7 +7,6 @@ import { RelationMappingsPayloadTypes, RelationMappingsResponseTypes } from '@/t
 import { UserResponseType } from '@/types/usersTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import { usePathname } from 'next/navigation';
 import React, { useMemo } from 'react'
 import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
@@ -25,13 +24,13 @@ import SubNav from '../foundations/sub-nav';
 
 const RelationMappingsList = () => {
   // ======== CONSTANTS & HOOKS ========
-  const ADD_URL = '/settings/add-relation-mapping';
-  const EDIT_URL = '/settings/edit-relation-mapping';
-  const pathname = usePathname();
+  const ADD_ROUTE = '/settings/add-relation-mapping';
+  const EDIT_ROUTE = '/settings/edit-relation-mapping';
+  const LISTING_ROUTE = '/mapping/relation-mapper'
   const { setRelationMappingId } = useRelationMappingsIdStore();
 
   // ======== MEMOIZATION ========
-  const rights = useMemo(() => { return getRights(pathname) }, [pathname])
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
   // ======== DATA FETCHING ========
   const { data: relationMappingsListResponse, isLoading: relationMappingsListLoading, isError: relationMappingsListIsError, error: relationMappingsListError } = useQuery<RelationMappingsResponseTypes | null>({
@@ -166,7 +165,7 @@ const RelationMappingsList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" &&
                 <DropdownMenuItem onClick={() => setRelationMappingId(record.id)} asChild>
-                  <Link href={EDIT_URL}><Edit className='mr-2 h-4 w-4' />Edit</Link>
+                  <Link href={EDIT_ROUTE}><Edit className='mr-2 h-4 w-4' />Edit</Link>
                 </DropdownMenuItem>
               }
               {rights?.can_delete === "1" &&
@@ -195,7 +194,7 @@ const RelationMappingsList = () => {
       <SubNav
         title="Relation Mappings List"
         addBtnTitle="Add Relation"
-        urlPath={ADD_URL}
+        urlPath={ADD_ROUTE}
       />
       <RelationMappingsDatatable columns={columns} payload={relationMappingsList} />
     </>

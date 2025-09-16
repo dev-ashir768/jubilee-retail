@@ -5,7 +5,7 @@ import useAgentIdStore from '@/hooks/useAgentIdStore';
 import { AgentPayloadTypes, AgentResponseTypes } from '@/types/agentTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
@@ -24,11 +24,12 @@ import AgentDatatable from './agent-datatable';
 import LoadingState from '../foundations/loading-state';
 
 const AgentList = () => {
+ 
   // Constants
   const ADD_ROUTES = '/agents-dos/add-agent'
 
   const router = useRouter();
-  const pathname = usePathname();
+  const LISTING_ROUTE = '/agents-dos/agents'
 
   // Zustand
   const { setAgentId } = useAgentIdStore();
@@ -199,8 +200,8 @@ const AgentList = () => {
 
   // Rights
   const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
+    return getRights(LISTING_ROUTE)
+  }, [LISTING_ROUTE])
 
   if (rights?.can_view !== "1") {
     setTimeout(() => {

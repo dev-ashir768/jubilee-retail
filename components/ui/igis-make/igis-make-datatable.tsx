@@ -13,7 +13,7 @@ const IgisMakeDatatable: React.FC<IgisMakeDatatableProps> = ({ columns, payload 
       <DataTable
         columns={columns}
         data={payload}
-        title="List of all igis makes in the system"
+        title="List of all IGIS makes in the system"
       />
     </>
   )

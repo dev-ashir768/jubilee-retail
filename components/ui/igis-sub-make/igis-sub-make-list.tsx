@@ -2,7 +2,7 @@
 
 import { fetchIgisMakeList, fetchIgisSubMakeList } from '@/helperFunctions/igisFunction';
 import { useQuery } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
@@ -22,12 +22,12 @@ import LoadingState from '../foundations/loading-state';
 import useIgisSubMakeIdStore from '@/hooks/useIgisSubMakeIdStore';
 
 const IgisSubMakeList = () => {
+  
   // Constants
-  const ADD_URL = '/igis/add-igis-sub-makes'
-  const EDIT_URL = '/igis/edit-igis-sub-makes'
-
+  const ADD_ROUTE = '/igis/add-igis-sub-makes'
+  const EDIT_ROUTE = '/igis/edit-igis-sub-makes'
   const router = useRouter();
-  const pathname = usePathname();
+  const LISTING_ROUTE = '/igis/igis-sub-makes'
   const { setIgisMakeId } = useIgisSubMakeIdStore();
 
   // Fetch IGIS make list data for make_id to make_name mapping
@@ -180,7 +180,7 @@ const IgisSubMakeList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={EDIT_URL} onClick={() => setIgisMakeId(record.id)}>
+                  <Link href={EDIT_ROUTE} onClick={() => setIgisMakeId(record.id)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -201,8 +201,8 @@ const IgisSubMakeList = () => {
 
   // Rights
   const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
+    return getRights(LISTING_ROUTE);
+  }, [LISTING_ROUTE]);
 
   if (rights?.can_view !== "1") {
     setTimeout(() => {
@@ -228,7 +228,7 @@ const IgisSubMakeList = () => {
 
   return (
     <>
-      <SubNav title="IGIS Sub Make List" addBtnTitle="Add IGIS Sub-Make" urlPath={ADD_URL} />
+      <SubNav title="IGIS Sub Make List" addBtnTitle="Add IGIS Sub-Make" urlPath={ADD_ROUTE} />
       <IgisSubMakeDatatable columns={columns} payload={igisSubMakeListResponse?.payload || []} />
     </>
   );

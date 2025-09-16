@@ -13,7 +13,6 @@ import { UserResponseType } from '@/types/usersTypes';
 import { WebAppMappersPayloadTypes, WebAppMappersResponseTypes } from '@/types/webAppMappersTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import { usePathname } from 'next/navigation';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../shadcn/dropdown-menu';
 import React, { useMemo } from 'react'
 import { ColumnDef } from '@tanstack/react-table';
@@ -31,13 +30,13 @@ import Empty from '../foundations/empty';
 
 const WebAppMappersList = () => {
   // ======== CONSTANTS & HOOKS ========
-  const ADD_URL = '/mapping/add-web-app-mapper'
-  const EDIT_URL = '/mapping/edit-web-app-mapper'
-  const pathname = usePathname();
+  const ADD_ROUTE = '/mapping/add-web-app-mapper'
+  const EDIT_ROUTE = '/mapping/edit-web-app-mapper'
+  const LISTING_ROUTE = '/mapping/web-app-mapper'
   const { setWebAppMapperId } = useWebAppMappersIdStore();
 
   // ======== MEMOIZATION ========
-  const rights = useMemo(() => { return getRights(pathname) }, [pathname])
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
   // ======== DATA FETCHING ========
   const { data: webAppMappersListResponse, isLoading: webAppMappersListLoading, isError: webAppMappersListIsError, error: webAppMappersListError } = useQuery<WebAppMappersResponseTypes | null>({
@@ -160,7 +159,7 @@ const WebAppMappersList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" &&
                 <DropdownMenuItem onClick={() => setWebAppMapperId(record.id)} asChild>
-                  <Link href={EDIT_URL}><Edit className='mr-2 h-4 w-4' />Edit</Link>
+                  <Link href={EDIT_ROUTE}><Edit className='mr-2 h-4 w-4' />Edit</Link>
                 </DropdownMenuItem>
               }
               {rights?.can_delete === "1" &&
@@ -188,7 +187,7 @@ const WebAppMappersList = () => {
       <SubNav
         title="Web App Mappers List"
         addBtnTitle="Add Mapper"
-        urlPath={ADD_URL}
+        urlPath={ADD_ROUTE}
       />
       <WebAppMappersDatatable columns={columns} payload={webAppMappersList} />
     </>

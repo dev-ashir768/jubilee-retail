@@ -56,7 +56,7 @@ const EditIgisSubMake = () => {
   return (
     <>
       <SubNav
-        title='Edit Igis Sub Make'
+        title='Edit IGIS Sub Make'
       />
 
       <Card className='w-full shadow-none border-none'>
@@ -68,7 +68,7 @@ const EditIgisSubMake = () => {
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>
-              Edit existing igis sub make to the system
+              Edit existing IGIS sub make to the system
             </div>
           </CardTitle>
         </CardHeader>

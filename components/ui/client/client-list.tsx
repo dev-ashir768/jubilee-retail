@@ -1,4 +1,4 @@
-"use client";
+  "use client";
 
 import { useMemo } from 'react';
 import { fetchClientList } from '@/helperFunctions/clientFunction';
@@ -22,10 +22,10 @@ import ClientDatatable from './client-datatable';
 import LoadingState from '../foundations/loading-state';
 
 const ClientList = () => {
-  // Constants
+ 
+  // ======== CONSTANTS & HOOKS ========
   const ADD_URL = '/branches-clients/add-clients'
   const EDIT_URL = '/branches-clients/edit-clients'
-
   const router = useRouter();
   const pathname = usePathname();
 

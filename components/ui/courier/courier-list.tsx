@@ -2,7 +2,7 @@
 
 import { fetchCourierList } from '@/helperFunctions/courierFunction';
 import { useQuery } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
@@ -23,12 +23,12 @@ import useCourierIdStore from '@/hooks/useCourierIdStore';
 
 
 const CourierList = () => {
-  // Constants
-  const ADD_URL = '/cites-couiers/add-couriers'
-  const EDIT_URL = '/cites-couiers/edit-couriers'
 
+  // Constants
+  const ADD_ROUTE = '/cites-couiers/add-couriers'
+  const EDIT_ROUTE = '/cites-couiers/edit-couriers'
   const router = useRouter();
-  const pathname = usePathname();
+  const LISTING_ROUTE = '/cites-couiers/couriers'
   const { setCourierId } = useCourierIdStore();
 
   // Fetch courier list data using react-query
@@ -141,7 +141,7 @@ const CourierList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={EDIT_URL} onClick={() => setCourierId(record.id)}>
+                  <Link href={EDIT_ROUTE} onClick={() => setCourierId(record.id)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -162,8 +162,8 @@ const CourierList = () => {
 
   // Rights
   const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
+    return getRights(LISTING_ROUTE);
+  }, [LISTING_ROUTE]);
 
   if (rights?.can_view !== "1") {
     setTimeout(() => {
@@ -189,7 +189,7 @@ const CourierList = () => {
 
   return (
     <>
-      <SubNav title="Courier List" addBtnTitle="Add Courier" urlPath={ADD_URL} />
+      <SubNav title="Courier List" addBtnTitle="Add Courier" urlPath={ADD_ROUTE} />
       <CourierDatatable columns={columns} payload={courierListResponse?.payload || []} />
     </>
   );

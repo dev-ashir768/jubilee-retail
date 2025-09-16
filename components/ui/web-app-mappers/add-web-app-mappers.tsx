@@ -74,7 +74,7 @@ const AddWebAppMappers = () => {
 
   return (
     <>
-      <SubNav title='Add Product Option' />
+      <SubNav title='Add Web App Mapper' />
 
       <Card className='w-full shadow-none border-none'>
         <CardHeader className='border-b gap-0'>

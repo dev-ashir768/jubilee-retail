@@ -38,7 +38,7 @@ const AddCity = () => {
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>
-              Add a new  city to the system
+              Add a new city to the system
             </div>
           </CardTitle>
         </CardHeader>

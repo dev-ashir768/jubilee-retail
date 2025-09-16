@@ -29,7 +29,7 @@ const AddIgisMake = () => {
   return (
     <>
       <SubNav
-        title='Add Call Us'
+        title='Add IGIS make'
       />
 
       <Card className='w-full shadow-none border-none'>
@@ -41,7 +41,7 @@ const AddIgisMake = () => {
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>
-              Add a new igis make to the system
+              Add a new IGIS make to the system
             </div>
           </CardTitle>
         </CardHeader>

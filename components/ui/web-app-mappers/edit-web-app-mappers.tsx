@@ -89,7 +89,7 @@ const EditWebAppMappers = () => {
 
   return (
     <>
-      <SubNav title='Add Product Option' />
+      <SubNav title='Edit Web App Mapper' />
 
       <Card className='w-full shadow-none border-none'>
         <CardHeader className='border-b gap-0'>
@@ -98,7 +98,7 @@ const EditWebAppMappers = () => {
               <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' asChild>
                 <Link href={LISTING_ROUTE}><ArrowLeft className='size-6' /></Link>
               </Button>
-              Edit Web App Mappers to the system
+              Edit existing Web App Mappers to the system
             </div>
           </CardTitle>
         </CardHeader>

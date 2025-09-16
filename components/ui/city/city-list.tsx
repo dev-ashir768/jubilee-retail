@@ -2,7 +2,7 @@
 
 import { fetchCityList } from '@/helperFunctions/cityFunction';
 import { useQuery } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
@@ -21,13 +21,13 @@ import { Badge } from '../shadcn/badge';
 import LoadingState from '../foundations/loading-state';
 import useCityIdStore from '@/hooks/useCityIdStore';
 
-const CityList = () => {  // Constants
-  // Constants
-  const ADD_URL = '/cites-couiers/add-cities'
-  const EDIT_URL = '/cites-couiers/edit-cities'
+const CityList = () => {  
 
+  // ======== CONSTANTS & HOOKS ========
+  const ADD_ROUTE = '/cites-couiers/add-cities'
+  const EDIT_ROUTE = '/cites-couiers/edit-cities'
   const router = useRouter();
-  const pathname = usePathname();
+  const LISTING_ROUTE = '/cites-couiers/cities'
   const { setCityId } = useCityIdStore();
 
   // Fetch city list data using react-query
@@ -139,7 +139,7 @@ const CityList = () => {  // Constants
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={EDIT_URL} onClick={() => setCityId(record.id)}>
+                  <Link href={EDIT_ROUTE} onClick={() => setCityId(record.id)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -160,8 +160,8 @@ const CityList = () => {  // Constants
 
   // Rights
   const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
+    return getRights(LISTING_ROUTE);
+  }, [LISTING_ROUTE]);
 
   if (rights?.can_view !== "1") {
     setTimeout(() => {
@@ -187,7 +187,7 @@ const CityList = () => {  // Constants
 
   return (
     <>
-      <SubNav title="City List" addBtnTitle="Add City" urlPath={ADD_URL} />
+      <SubNav title="City List" addBtnTitle="Add City" urlPath={ADD_ROUTE} />
       <CityDatatable columns={columns} payload={cityListResponse?.payload || []} />
     </>
   );

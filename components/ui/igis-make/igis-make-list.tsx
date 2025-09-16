@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
@@ -15,7 +15,6 @@ import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import SubNav from '../foundations/sub-nav';
 import { IgisMakeResponseType, IgisMakePayloadType } from '@/types/igisTypes';
-
 import { getRights } from '@/utils/getRights';
 import IgisMakeDatatable from './igis-make-datatable';
 import { fetchIgisMakeList } from '@/helperFunctions/igisFunction';
@@ -23,12 +22,12 @@ import useIgisMakeIdStore from '@/hooks/useIgisMakeIdStore';
 import LoadingState from '../foundations/loading-state';
 
 const IgisMakeList = () => {
+  
   // Constants
   const EDIT_ROUTE = '/igis/edit-igis-makes'
   const ADD_ROUTE = '/igis/add-igis-makes'
-
   const router = useRouter();
-  const pathname = usePathname();
+  const LISTING_ROUTE = '/igis/igis-makes'
   const { setIgisMakeId } = useIgisMakeIdStore();
 
   // Fetch IGIS make list data using react-query
@@ -147,8 +146,8 @@ const IgisMakeList = () => {
 
   // Rights
   const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
+    return getRights(LISTING_ROUTE);
+  }, [LISTING_ROUTE]);
 
   if (rights?.can_view !== "1") {
     setTimeout(() => {

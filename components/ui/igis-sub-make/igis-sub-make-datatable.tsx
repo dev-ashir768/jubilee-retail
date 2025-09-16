@@ -14,7 +14,7 @@ const IgisSubMakeDatatable: React.FC<ClientDatatableProps> = ({ columns, payload
       <DataTable
         columns={columns}
         data={payload}
-        title="List of all igis sub make in the system"
+        title="List of all IGIS sub make in the system"
       />
     </>
   )

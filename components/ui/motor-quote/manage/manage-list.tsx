@@ -4,7 +4,6 @@ import { fetchUserList } from '@/helperFunctions/userFunction';
 import { UserResponseType } from '@/types/usersTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import { usePathname } from 'next/navigation';
 import React, { useMemo } from 'react'
 import LoadingState from '../../foundations/loading-state';
 import Error from '../../foundations/error';
@@ -27,14 +26,14 @@ import { fetchIgisMakeList, fetchIgisSubMakeList } from '@/helperFunctions/igisF
 
 const MotorQuoteList = () => {
   // ======== CONSTANTS & HOOKS ========
-  const ADD_URL = '/motor-quote/add-manage'
-  const EDIT_URL = '/motor-quote/edit-manage'
-  const pathname = usePathname();
+  const ADD_ROUTE = '/motor-quote/add-manage'
+  const EDIT_ROUTE = '/motor-quote/edit-manage'
+  const LISTING_ROUTE = '/motor-quote/manage'
   const { setMotorQuoteId } = useMotorQuoteIdStore();
 
 
   // ======== MEMOIZATION ========
-  const rights = useMemo(() => { return getRights(pathname) }, [pathname])
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
   // ======== DATA FETCHING ========
   const { isLoading: usersListLoading, isError: usersListIsError, error: usersListError } = useQuery<UserResponseType | null>({
@@ -278,7 +277,7 @@ const MotorQuoteList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" &&
                 <DropdownMenuItem onClick={() => setMotorQuoteId(record.id)} asChild>
-                  <Link href={EDIT_URL}><Edit className='mr-2 h-4 w-4' />Edit</Link>
+                  <Link href={EDIT_ROUTE}><Edit className='mr-2 h-4 w-4' />Edit</Link>
                 </DropdownMenuItem>
               }
               {
@@ -308,7 +307,7 @@ const MotorQuoteList = () => {
       <SubNav
         title="Manage Motor Quote List"
         addBtnTitle="Add Plan"
-        urlPath={ADD_URL}
+        urlPath={ADD_ROUTE}
       />
 
       <ManageDatatable columns={columns} payload={motorQuoteList} />

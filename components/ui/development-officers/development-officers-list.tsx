@@ -4,7 +4,7 @@ import { fetchDevelopmentOfficerList } from '@/helperFunctions/developmentOffice
 import { DevelopmentOfficerPayloadTypes, DevelopmentOfficerResponseTypes } from '@/types/developmentOfficerTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
@@ -24,8 +24,10 @@ import DevelopmentOfficerDatatable from './development-officer-datatable';
 import LoadingState from '../foundations/loading-state';
 
 const DevelopmentOfficersList = () => {
+  
+  // ======== CONSTANTS & HOOKS ========
   const router = useRouter();
-  const pathname = usePathname();
+  const LISTING_ROUTE = '/agents-dos/development-officers'
 
   // Zustand
   const { setDevelopmentOfficerId } = useDevelopmentOfficerIdStore();
@@ -177,8 +179,8 @@ const DevelopmentOfficersList = () => {
 
   // Rights
   const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
+    return getRights(LISTING_ROUTE)
+  }, [LISTING_ROUTE])
 
   if (rights?.can_view !== "1") {
     setTimeout(() => {
