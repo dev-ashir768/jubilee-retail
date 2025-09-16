@@ -46,7 +46,7 @@ const EditProductTypes = () => {
   if (!productTypeId) return <Empty title="Permission Denied" description="You do not have permission." />
   return (
     <>
-      <SubNav title='Edit Types' />
+      <SubNav title='Edit Product Types' />
 
       <Card className='w-full shadow-none border-none'>
         <CardHeader className='border-b gap-0'>

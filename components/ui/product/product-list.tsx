@@ -8,7 +8,6 @@ import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import { fetchUserList } from '@/helperFunctions/userFunction';
 import { getRights } from '@/utils/getRights';
-import { usePathname } from 'next/navigation';
 import useProductsIdStore from '@/hooks/useProductsIdStore';
 import { useQuery } from '@tanstack/react-query';
 import { ProductsPayloadTypes, ProductsResponseTypes } from '@/types/productsTypes';
@@ -27,13 +26,13 @@ import { fetchProductCategoriesList } from '@/helperFunctions/productCategoriesF
 
 const ProductList = () => {
   // ======== CONSTANTS & HOOKS ========
-  const ADD_URL = '/products-plans/add-product'
-  const EDIT_URL = '/products-plans/edit-product'
-  const pathname = usePathname();
+  const ADD_ROUTE = '/products-plans/add-product'
+  const EDIT_ROUTE = '/products-plans/edit-product'
+  const LISTING_ROUTE = '/products-plans/product'
   const { setProductsId } = useProductsIdStore();
 
   // ======== MEMOIZATION ========
-  const rights = useMemo(() => { return getRights(pathname) }, [pathname])
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
   // ======== DATA FETCHING ========
   const { data: productListResponse, isLoading: productListLoading, isError: productListIsError, error: productListError } = useQuery<ProductsResponseTypes | null>({
@@ -207,7 +206,7 @@ const productCategoriesList = useMemo(() => productCategoriesListResponse?.paylo
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" &&
                 <DropdownMenuItem onClick={() => setProductsId(record.id)} asChild>
-                  <Link href={EDIT_URL}>
+                  <Link href={EDIT_ROUTE}>
                     <Edit className='mr-2 h-4 w-4' />
                     Edit
                   </Link>
@@ -241,7 +240,7 @@ const productCategoriesList = useMemo(() => productCategoriesListResponse?.paylo
       <SubNav
         title="Products List"
         addBtnTitle="Add Product"
-        urlPath={ADD_URL}
+        urlPath={ADD_ROUTE}
       />
 
       <ProductDatatable columns={columns} payload={productList} />

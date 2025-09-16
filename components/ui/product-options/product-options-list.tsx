@@ -9,7 +9,6 @@ import { ProductsResponseTypes } from '@/types/productsTypes';
 import { UserResponseType } from '@/types/usersTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import { usePathname } from 'next/navigation';
 import React, { useMemo } from 'react'
 import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
@@ -28,13 +27,13 @@ import ProductOptionsDatatable from './product-options-datatable';
 const ProductOptionsList = () => {
 
   // ======== CONSTANTS & HOOKS ========
-  const ADD_URL = '/products-plans/add-product-options'
-  const EDIT_URL = '/products-plans/edit-product-options'
-  const pathname = usePathname();
+  const ADD_ROUTE = '/products-plans/add-product-options'
+  const EDIT_ROUTE = '/products-plans/edit-product-options'
+  const LISTING_ROUTE = '/products-plans/product-options'
   const { setProductOptionsId } = useProductOptionsIdStore();
 
   // ======== MEMOIZATION ========
-  const rights = useMemo(() => { return getRights(pathname) }, [pathname])
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
 
   // ======== DATA FETCHING ========
@@ -205,7 +204,7 @@ const ProductOptionsList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" &&
                 <DropdownMenuItem onClick={() => setProductOptionsId(record.id)} asChild>
-                  <Link href={EDIT_URL}>
+                  <Link href={EDIT_ROUTE}>
                     <Edit className='mr-2 h-4 w-4' />
                     Edit
                   </Link>
@@ -239,7 +238,7 @@ const ProductOptionsList = () => {
       <SubNav
         title="Product Options List"
         addBtnTitle="Add Product Option"
-        urlPath={ADD_URL}
+        urlPath={ADD_ROUTE}
       />
 
       <ProductOptionsDatatable columns={columns} payload={productOptionsList} />

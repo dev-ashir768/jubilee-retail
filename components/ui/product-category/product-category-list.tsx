@@ -5,7 +5,6 @@ import useProductCategoryIdStore from '@/hooks/useProductCategoryStore';
 import { ProductCategoriesPayloadTypes, ProductCategoriesResponseTypes } from '@/types/productCategoriesTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import { usePathname } from 'next/navigation';
 import React, { useMemo } from 'react'
 import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
@@ -26,13 +25,13 @@ import { Badge } from '../shadcn/badge';
 const ProductCategoryList = () => {
 
   // ======== CONSTANTS & HOOKS ========
-  const ADD_URL = '/products-plans/add-product-category'
-  const EDIT_URL = '/products-plans/edit-product-category'
-  const pathname = usePathname();
+  const ADD_ROUTE = '/products-plans/add-product-category'
+  const EDIT_ROUTE = '/products-plans/edit-product-category'
+  const LISTING_ROUTE = '/products-plans/product-category'
   const { setProductCategoryId } = useProductCategoryIdStore();
 
   // ======== MEMOIZATION ========
-  const rights = useMemo(() => { return getRights(pathname) }, [pathname])
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
   // ======== DATA FETCHING ========
   const { data: productCategoriesListResponse, isLoading: productCategoriesListLoading, isError: productCategoriesListIsError, error: productCategoriesListError } = useQuery<ProductCategoriesResponseTypes | null>({
@@ -171,7 +170,7 @@ const ProductCategoryList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" &&
                 <DropdownMenuItem onClick={() => setProductCategoryId(record.id)} asChild>
-                  <Link href={EDIT_URL}>
+                  <Link href={EDIT_ROUTE}>
                     <Edit className='mr-2 h-4 w-4' />
                     Edit
                   </Link>
@@ -206,7 +205,7 @@ const ProductCategoryList = () => {
       <SubNav
         title="Product Category List"
         addBtnTitle="Add Category"
-        urlPath={ADD_URL}
+        urlPath={ADD_ROUTE}
       />
 
       <ProductCategoryDatatable columns={columns} payload={productCategoriesList} />

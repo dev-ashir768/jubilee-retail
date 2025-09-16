@@ -2,7 +2,6 @@
 
 import usePlanIdStore from '@/hooks/usePlanIdStore'
 import { getRights } from '@/utils/getRights'
-import { usePathname } from 'next/navigation'
 import React, { useMemo } from 'react'
 import SubNav from '../foundations/sub-nav'
 import PlansDatatable from './plans-datatable'
@@ -26,13 +25,13 @@ import { fetchUserList } from '@/helperFunctions/userFunction'
 const PlansList = () => {
 
   // ======== CONSTANTS & HOOKS ========
-  const ADD_URL = '/products-plans/add-plan'
-  const EDIT_URL = '/products-plans/edit-plan'
-  const pathname = usePathname();
+  const ADD_ROUTE = '/products-plans/add-plan'
+  const EDIT_ROUTE = '/products-plans/edit-plan'
+  const LISTING_ROUTE = '/products-plans/plan'
   const { setPlanId } = usePlanIdStore();
 
   // ======== MEMOIZATION ========
-  const rights = useMemo(() => { return getRights(pathname) }, [pathname])
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE)}, [LISTING_ROUTE])
 
   // ======== DATA FETCHING ========
   const { data: planListResponse, isLoading: planListLoading, isError: planListIsError, error: planListError } = useQuery<PlanResponseTypes | null>({
@@ -148,7 +147,7 @@ const PlansList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" &&
                 <DropdownMenuItem onClick={() => setPlanId(record.id)} asChild>
-                  <Link href={EDIT_URL}><Edit className='mr-2 h-4 w-4' />Edit</Link>
+                  <Link href={EDIT_ROUTE}><Edit className='mr-2 h-4 w-4' />Edit</Link>
                 </DropdownMenuItem>
               }
               {
@@ -178,7 +177,7 @@ const PlansList = () => {
       <SubNav
         title="Plans List"
         addBtnTitle="Add Plan"
-        urlPath={ADD_URL}
+        urlPath={ADD_ROUTE}
       />
 
       <PlansDatatable columns={columns} payload={planList} />

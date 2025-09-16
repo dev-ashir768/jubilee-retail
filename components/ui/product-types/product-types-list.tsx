@@ -7,7 +7,6 @@ import { ProductTypePayloadTypes, ProductTypeResponseTypes } from '@/types/produ
 import { UserResponseType } from '@/types/usersTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import { usePathname } from 'next/navigation';
 import React, { useMemo } from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../shadcn/dropdown-menu';
 import { Button } from '../shadcn/button';
@@ -26,13 +25,13 @@ import ProductTypesDatatable from './product-types-datatable';
 const ProductTypesList = () => {
 
   // ======== CONSTANTS & HOOKS ========
-  const ADD_URL = '/products-plans/add-product-type'
-  const EDIT_URL = '/products-plans/edit-product-type'
-  const pathname = usePathname();
+  const ADD_ROUTE = '/products-plans/add-product-type'
+  const EDIT_ROUTE = '/products-plans/edit-product-type'
+  const LISTING_ROUTE = '/products-plans/product-type'
   const { setProductTypeId } = useProductTypesIdStore();
 
   // ======== MEMOIZATION ========
-  const rights = useMemo(() => { return getRights(pathname) }, [pathname])
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
   // ======== DATA FETCHING ========
   const { data: productTypesListResponse, isLoading: productTypesListLoading, isError: productTypesListIsError, error: productTypesListError } = useQuery<ProductTypeResponseTypes | null>({
@@ -160,7 +159,7 @@ const ProductTypesList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" &&
                 <DropdownMenuItem onClick={() => setProductTypeId(record.id)} asChild>
-                  <Link href={EDIT_URL}>
+                  <Link href={EDIT_ROUTE}>
                     <Edit className='mr-2 h-4 w-4' />
                     Edit
                   </Link>
@@ -196,7 +195,7 @@ const ProductTypesList = () => {
       <SubNav
         title="Product Types List"
         addBtnTitle="Add Product Type"
-        urlPath={ADD_URL}
+        urlPath={ADD_ROUTE}
       />
       <ProductTypesDatatable columns={columns} payload={productTypesList} />
     </>

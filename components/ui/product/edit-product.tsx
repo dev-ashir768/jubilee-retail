@@ -54,7 +54,7 @@ const EditProduct = () => {
 
   return (
     <>
-      <SubNav title='Add Product' />
+      <SubNav title='Edit Product' />
 
       <Card className='w-full shadow-none border-none'>
         <CardHeader className='border-b gap-0'>
@@ -63,7 +63,7 @@ const EditProduct = () => {
               <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' asChild>
                 <Link href={LISTING_ROUTE}><ArrowLeft className='size-6' /></Link>
               </Button>
-              Add a new product to the system
+              Edit existing product to the system
             </div>
           </CardTitle>
         </CardHeader>

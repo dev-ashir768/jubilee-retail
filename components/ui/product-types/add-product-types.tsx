@@ -23,7 +23,7 @@ const AddProductTypes = () => {
 
   return (
     <>
-      <SubNav title='Add Types' />
+      <SubNav title='Add Product Types' />
 
       <Card className='w-full shadow-none border-none'>
         <CardHeader className='border-b gap-0'>

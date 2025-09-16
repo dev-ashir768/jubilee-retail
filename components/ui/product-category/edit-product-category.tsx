@@ -43,7 +43,7 @@ const EditProductCategory = () => {
 
   return (
     <>
-      <SubNav title='Add Product Category' />
+      <SubNav title='Edit Product Category' />
 
       <Card className='w-full shadow-none border-none'>
         <CardHeader className='border-b gap-0'>
@@ -52,7 +52,7 @@ const EditProductCategory = () => {
               <Button variant="ghost" size="icon" className='rounded-full border border-gray-200' asChild>
                 <Link href={LISTING_ROUTE}><ArrowLeft className='size-6' /></Link>
               </Button>
-              Add a new product category to the system
+              Edit existing product category to the system
             </div>
           </CardTitle>
         </CardHeader>

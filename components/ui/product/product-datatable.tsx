@@ -14,7 +14,7 @@ const ProductDatatable: React.FC<ProductDatatableProps> = ({ columns, payload })
       <DataTable
         columns={columns}
         data={payload}
-        title="List of all plans in the system"
+        title="List of all products in the system"
       />
     </>
   )
