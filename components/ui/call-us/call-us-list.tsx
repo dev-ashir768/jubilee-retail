@@ -2,7 +2,7 @@
 
 import { fetchCallUsList } from '@/helperFunctions/callUsFunction';
 import { useQuery } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
@@ -22,18 +22,18 @@ import useCallUsIdStore from '@/hooks/useCallUsIdStore';
 import LoadingState from '../foundations/loading-state';
 
 const CallUsList = () => {
-  // Constants
-  const ADD_URL = '/customer-service/add-call-us'
-  const EDIT_URL = '/customer-service/edit-call-us'
 
+  // Constants
+  const ADD_ROUTE = '/customer-service/add-call-us'
+  const EDIT_ROUTE = '/customer-service/edit-call-us'
   const router = useRouter();
-  const pathname = usePathname();
+  const LISTING_ROUTE = '/customer-service/call-us'
   const { setCallUsId } = useCallUsIdStore();
 
   // Rights
   const rights = useMemo(() => {
-    return getRights(pathname);
-  }, [pathname]);
+    return getRights(LISTING_ROUTE);
+  }, [LISTING_ROUTE]);
 
   // Fetch call us list data using react-query
   const { data: callUsListResponse, isLoading: callUsListLoading, isError: callUsListIsError, error: callUsListError } = useQuery<CallUsResponseType | null>({
@@ -144,7 +144,7 @@ const CallUsList = () => {
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
                 <DropdownMenuItem asChild>
-                  <Link href={EDIT_URL} onClick={() => setCallUsId(record.id)}>
+                  <Link href={EDIT_ROUTE} onClick={() => setCallUsId(record.id)}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
@@ -188,7 +188,7 @@ const CallUsList = () => {
 
   return (
     <>
-      <SubNav title="Call Us List" addBtnTitle="Add Call Us" urlPath={ADD_URL} />
+      <SubNav title="Call Us List" addBtnTitle="Add Call Us" urlPath={ADD_ROUTE} />
       <CallUsDatatable columns={columns} payload={callUsListResponse?.payload || []} />
     </>
   );

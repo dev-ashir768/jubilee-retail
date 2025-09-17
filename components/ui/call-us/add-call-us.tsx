@@ -41,7 +41,7 @@ const AddCallUs = () => {
                   <ArrowLeft className='size-6' />
                 </Link>
               </Button>
-              Add a new cal us data to the system
+              Add a new call us data to the system
             </div>
           </CardTitle>
         </CardHeader>
