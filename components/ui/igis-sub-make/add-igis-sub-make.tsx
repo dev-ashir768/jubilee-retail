@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react'
+import React, { useMemo,useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getRights } from '@/utils/getRights'
 import SubNav from '../foundations/sub-nav'
@@ -17,12 +17,12 @@ import { IgisMakeResponseType } from '@/types/igisTypes';
 import Error from '../foundations/error';
 
 const AddIgisSubMake = () => {
+
   // Constants
   const LISTING_ROUTE = '/igis/igis-sub-makes'
-
   const router = useRouter()
 
-  // Rights
+  // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE)
   }, [LISTING_ROUTE])
@@ -33,10 +33,27 @@ const AddIgisSubMake = () => {
     queryFn: fetchIgisMakeList
   })
 
-  // Redirection
-  if (rights?.can_create !== "1") {
-    router.push(LISTING_ROUTE)
+  // ======== RENDER LOGIC ========
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_create === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_create === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights."
+      />
+    );
   }
+
 
   // Loading state
   if (igisMakeListLoading) {

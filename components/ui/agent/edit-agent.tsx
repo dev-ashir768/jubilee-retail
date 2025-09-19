@@ -10,7 +10,7 @@ import { DevelopmentOfficerResponseTypes } from '@/types/developmentOfficerTypes
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import Empty from '../foundations/empty';
 import Error from '../foundations/error';
 import LoadingState from '../foundations/loading-state';
@@ -21,13 +21,13 @@ import { ArrowLeft } from 'lucide-react';
 import EditAgentForm from './edit-agent-form';
 
 const EditAgent = () => {
+
   // Constants
   const LISTING_ROUTE = '/agents-dos/agents'
-
   const router = useRouter();
   const { agentId } = useAgentIdStore();
 
-  // Rights
+  // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE)
   }, [LISTING_ROUTE])
@@ -51,13 +51,28 @@ const EditAgent = () => {
     queryFn: fetchDevelopmentOfficerList,
   });
 
-  // Rights Redirection
-  if (rights?.can_edit !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to edit existing agent" />;
+  // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_edit === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_edit === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to edit existing agent."
+      />
+    );
   }
+
 
   // Loading state
   if (developmentOfficerListLoading || branchListLoading || singleAgentLoading) {

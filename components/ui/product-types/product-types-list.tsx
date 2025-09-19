@@ -7,7 +7,7 @@ import { ProductTypePayloadTypes, ProductTypeResponseTypes } from '@/types/produ
 import { UserResponseType } from '@/types/usersTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../shadcn/dropdown-menu';
 import { Button } from '../shadcn/button';
 import { ColumnMeta } from '@/types/dataTableTypes';
@@ -21,6 +21,7 @@ import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import SubNav from '../foundations/sub-nav';
 import ProductTypesDatatable from './product-types-datatable';
+import { useRouter } from 'next/navigation';
 
 const ProductTypesList = () => {
 
@@ -29,6 +30,7 @@ const ProductTypesList = () => {
   const EDIT_ROUTE = '/products-plans/edit-product-type'
   const LISTING_ROUTE = '/products-plans/product-type'
   const { setProductTypeId } = useProductTypesIdStore();
+  const router = useRouter();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
@@ -180,6 +182,19 @@ const ProductTypesList = () => {
   ]
 
   // ======== RENDER LOGIC ========
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+
+
   const isLoading = productTypesListLoading || usersListLoading;
   const isError = productTypesListIsError || usersListIsError;
   const error = productTypesListError || usersListError;
@@ -187,7 +202,7 @@ const ProductTypesList = () => {
 
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={errorMessage} />
-  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have permission to view product types." />
+  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have rights to view product types." />
 
 
   return (

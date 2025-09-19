@@ -191,12 +191,10 @@ const PlansList = () => {
   ];
 
   // ======== RENDER LOGIC ========
-  const isLoading = planListLoading || usersListLoading;
-  const isError = planListIsError || usersListIsError;
-  const onError = planListError?.message || usersListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if (!rights) return;
+    if (rights?.can_view === "0") {
       const timer = setTimeout(() => {
         router.push("/");
       }, 2000);
@@ -204,14 +202,19 @@ const PlansList = () => {
       return () => clearTimeout(timer);
     }
   }, [rights, router]);
+  const isLoading = planListLoading || usersListLoading;
+  const isError = planListIsError || usersListIsError;
+  const onError = planListError?.message || usersListError?.message;
+
+
 
   if (isLoading) return <LoadingState />;
   if (isError) return <Error err={onError} />;
-  if (rights && rights?.can_view === "0")
+  if (rights?.can_view === "0")
     return (
       <Empty
         title="Permission Denied"
-        description="You do not have permission to view plans list."
+        description="You do not have rights to view plans list."
       />
     );
 

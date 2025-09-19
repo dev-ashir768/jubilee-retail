@@ -26,10 +26,12 @@ const AddProductOptions = () => {
 
   // ======== REDIRECTION EFFECT ========
   useEffect(() => {
-    if (rights.can_create !== "1") {
+    if (!rights) return;
+    if (rights?.can_create === "0") {
       const timer = setTimeout(() => {
-        router.push('/');
-      }, 1500);
+        router.push("/");
+      }, 2000);
+
       return () => clearTimeout(timer);
     }
   }, [rights, router]);
@@ -51,8 +53,8 @@ const AddProductOptions = () => {
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={onError} />
 
-  if (rights?.can_create !== "1") {
-    return <Empty title="Permission Denied" description="You do not have permission. Redirecting..." />;
+  if (rights?.can_create === "0") {
+    return <Empty title="Permission Denied" description="You do not have rights to add product options. Redirecting..." />;
   }
 
 

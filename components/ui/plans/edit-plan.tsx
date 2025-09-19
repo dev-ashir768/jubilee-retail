@@ -14,11 +14,22 @@ import { fetchSinglePlan } from '@/helperFunctions/plansFunction';
 import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
+import { useRouter } from "next/navigation";
+import { getRights } from "@/utils/getRights";
+import { useMemo, useEffect } from 'react';
+
 
 const EditPlan = () => {
+
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = '/products-plans/plan'
   const { planId } = usePlanIdStore();
+  const router = useRouter();
+
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => {
+    return getRights(LISTING_ROUTE);
+  }, [LISTING_ROUTE]);
 
   // ======== DATA FETCHING ========
   const { data: singlePlanResponse, isLoading: singlePlanLoading, isError: singlePlanIsError, error: singlePlanError } = useQuery<PlanResponseTypes | null>({
@@ -31,13 +42,34 @@ const EditPlan = () => {
   const singlePlan = singlePlanResponse?.payload || []
 
   // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_edit === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
   const isLoading = singlePlanLoading
   const isError = singlePlanIsError
   const onError = singlePlanError?.message
 
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={onError} />
-  if (!planId) return <Empty title="Permission Denied" description="You do not have permission." />
+  if (!planId) return <Empty title="Permission Denied" description="You do not have PlanID." />
+  if (rights?.can_edit === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to edit plan."
+      />
+    );
+  }
+
 
   return (
     <>

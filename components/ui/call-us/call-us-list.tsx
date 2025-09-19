@@ -3,7 +3,7 @@
 import { fetchCallUsList } from '@/helperFunctions/callUsFunction';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
@@ -30,7 +30,7 @@ const CallUsList = () => {
   const LISTING_ROUTE = '/customer-service/call-us'
   const { setCallUsId } = useCallUsIdStore();
 
-  // Rights
+  // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE);
   }, [LISTING_ROUTE]);
@@ -163,13 +163,30 @@ const CallUsList = () => {
     },
   ];
 
-  // Rights Redirection
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view call us listing." />;
+  // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_view === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to view call us listing."
+      />
+    );
   }
+
+
+
 
   // Loading state
   if (callUsListLoading) {

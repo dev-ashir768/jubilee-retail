@@ -14,13 +14,19 @@ import { ArrowLeft } from "lucide-react";
 import LoadingState from "../foundations/loading-state";
 import useIgisSubMakeIdStore from "@/hooks/useIgisSubMakeIdStore";
 import EditIgisSubMakeForm from "./edit-igis-sub-make-form";
+import { useMemo,useEffect } from "react";
+import { getRights } from "@/utils/getRights";
 
 const EditIgisSubMake = () => {
+
   // Constants
   const LISTING_ROUTE = '/igis/igis-sub-makes'
-
   const { igisSubMakeId } = useIgisSubMakeIdStore()
   const router = useRouter()
+
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
+
 
   // Fetch single igis make
   const { data: singleIgisSubMakeResponse, isLoading: singleIgisSubMakeLoading, isError: singleIgisSubMakeIsError, error: singleIgisSubMakeError } = useQuery<IgisSubMakeResponseType | null>({
@@ -34,6 +40,29 @@ const EditIgisSubMake = () => {
     queryKey: ['get-make-list'],
     queryFn: fetchIgisMakeList
   })
+
+  // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_edit === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_edit === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights."
+      />
+    );
+  }
+
 
   // Loading state
   if (singleIgisSubMakeLoading || igisMakeListLoading) {

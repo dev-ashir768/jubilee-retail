@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
@@ -22,7 +22,7 @@ import useIgisMakeIdStore from '@/hooks/useIgisMakeIdStore';
 import LoadingState from '../foundations/loading-state';
 
 const IgisMakeList = () => {
-  
+
   // Constants
   const EDIT_ROUTE = '/igis/edit-igis-makes'
   const ADD_ROUTE = '/igis/add-igis-makes'
@@ -144,16 +144,30 @@ const IgisMakeList = () => {
   ];
 
 
-  // Rights
+  // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE);
   }, [LISTING_ROUTE]);
 
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view IGIS make listing." />;
+  // ======== RENDER LOGIC ========
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_view === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to view IGIS make lsit."
+      />
+    );
   }
 
   // Loading state

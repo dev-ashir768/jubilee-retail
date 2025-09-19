@@ -3,7 +3,7 @@
 import { fetchIgisMakeList, fetchIgisSubMakeList } from '@/helperFunctions/igisFunction';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
@@ -22,7 +22,7 @@ import LoadingState from '../foundations/loading-state';
 import useIgisSubMakeIdStore from '@/hooks/useIgisSubMakeIdStore';
 
 const IgisSubMakeList = () => {
-  
+
   // Constants
   const ADD_ROUTE = '/igis/add-igis-sub-makes'
   const EDIT_ROUTE = '/igis/edit-igis-sub-makes'
@@ -199,17 +199,34 @@ const IgisSubMakeList = () => {
     },
   ];
 
-  // Rights
+  // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE);
   }, [LISTING_ROUTE]);
 
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view IGIS sub make listing." />;
+  // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+
+  if (rights?.can_view === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to view IGIS sub make listing."
+      />
+    );
   }
+
 
   // Loading state
   if (igisSubMakeListLoading || igisMakeListLoading) {

@@ -34,13 +34,14 @@ const EditWebAppMappers = () => {
 
   // ======== REDIRECTION EFFECT ========
   useEffect(() => {
-    if (rights.can_create !== "1" || !webAppMapperId) {
+    if (!rights) return;
+    if (rights.can_edit === "0") {
       const timer = setTimeout(() => {
         router.push('/');
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [rights, router, webAppMapperId]);
+  }, [rights, router]);
 
   // ======== DATA FETCHING ========
   const { data: productListResponse, isLoading: productListLoading, isError: productListIsError, error: productListError } = useQuery<ProductsResponseTypes | null>({
@@ -78,12 +79,12 @@ const EditWebAppMappers = () => {
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={onError} />
 
-  if (rights?.can_create !== "1") {
-    return <Empty title="Permission Denied" description="You do not have permission. Redirecting..." />;
+  if (rights?.can_edit === "0") {
+    return <Empty title="Permission Denied" description="You do not have rights to edit web app mapper. Redirecting..." />;
   }
 
     if (!webAppMapperId) {
-    return <Empty title="Permission Denied" description="You do not have permission. Redirecting..." />;
+    return <Empty title="Permission Denied" description="You do not have webAppMapperId. Redirecting..." />;
   }
 
 

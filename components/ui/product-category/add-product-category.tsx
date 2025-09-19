@@ -2,37 +2,50 @@
 
 import { getRights } from '@/utils/getRights';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import SubNav from '../foundations/sub-nav';
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card';
 import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import AddProductCategoryForm from './add-product-category-form';
+import Empty from '../foundations/empty';
 
 const AddProductCategory = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = '/products-plans/product-category'
   const router = useRouter();
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  // const [isAuthorized, setIsAuthorized] = useState(false);
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
   // ======== RENDER LOGIC ========
   useEffect(() => {
-    // Perform the check after the component mounts
-    if (rights?.can_create === "1") {
-      setIsAuthorized(true);
-    } else if (rights) {
-      router.push(LISTING_ROUTE);
-    }
-  }, [rights, router, LISTING_ROUTE]);
+    if (!rights) return;
+    if (rights?.can_create === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
 
-  // ======== RENDER LOGIC ========
-  if (!isAuthorized) {
-    return null;
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_create === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to add product category."
+      />
+    );
   }
+
+
+  // // ======== RENDER LOGIC ========
+  // if (!isAuthorized) {
+  //   return null;
+  // }
 
   return (
     <>

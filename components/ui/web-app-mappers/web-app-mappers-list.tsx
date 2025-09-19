@@ -14,7 +14,7 @@ import { WebAppMappersPayloadTypes, WebAppMappersResponseTypes } from '@/types/w
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../shadcn/dropdown-menu';
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import { ColumnDef } from '@tanstack/react-table';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnMeta } from '@/types/dataTableTypes';
@@ -27,13 +27,16 @@ import WebAppMappersDatatable from './web-app-mappers-datatable';
 import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
+import { useRouter } from 'next/navigation';
 
 const WebAppMappersList = () => {
+
   // ======== CONSTANTS & HOOKS ========
   const ADD_ROUTE = '/mapping/add-web-app-mapper'
   const EDIT_ROUTE = '/mapping/edit-web-app-mapper'
   const LISTING_ROUTE = '/mapping/web-app-mapper'
   const { setWebAppMapperId } = useWebAppMappersIdStore();
+  const router = useRouter();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
@@ -173,13 +176,26 @@ const WebAppMappersList = () => {
   ];
 
   // ======== RENDER LOGIC ========
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+
   const isLoading = webAppMappersListLoading || usersListLoading
   const isError = usersListIsError || webAppMappersListIsError
   const onError = usersListError?.message || webAppMappersListError?.message
 
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={onError} />
-  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have permission." />
+  if (rights?.can_view === "0")
+    return <Empty title="Permission Denied" description="You do not have rights to view web app mappers." />
 
 
   return (

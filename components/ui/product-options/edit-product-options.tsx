@@ -30,13 +30,14 @@ const EditProductOptions = () => {
 
   // ======== REDIRECTION EFFECT ========
   useEffect(() => {
-    if (rights.can_edit !== "1" || !productOptionsId) {
+    if (!rights) return;
+    if (rights.can_edit === "0" ) {
       const timer = setTimeout(() => {
         router.push('/');
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [rights, router, productOptionsId]);
+  }, [rights, router]);
 
   // ======== DATA FETCHING ========
   const { data: productListResponse, isLoading: productListLoading, isError: productListIsError, error: productListError } = useQuery<ProductsResponseTypes | null>({
@@ -62,12 +63,12 @@ const EditProductOptions = () => {
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={onError} />
 
-  if (rights?.can_edit !== "1") {
-    return <Empty title="Permission Denied" description="You do not have permission. Redirecting..." />;
+  if (rights?.can_edit === "0") {
+    return <Empty title="Permission Denied" description="You do not have rights to edit product options. Redirecting..." />;
   }
 
   if (!productOptionsId) {
-    return <Empty title="Permission Denied" description="You do not have permission. Redirecting..." />;
+    return <Empty title="Permission Denied" description="You do not have ProductOptionID. Redirecting..." />;
   }
 
 

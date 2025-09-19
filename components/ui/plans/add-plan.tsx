@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import SubNav from "../foundations/sub-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "../shadcn/card";
 import { Button } from "../shadcn/button";
@@ -12,7 +12,7 @@ import { getRights } from "@/utils/getRights";
 import Empty from "../foundations/empty";
 
 const AddPlan = () => {
-  
+
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/products-plans/plan";
   const router = useRouter();
@@ -26,7 +26,8 @@ const AddPlan = () => {
 
   // ======== RENDER LOGIC ========
   useEffect(() => {
-    if (rights && rights?.can_create === "0") {
+    if (!rights) return;
+    if (rights?.can_create === "0") {
       const timer = setTimeout(() => {
         router.push("/");
       }, 2000);
@@ -35,11 +36,11 @@ const AddPlan = () => {
     }
   }, [rights, router]);
 
-  if (rights && rights?.can_create === "0") {
+  if (rights?.can_create === "0") {
     return (
       <Empty
         title="Permission Denied"
-        description="You do not have permission."
+        description="You do not have rights to add plan."
       />
     );
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import AddCallUsForm from './add-call-us-form'
 import { useRouter } from 'next/navigation'
 import { getRights } from '@/utils/getRights'
@@ -9,21 +9,38 @@ import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import { Button } from '../shadcn/button'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import Empty from "../foundations/empty";
 
 const AddCallUs = () => {
+
   // Constants
   const LISTING_ROUTE = '/customer-service/call-us'
-
   const router = useRouter()
 
-  // Rights
+  // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE)
   }, [LISTING_ROUTE])
 
+  // ======== RENDER LOGIC ========
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_create === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
 
-  if (rights?.can_create !== "1") {
-    router.push(LISTING_ROUTE)
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_create === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to add call us."
+      />
+    );
   }
 
   return (

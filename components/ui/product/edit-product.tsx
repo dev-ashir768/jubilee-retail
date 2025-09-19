@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import SubNav from '../foundations/sub-nav'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import { Button } from '../shadcn/button'
@@ -17,11 +17,13 @@ import Empty from '../foundations/empty';
 import useProductsIdStore from '@/hooks/useProductsIdStore';
 import { ProductsResponseTypes } from '@/types/productsTypes';
 import { fetchProductsList } from '@/helperFunctions/productsFunction';
+import { useRouter } from "next/navigation";
 
 const EditProduct = () => {
 
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = '/products-plans/product'
+  const router = useRouter();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
@@ -43,14 +45,25 @@ const EditProduct = () => {
   const singleProduct = singleProductResponse?.payload || []
 
   // ======== RENDER LOGIC ========
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_edit === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
   const isLoading = productCategoryListLoading || singleProductLoading
   const isError = productCategoryListIsError || singleProductIsError
   const onError = productCategoryListError?.message || singleProductError?.message
 
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={onError} />
-  if (rights?.can_create === "0") return <Empty title="Permission Denied" description="You do not have permission." />
-  if (!productsId) return <Empty title="Permission Denied" description="You do not have permission." />
+  if (rights?.can_edit === "0") return <Empty title="Permission Denied" description="You do not have rights to edit product." />
+  if (!productsId) return <Empty title="Permission Denied" description="You do not have ProductID." />
 
   return (
     <>

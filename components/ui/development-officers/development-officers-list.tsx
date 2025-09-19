@@ -5,7 +5,7 @@ import { DevelopmentOfficerPayloadTypes, DevelopmentOfficerResponseTypes } from 
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
@@ -23,8 +23,9 @@ import { BranchResponseType } from '@/types/branchTypes';
 import DevelopmentOfficerDatatable from './development-officer-datatable';
 import LoadingState from '../foundations/loading-state';
 
+
 const DevelopmentOfficersList = () => {
-  
+
   // ======== CONSTANTS & HOOKS ========
   const router = useRouter();
   const LISTING_ROUTE = '/agents-dos/development-officers'
@@ -177,17 +178,33 @@ const DevelopmentOfficersList = () => {
     },
   ];
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(LISTING_ROUTE)
-  }, [LISTING_ROUTE])
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view development officer listing." />;
+
+  // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+
+  if (rights?.can_view === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to view development officers listing."
+      />
+    );
   }
+
 
   // Loading state
   if (developmentOfficerListLoading || branchListLoading) {

@@ -9,7 +9,7 @@ import { ProductsResponseTypes } from '@/types/productsTypes';
 import { UserResponseType } from '@/types/usersTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
@@ -23,6 +23,7 @@ import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnDef } from '@tanstack/react-table';
 import SubNav from '../foundations/sub-nav';
 import ProductOptionsDatatable from './product-options-datatable';
+import { useRouter } from 'next/navigation';
 
 const ProductOptionsList = () => {
 
@@ -31,6 +32,7 @@ const ProductOptionsList = () => {
   const EDIT_ROUTE = '/products-plans/edit-product-options'
   const LISTING_ROUTE = '/products-plans/product-options'
   const { setProductOptionsId } = useProductOptionsIdStore();
+  const router = useRouter();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
@@ -225,13 +227,25 @@ const ProductOptionsList = () => {
   ]
 
   // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
   const isLoading = productOptionsListLoading || usersListLoading || productListLoading
   const isError = productOptionsListIsError || usersListIsError || productListIsError
   const onError = productOptionsListError?.message || usersListError?.message || productListError?.message
 
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={onError} />
-  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have permission to view plans list." />
+  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have rights to view plans list." />
 
   return (
     <>

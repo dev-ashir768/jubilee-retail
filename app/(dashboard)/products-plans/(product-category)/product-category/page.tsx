@@ -2,7 +2,7 @@ import ProductCategoryList from '@/components/ui/product-category/product-catego
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Product Category Lists | Jubilee Retail',
+  title: 'Product Category List | Jubilee Retail',
   
 }
 

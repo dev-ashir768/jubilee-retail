@@ -6,7 +6,7 @@ import { AgentPayloadTypes, AgentResponseTypes } from '@/types/agentTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
@@ -24,12 +24,15 @@ import AgentDatatable from './agent-datatable';
 import LoadingState from '../foundations/loading-state';
 
 const AgentList = () => {
- 
+
   // Constants
   const ADD_ROUTES = '/agents-dos/add-agent'
-
   const router = useRouter();
   const LISTING_ROUTE = '/agents-dos/agents'
+
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
+
 
   // Zustand
   const { setAgentId } = useAgentIdStore();
@@ -198,17 +201,29 @@ const AgentList = () => {
     },
   ];
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(LISTING_ROUTE)
-  }, [LISTING_ROUTE])
+  // ======== RENDER LOGIC ========
 
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view agent listing." />;
+  useEffect(() => {
+
+    if (!rights) return;
+    if (rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_view === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to view agent listing."
+      />
+    );
   }
+
 
   // Loading state
   if (agentListLoading || developmentOfficerListLoading) {

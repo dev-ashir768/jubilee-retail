@@ -14,13 +14,19 @@ import LoadingState from "../foundations/loading-state";
 import useCourierIdStore from "@/hooks/useCourierIdStore";
 import { CourierResponseType } from "@/types/courierTypes";
 import EditCourierForm from "./edit-courier-form";
+import { getRights } from "@/utils/getRights";
+import { useMemo, useEffect } from "react";
 
 const EditCourier = () => {
+
   // Constants
   const LISTING_ROUTE = '/cites-couiers/couriers'
-
   const { courierId } = useCourierIdStore();
   const router = useRouter()
+
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
+
 
   // Fetch single courier us
   const { data: singleCourierResponse, isLoading: singleCourierLoading, isError: singleCourierIsError, error } = useQuery<CourierResponseType | null>({
@@ -28,6 +34,29 @@ const EditCourier = () => {
     queryFn: () => fetchSingleCourier(courierId!),
     enabled: !!courierId // Only fetch if courierId is available
   })
+
+  // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_edit === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_edit === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to edit courier."
+      />
+    );
+  }
+
 
   // Loading state
   if (singleCourierLoading) {
@@ -44,7 +73,7 @@ const EditCourier = () => {
     setTimeout(() => {
       router.push(LISTING_ROUTE)
     })
-    return <Empty title="Not Found" description="Courier us Id not Found. Redirecting to Courier List..." />;
+    return <Empty title="Not Found" description="CourierId not Found. Redirecting to Courier List..." />;
   }
 
   return (

@@ -5,7 +5,7 @@ import useProductCategoryIdStore from '@/hooks/useProductCategoryStore';
 import { ProductCategoriesPayloadTypes, ProductCategoriesResponseTypes } from '@/types/productCategoriesTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
@@ -21,6 +21,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { fetchUserList } from '@/helperFunctions/userFunction';
 import { UserResponseType } from '@/types/usersTypes';
 import { Badge } from '../shadcn/badge';
+import { useRouter } from 'next/navigation';
 
 const ProductCategoryList = () => {
 
@@ -28,6 +29,7 @@ const ProductCategoryList = () => {
   const ADD_ROUTE = '/products-plans/add-product-category'
   const EDIT_ROUTE = '/products-plans/edit-product-category'
   const LISTING_ROUTE = '/products-plans/product-category'
+  const router = useRouter();
   const { setProductCategoryId } = useProductCategoryIdStore();
 
   // ======== MEMOIZATION ========
@@ -191,13 +193,25 @@ const ProductCategoryList = () => {
   ]
 
   // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
   const isLoading = productCategoriesListLoading || usersListLoading
   const isError = productCategoriesListIsError || usersListIsError
   const onError = productCategoriesListError?.message || usersListError?.message
 
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={onError} />
-  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have permission to view product category list." />
+  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have rights to view product category list." />
 
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import SubNav from '../foundations/sub-nav'
 import AddAgentForm from './add-agent-form'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
@@ -18,12 +18,12 @@ import LoadingState from '../foundations/loading-state'
 import Error from '../foundations/error'
 
 const AddAgent = () => {
+
   // Constants
   const LISTING_ROUTE = '/agents-dos/agents'
-
   const router = useRouter();
 
-  // Rights
+  // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE)
   }, [LISTING_ROUTE])
@@ -40,13 +40,30 @@ const AddAgent = () => {
     queryFn: fetchDevelopmentOfficerList,
   });
 
-  // Rights Redirection
-  if (rights?.can_create !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to add new agent." />;
+  // ======== RENDER LOGIC ========
+  useEffect(() => {
+    if (!rights) return;
+
+    if (rights?.can_create === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_create === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to add new agent."
+      />
+    );
   }
+
+
+
 
   // loading state
   if (developmentOfficerListLoading || branchListLoading) {

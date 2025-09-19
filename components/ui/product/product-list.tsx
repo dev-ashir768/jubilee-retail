@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import SubNav from '../foundations/sub-nav';
 import ProductDatatable from './product-datatable';
 import LoadingState from '../foundations/loading-state';
@@ -23,13 +23,16 @@ import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import Link from 'next/link';
 import { ProductCategoriesResponseTypes } from '@/types/productCategoriesTypes';
 import { fetchProductCategoriesList } from '@/helperFunctions/productCategoriesFunction';
+import { useRouter } from "next/navigation";
 
 const ProductList = () => {
+
   // ======== CONSTANTS & HOOKS ========
   const ADD_ROUTE = '/products-plans/add-product'
   const EDIT_ROUTE = '/products-plans/edit-product'
   const LISTING_ROUTE = '/products-plans/product'
   const { setProductsId } = useProductsIdStore();
+  const router = useRouter();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
@@ -50,11 +53,11 @@ const ProductList = () => {
     queryFn: fetchProductCategoriesList
   })
   // ======== PAYLOADS DATA ========
-const productList = useMemo(() => productListResponse?.payload || [], [productListResponse]);
+  const productList = useMemo(() => productListResponse?.payload || [], [productListResponse]);
 
-const usersList = useMemo(() => usersListResponse?.payload || [], [usersListResponse]);
+  const usersList = useMemo(() => usersListResponse?.payload || [], [usersListResponse]);
 
-const productCategoriesList = useMemo(() => productCategoriesListResponse?.payload || [], [productCategoriesListResponse]);
+  const productCategoriesList = useMemo(() => productCategoriesListResponse?.payload || [], [productCategoriesListResponse]);
 
   // ======== Lookups ========
   const userMap = useMemo(() => {
@@ -227,13 +230,28 @@ const productCategoriesList = useMemo(() => productCategoriesListResponse?.paylo
   ]
 
   // ======== RENDER LOGIC ========
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+
   const isLoading = productListLoading || usersListLoading || productCategoriesListLoading
   const isError = productListIsError || usersListIsError || productCategoriesListIsError
   const onError = productListError?.message || usersListError?.message || productCategoriesListError?.message
 
+
+
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={onError} />
-  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have permission to view products list." />
+
+  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have rights to view products list." />
 
   return (
     <>

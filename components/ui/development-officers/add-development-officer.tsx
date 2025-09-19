@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import SubNav from '../foundations/sub-nav'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import { Button } from '../shadcn/button'
@@ -16,9 +16,9 @@ import { BranchResponseType } from '@/types/branchTypes'
 import { useQuery } from '@tanstack/react-query'
 
 const AddDevelopmentOfficer = () => {
+
   // Constants
   const LISTING_ROUTE = '/agents-dos/development-officers'
-
   const router = useRouter();
 
   // Rights
@@ -34,12 +34,27 @@ const AddDevelopmentOfficer = () => {
 
 
   // Rights Redirection
-  if (rights?.can_create !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to add a new development officer." />;
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_create === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_create === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to add a new development officer."
+      />
+    );
   }
+
+
 
   // Loading State
   if (branchListLoading) {

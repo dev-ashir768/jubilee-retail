@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import SubNav from '../foundations/sub-nav'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import { Button } from '../shadcn/button'
@@ -15,12 +15,14 @@ import useProductTypesIdStore from '@/hooks/useProductTypesIdStore';
 import { ProductTypeResponseTypes } from '@/types/productTypeTypes';
 import { useQuery } from '@tanstack/react-query';
 import { fetchProductTypes } from '@/helperFunctions/productTypesFunction';
+import { useRouter } from 'next/router';
 
 const EditProductTypes = () => {
 
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = '/products-plans/product-type'
   const { productTypeId } = useProductTypesIdStore();
+  const router = useRouter();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE]);
@@ -36,14 +38,26 @@ const EditProductTypes = () => {
   const singleProductType = singleProductTypeResponse?.payload || []
 
   // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_edit === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
   const isLoading = singleProductTypeLoading
   const isError = singleProductTypeIsError
   const onError = singleProductTypeError?.message
 
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={onError} />
-  if (rights?.can_create !== "1") return <Empty title="Permission Denied" description="You do not have permission." />
-  if (!productTypeId) return <Empty title="Permission Denied" description="You do not have permission." />
+  if (rights?.can_edit === "0") return <Empty title="Permission Denied" description="You do not have rights to edit product types." />
+  if (!productTypeId) return <Empty title="Permission Denied" description="You do not have productTypeId." />
   return (
     <>
       <SubNav title='Edit Product Types' />
@@ -60,7 +74,7 @@ const EditProductTypes = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className='w-full'><EditProductTypesForm  singleProductType={singleProductType}/></div>
+          <div className='w-full'><EditProductTypesForm singleProductType={singleProductType} /></div>
         </CardContent>
       </Card>
     </>

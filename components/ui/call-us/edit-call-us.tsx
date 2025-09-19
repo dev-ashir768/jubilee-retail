@@ -14,13 +14,18 @@ import { Button } from "../shadcn/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import LoadingState from "../foundations/loading-state";
+import React, { useMemo, useEffect } from "react";
+import { getRights } from "@/utils/getRights";
 
 const EditCallUs = () => {
   // Constants
   const LISTING_ROUTE = '/customer-service/call-us'
-
   const { callUsId } = useCallUsIdStore()
   const router = useRouter()
+
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
+
 
   // Fetch single call us
   const { data: singleCallUsResponse, isLoading: singleCallUsLoading, isError: singleCallUsIsError, error } = useQuery<CallUsResponseType | null>({
@@ -28,6 +33,20 @@ const EditCallUs = () => {
     queryFn: () => fetchSingleCallUs(callUsId!),
     enabled: !!callUsId // Only fetch if callUsId is available
   })
+
+  // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+
+    if (rights?.can_edit === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
 
   // Loading state
   if (singleCallUsLoading) {
@@ -39,11 +58,18 @@ const EditCallUs = () => {
     return <Error err={error?.message} />
   }
 
+  if (rights?.can_edit === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to edit call us."
+      />
+    );
+  }
+
+
   // Empty and redirect state
   if (!callUsId) {
-    setTimeout(() => {
-      router.push(LISTING_ROUTE)
-    })
     return <Empty title="Not Found" description="Call us Id not Found. Redirecting to Call us List..." />;
   }
 

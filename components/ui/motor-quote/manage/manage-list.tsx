@@ -4,7 +4,7 @@ import { fetchUserList } from '@/helperFunctions/userFunction';
 import { UserResponseType } from '@/types/usersTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import LoadingState from '../../foundations/loading-state';
 import Error from '../../foundations/error';
 import Empty from '../../foundations/empty';
@@ -23,6 +23,8 @@ import useMotorQuoteIdStore from '@/hooks/useMotorQuoteIdStore';
 import { fetchMotorQuoteList } from '@/helperFunctions/motorQuoteFunctions';
 import { IgisMakeResponseType, IgisSubMakeResponseType } from '@/types/igisTypes';
 import { fetchIgisMakeList, fetchIgisSubMakeList } from '@/helperFunctions/igisFunction';
+import { useRouter } from 'next/navigation';
+
 
 const MotorQuoteList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -30,6 +32,7 @@ const MotorQuoteList = () => {
   const EDIT_ROUTE = '/motor-quote/edit-manage'
   const LISTING_ROUTE = '/motor-quote/manage'
   const { setMotorQuoteId } = useMotorQuoteIdStore();
+  const router = useRouter();
 
 
   // ======== MEMOIZATION ========
@@ -294,13 +297,25 @@ const MotorQuoteList = () => {
   ]
 
   // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
   const isLoading = usersListLoading || motorQuoteListLoading || igisMakeListLoading || igisSubMakeListLoading
   const isError = usersListIsError || motorQuoteListIsError || igisMakeListIsError || igisSubMakeListIsError
   const onError = usersListError?.message || motorQuoteListError?.message || igisMakeListError?.message || igisSubMakeListError?.message
 
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={onError} />
-  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have permission." />
+  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have rights to view manage motor list." />
 
   return (
     <>

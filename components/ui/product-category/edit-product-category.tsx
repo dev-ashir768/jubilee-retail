@@ -14,12 +14,22 @@ import { useQuery } from '@tanstack/react-query';
 import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
+import { useRouter } from 'next/navigation';
+import { useMemo, useEffect } from 'react';
+import { getRights } from '@/utils/getRights';
 
 const EditProductCategory = () => {
+
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = '/products-plans/product-category'
   const { productCategoryId } = useProductCategoryIdStore();
   console.log("productCategoryId", productCategoryId)
+  const router = useRouter();
+
+
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
+
 
   // ======== DATA FETCHING ========
   const { data: singleProductCategoryResponse, isLoading: singleProductCategoryLoading, isError: singleProductCategoryIsError, error: singleProductCategoryError } = useQuery<ProductCategoriesResponseTypes | null>({
@@ -32,6 +42,18 @@ const EditProductCategory = () => {
   const singleProductCategory = singleProductCategoryResponse?.payload || []
 
   // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_edit === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
   const isLoading = singleProductCategoryLoading
   const isError = singleProductCategoryIsError
   const onError = singleProductCategoryError?.message
@@ -39,7 +61,16 @@ const EditProductCategory = () => {
 
   if (isLoading) return <LoadingState />
   if (isError) return <Error err={onError} />
-  if (!productCategoryId) return <Empty title="Permission Denied" description="You do not have permission." />
+  if (!productCategoryId) return <Empty title="Permission Denied" description="ProductCategoryID not found." />
+  if (rights?.can_edit === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to edit product category."
+      />
+    );
+  }
+
 
   return (
     <>

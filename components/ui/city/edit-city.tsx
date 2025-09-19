@@ -14,13 +14,19 @@ import { ArrowLeft } from "lucide-react";
 import LoadingState from "../foundations/loading-state";
 import useCityIdStore from "@/hooks/useCityIdStore";
 import EditCityForm from "./edit-city-form";
+import { useMemo, useEffect } from "react";
+import { getRights } from "@/utils/getRights";
 
 const EditCity = () => {
-  // Constants
-    const LISTING_ROUTE = '/cites-couiers/cities'
 
+  // Constants
+  const LISTING_ROUTE = '/cites-couiers/cities'
   const { cityId } = useCityIdStore();
   const router = useRouter();
+
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
+
 
   // Fetch single city us
   const { data: singleCityResponse, isLoading: singleCityLoading, isError: singleCityIsError, error } = useQuery<CityResponseType | null>({
@@ -28,6 +34,31 @@ const EditCity = () => {
     queryFn: () => fetchSingleCity(cityId!),
     enabled: !!cityId // Only fetch if cityId is available
   })
+
+
+
+  // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_edit === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_edit === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to edit city."
+      />
+    );
+  }
+
 
   // Loading state
   if (singleCityLoading) {

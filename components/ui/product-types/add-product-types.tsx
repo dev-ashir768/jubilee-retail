@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react'
+import React, { useMemo,useEffect } from 'react'
 import SubNav from '../foundations/sub-nav'
 import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card'
 import { Button } from '../shadcn/button'
@@ -9,17 +9,38 @@ import { ArrowLeft } from 'lucide-react'
 import AddProductTypesForm from './add-product-types-form'
 import { getRights } from '@/utils/getRights'
 import Empty from '../foundations/empty';
+import { useRouter } from 'next/router';
 
 const AddProductTypes = () => {
 
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = '/products-plans/product-type'
+  const router = useRouter();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
   // ======== RENDER LOGIC ========
-  if (rights?.can_create !== "1") return <Empty title="Permission Denied" description="You do not have permission." />
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_create === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_create === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to add product types."
+      />
+    );
+  }
+
 
   return (
     <>

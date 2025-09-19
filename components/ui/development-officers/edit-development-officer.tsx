@@ -7,7 +7,7 @@ import { BranchResponseType } from '@/types/branchTypes';
 import { DevelopmentOfficerResponseTypes } from '@/types/developmentOfficerTypes';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
@@ -19,9 +19,9 @@ import EditDevelopmentOfficerForm from './edit-development-officer-form';
 import { getRights } from '@/utils/getRights';
 
 const EditDevelopmentOfficer = () => {
+
   // Constants
   const LISTING_ROUTE = '/agents-dos/development-officers'
-
   const router = useRouter();
   const { developmentOfficerId } = useDevelopmentOfficerIdStore();
 
@@ -44,12 +44,27 @@ const EditDevelopmentOfficer = () => {
   })
 
   // Rights Redirection
-  if (rights?.can_edit !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to edit existing development officer." />;
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_edit === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_edit === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to edit development officers."
+      />
+    );
   }
+
+
 
   // Loading State
   if (branchListLoading || singleDevelopmentOfficerLoading) {

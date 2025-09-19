@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react'
+import React, { useMemo,useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getRights } from '@/utils/getRights'
 import SubNav from '../foundations/sub-nav'
@@ -9,8 +9,10 @@ import { Button } from '../shadcn/button'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import AddCityForm from './add-city-form';
+import Empty from '../foundations/empty';
 
 const AddCity = () => {
+
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = '/cites-couiers/cities'
   const router = useRouter()
@@ -19,9 +21,27 @@ const AddCity = () => {
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
 
-  if (rights?.can_create !== "1") {
-    router.push(LISTING_ROUTE)
+  // ======== RENDER LOGIC ========
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_create === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_create === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights to add city."
+      />
+    );
   }
+
 
   return (
     <>

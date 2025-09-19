@@ -7,7 +7,7 @@ import { RelationMappingsPayloadTypes, RelationMappingsResponseTypes } from '@/t
 import { UserResponseType } from '@/types/usersTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
@@ -21,6 +21,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '../shadcn/badge';
 import RelationMappingsDatatable from './relation-mappings-datatable';
 import SubNav from '../foundations/sub-nav';
+import { useRouter } from 'next/navigation';
 
 const RelationMappingsList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -28,6 +29,7 @@ const RelationMappingsList = () => {
   const EDIT_ROUTE = '/settings/edit-relation-mapping';
   const LISTING_ROUTE = '/mapping/relation-mapper'
   const { setRelationMappingId } = useRelationMappingsIdStore();
+  const router = useRouter();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
@@ -179,6 +181,18 @@ const RelationMappingsList = () => {
   ];
 
   // ======== RENDER LOGIC ========
+
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
   const isLoading = relationMappingsListLoading || usersListLoading;
   const isError = relationMappingsListIsError || usersListIsError;
   const error = relationMappingsListError || usersListError;
@@ -186,7 +200,7 @@ const RelationMappingsList = () => {
 
   if (isLoading) return <LoadingState />;
   if (isError) return <Error err={errorMessage} />;
-  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have permission to view Relation Mappings." />;
+  if (rights?.can_view === "0") return <Empty title="Permission Denied" description="You do not have rights to view Relation Mappings." />;
 
 
   return (

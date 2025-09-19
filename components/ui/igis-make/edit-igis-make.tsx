@@ -14,13 +14,18 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import EditIgisMakeForm from "./edit-igis-make-form";
 import LoadingState from "../foundations/loading-state";
+import { useMemo, useEffect } from "react";
+import { getRights } from "@/utils/getRights";
 
 const EditIgisMake = () => {
+
   // Constants
   const LISTING_ROUTE = '/igis/igis-makes'
-
   const { igisMakeId } = useIgisMakeIdStore()
   const router = useRouter()
+
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
 
   // Fetch single igis make
   const { data: singleIgisMakeResponse, isLoading: singleIgisMakeLoading, isError: singleIgisMakeIsError, error } = useQuery<IgisMakeResponseType | null>({
@@ -28,6 +33,28 @@ const EditIgisMake = () => {
     queryFn: () => fetchSingleIgisMake(igisMakeId!),
     enabled: !!igisMakeId // Only fetch if igisMakeId is available
   })
+
+  // ======== RENDER LOGIC ========
+  useEffect(() => {
+    if (!rights) return;
+    if (rights?.can_edit === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights?.can_edit === "0") {
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have rights."
+      />
+    );
+  }
+
 
   // Loading state
   if (singleIgisMakeLoading) {
