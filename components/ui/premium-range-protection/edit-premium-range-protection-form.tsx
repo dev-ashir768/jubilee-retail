@@ -80,7 +80,7 @@ const EditPremiumRangeProtectionForm: React.FC<
   >({
     mutationFn: (record) => {
       return axiosFunction({
-        method: "POST",
+        method: "PUT",
         urlPath: "/premium-range-protections",
         isServer: true,
         data: record,

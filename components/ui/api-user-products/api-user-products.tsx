@@ -22,15 +22,15 @@ import { Badge } from "../shadcn/badge";
 import DatatableColumnHeader from "../datatable/datatable-column-header";
 import { ColumnDef } from "@tanstack/react-table";
 import useApiUserProductsIdStore from "@/hooks/apiUserProductsIdStore";
-import {
-  createFilterOptions,
-  fetchApiUserProductsList,
-} from "@/helperFunctions/apiUserProductsFunction";
+import { fetchApiUserProductsList } from "@/helperFunctions/apiUserProductsFunction";
 import {
   ApiUserProductsPayloadType,
   ApiUserProductsResponseType,
 } from "@/types/apiUserProductsTypes";
 import ApiUserProductsDatatable from "./api-user-products-datatable";
+import { createFilterOptions } from "@/utils/filterOptions";
+import { fetchApiUserList } from "@/helperFunctions/userFunction";
+import { ApiUsersResponseType } from "@/types/usersTypes";
 
 const ApiUserProductsList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -56,10 +56,25 @@ const ApiUserProductsList = () => {
     queryFn: fetchApiUserProductsList,
   });
 
+  const {
+    data: apiUserResponse,
+    isLoading: apiUserLoading,
+    isError: apiUserIsError,
+    error: apiUserError,
+  } = useQuery<ApiUsersResponseType | null>({
+    queryKey: ["api-user-list"],
+    queryFn: fetchApiUserList,
+  });
+
   // ======== PAYLOADS DATA ========
   const apiUserProductsList = useMemo(
     () => apiUserProductsListData?.payload || [],
     [apiUserProductsListData]
+  );
+
+  const apiUserList = useMemo(
+    () => apiUserResponse?.payload || [],
+    [apiUserResponse]
   );
 
   // ======== FILTER OPTIONS ========
@@ -118,6 +133,20 @@ const ApiUserProductsList = () => {
         filterOptions: phoneFilterOptions,
         filterPlaceholder: "Filter by phone...",
       } as ColumnMeta,
+    },
+    {
+      accessorKey: "api_user_id",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Api User" />
+      ),
+      cell: ({ row }) => {
+        const apiUser = apiUserList.find(
+          (item) => item.id === row.getValue("api_user_id")
+        );
+        return (
+          <div>{apiUser ? apiUser.name : row.getValue("api_user_id")}</div>
+        );
+      },
     },
     {
       accessorKey: "is_active",
@@ -182,9 +211,9 @@ const ApiUserProductsList = () => {
   ];
 
   // ======== RENDER LOGIC ========
-  const isLoading = apiUserProductsListLoading;
-  const isError = apiUserProductsListIsError;
-  const onError = apiUserProductsListError?.message;
+  const isLoading = apiUserProductsListLoading || apiUserLoading;
+  const isError = apiUserProductsListIsError || apiUserIsError;
+  const onError = apiUserProductsListError?.message || apiUserError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {

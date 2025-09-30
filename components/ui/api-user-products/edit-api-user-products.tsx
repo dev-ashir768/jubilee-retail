@@ -75,6 +75,11 @@ const EditApiUserProducts = () => {
     [productListData]
   );
 
+  const singleApiUserProducts = useMemo(
+    () => singleApiUserProductsData?.payload || [],
+    [singleApiUserProductsData]
+  );
+
   // ======== RENDER LOGIC ========
   const isLoading =
     apiUserListLoading || productListLoading || singleApiUserProductsLoading;
@@ -97,6 +102,13 @@ const EditApiUserProducts = () => {
 
   if (isLoading) return <LoadingState />;
   if (isError) return <Error err={onError} />;
+  if (!apiUserProductsId)
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have permission."
+      />
+    );
 
   if (rights && rights?.can_create === "0") {
     return (
@@ -134,6 +146,7 @@ const EditApiUserProducts = () => {
             <EditApiAserProductsForm
               apiUserList={apiUserList}
               productList={productList}
+              singleApiUserProducts={singleApiUserProducts}
             />
           </div>
         </CardContent>

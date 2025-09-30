@@ -121,7 +121,7 @@ const MotorInfoList = () => {
           </>
         );
       default:
-        null;
+        return null;
     }
   };
 

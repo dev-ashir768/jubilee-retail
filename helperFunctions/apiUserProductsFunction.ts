@@ -1,5 +1,4 @@
 import {
-  ApiUserProductsPayloadType,
   ApiUserProductsResponseType,
 } from "@/types/apiUserProductsTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
@@ -34,18 +33,4 @@ export const fetchSingleApiUserProductsList = async (
     console.error("Error fetching api user products list:", err);
     return null;
   }
-};
-
-export const createFilterOptions = (
-  data: ApiUserProductsPayloadType[],
-  key: keyof ApiUserProductsPayloadType
-) => {
-  if (!data || data.length === 0) return [];
-
-  const uniqueValues = Array.from(new Set(data.map((item) => item[key])));
-
-  return uniqueValues.map((value) => ({
-    label: String(value ?? "N/A"),
-    value: String(value ?? "N/A"),
-  }));
 };

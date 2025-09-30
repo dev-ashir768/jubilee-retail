@@ -121,7 +121,7 @@ const LeadInfoList = () => {
           </>
         );
       default:
-        null;
+        return null;
     }
   };
 

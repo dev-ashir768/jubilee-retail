@@ -35,7 +35,7 @@ const AddApiUserProducts = () => {
     isError: apiUserListIsError,
     error: apiUserListError,
   } = useQuery<ApiUsersResponseType | null>({
-    queryKey: ["api-user-products: api-user-list"],
+    queryKey: ["api-user-list"],
     queryFn: fetchApiUserList,
   });
 
@@ -45,7 +45,7 @@ const AddApiUserProducts = () => {
     isError: productListIsError,
     error: productListError,
   } = useQuery<ProductsResponseTypes | null>({
-    queryKey: ["api-user-products: products-list"],
+    queryKey: ["products-list"],
     queryFn: fetchProductsList,
   });
 

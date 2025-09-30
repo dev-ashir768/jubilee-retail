@@ -54,7 +54,7 @@ const EditPaymentModeForm: React.FC<EditPaymentModeFormProps> = ({
   >({
     mutationFn: (record) => {
       return axiosFunction({
-        method: "POST",
+        method: "PUT",
         urlPath: "/payment-modes",
         isServer: true,
         data: record,

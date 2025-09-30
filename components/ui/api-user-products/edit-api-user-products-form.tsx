@@ -11,6 +11,7 @@ import {
   ApiUserProductsSchemaType,
 } from "@/schemas/apiUserProductsSchema";
 import {
+  ApiUserProductsPayloadType,
   ApiUserProductsResponseType,
 } from "@/types/apiUserProductsTypes";
 import { AxiosError } from "axios";
@@ -20,19 +21,23 @@ import { Loader2 } from "lucide-react";
 import Select from "react-select";
 import { Button } from "../shadcn/button";
 import { multiSelectStyle, singleSelectStyle } from "@/utils/selectStyles";
+import useApiUserProductsIdStore from "@/hooks/apiUserProductsIdStore";
 
 interface EditApiAserProductsFormProps {
   apiUserList: ApiUsersPayloadType[];
   productList: ProductsPayloadTypes[];
+  singleApiUserProducts: ApiUserProductsPayloadType[];
 }
 
 const EditApiAserProductsForm: React.FC<EditApiAserProductsFormProps> = ({
   apiUserList,
   productList,
+  singleApiUserProducts,
 }) => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/users/api-user-products";
   const queryClient = useQueryClient();
+  const { apiUserProductsId } = useApiUserProductsIdStore();
   const router = useRouter();
 
   // ======== SELECT OPTIONS ========
@@ -52,8 +57,10 @@ const EditApiAserProductsForm: React.FC<EditApiAserProductsFormProps> = ({
   } = useForm({
     resolver: zodResolver(ApiUserProductsSchema),
     defaultValues: {
-      api_user_id: undefined,
-      product_id: [],
+      api_user_id: singleApiUserProducts[0]?.api_user_id,
+      product_id: singleApiUserProducts[0]?.products.map(
+        (item) => item.product_id
+      ) as [],
     },
   });
 
@@ -65,7 +72,7 @@ const EditApiAserProductsForm: React.FC<EditApiAserProductsFormProps> = ({
   >({
     mutationFn: (record) => {
       return axiosFunction({
-        method: "POST",
+        method: "PUT",
         urlPath: "/api-user-products",
         isServer: true,
         data: record,
@@ -80,6 +87,7 @@ const EditApiAserProductsForm: React.FC<EditApiAserProductsFormProps> = ({
       const message = data?.message;
       toast.success(message);
       queryClient.invalidateQueries({ queryKey: ["api-user-products-list"] });
+      queryClient.invalidateQueries({ queryKey: ["api-user-products-list", apiUserProductsId] });
       router.push(LISTING_ROUTE);
     },
   });
