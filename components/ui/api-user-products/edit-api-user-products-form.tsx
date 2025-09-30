@@ -11,7 +11,6 @@ import {
   ApiUserProductsSchemaType,
 } from "@/schemas/apiUserProductsSchema";
 import {
-  ApiUserProductsPayloadType,
   ApiUserProductsResponseType,
 } from "@/types/apiUserProductsTypes";
 import { AxiosError } from "axios";

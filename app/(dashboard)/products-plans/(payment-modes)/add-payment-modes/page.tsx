@@ -1,10 +1,11 @@
+import AddPaymentModes from '@/components/ui/payment-modes/add-payment-modes'
 import React from 'react'
 
 const page = () => {
   return (
-    <div>
-      
-    </div>
+    <>
+      <AddPaymentModes />
+    </>
   )
 }
 

@@ -1,11 +1,12 @@
-import React from 'react'
+import EditPaymentModes from "@/components/ui/payment-modes/edit-payment-modes";
+import React from "react";
 
 const page = () => {
   return (
-    <div>
-      
-    </div>
-  )
-}
+    <>
+      <EditPaymentModes />
+    </>
+  );
+};
 
-export default page
+export default page;

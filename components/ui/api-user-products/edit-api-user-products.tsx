@@ -75,11 +75,6 @@ const EditApiUserProducts = () => {
     [productListData]
   );
 
-  const singleApiUserProduct = useMemo(
-    () => singleApiUserProductsData?.payload || {},
-    [productListData]
-  );
-
   // ======== RENDER LOGIC ========
   const isLoading =
     apiUserListLoading || productListLoading || singleApiUserProductsLoading;

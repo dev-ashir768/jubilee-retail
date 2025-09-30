@@ -14,8 +14,7 @@ import {
 } from "@/types/paymentModesTypes";
 import { useQuery } from "@tanstack/react-query";
 import {
-  createFilterOptions,
-  fetchPaymentModesList,
+  fetchPaymentModesList
 } from "@/helperFunctions/paymentModesFunction";
 import {
   DropdownMenu,
@@ -31,12 +30,13 @@ import { Badge } from "../shadcn/badge";
 import DatatableColumnHeader from "../datatable/datatable-column-header";
 import { ColumnDef } from "@tanstack/react-table";
 import usePaymentModesIdStore from "@/hooks/paymentModesIdStore";
+import { createFilterOptions } from "@/utils/filterOptions";
 
 const PaymentModesList = () => {
   // ======== CONSTANTS & HOOKS ========
-  const ADD_ROUTE = "/products-plans/add-plan";
-  const EDIT_ROUTE = "/products-plans/edit-plan";
-  const LISTING_ROUTE = "/products-plans/plan";
+  const ADD_ROUTE = "/products-plans/add-payment-modes";
+  const EDIT_ROUTE = "/products-plans/edit-payment-modes";
+  const LISTING_ROUTE = "/products-plans/payment-modes";
   const {setPaymentModesId} = usePaymentModesIdStore()
   const router = useRouter();
 
@@ -68,7 +68,7 @@ const PaymentModesList = () => {
     [paymentModesList]
   );
 
-    const paymentCodFilterOptions = useMemo(
+  const paymentCodeFilterOptions = useMemo(
     () => createFilterOptions(paymentModesList, "payment_code"),
     [paymentModesList]
   );
@@ -97,7 +97,7 @@ const PaymentModesList = () => {
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
-        filterOptions: paymentCodFilterOptions,
+        filterOptions: paymentCodeFilterOptions,
         filterPlaceholder: "Filter by payment code...",
       } as ColumnMeta,
     },

@@ -383,8 +383,7 @@ const LeadInfoList = () => {
     {
       id: "actions",
       header: "Actions",
-      cell: ({ row }) => {
-        const record = row.original;
+      cell: () => {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

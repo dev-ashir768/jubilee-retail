@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import MotorInfoDatatable from "./motor-info-datatable";
 import SubNav from "../foundations/sub-nav";
 import { useRouter } from "next/navigation";
@@ -331,8 +331,7 @@ const MotorInfoList = () => {
     {
       id: "actions",
       header: "Actions",
-      cell: ({ row }) => {
-        const record = row.original;
+      cell: () => {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

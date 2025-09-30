@@ -1,6 +1,5 @@
 import {
-  PaymentModesPayloadType,
-  PaymentModesResponseType,
+  PaymentModesResponseType
 } from "@/types/paymentModesTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
@@ -19,16 +18,18 @@ export const fetchPaymentModesList =
     }
   };
 
-export const createFilterOptions = (
-  data: PaymentModesPayloadType[],
-  key: keyof PaymentModesPayloadType
-) => {
-  if (!data || data.length === 0) return [];
+  export const fetchSinglePaymentModesList =
+  async (paymentModesId: number): Promise<PaymentModesResponseType | null> => {
+    try {
+      const response = await axiosFunction({
+        method: "POST",
+        urlPath: "/payment-modes/single",
+        data: { payment_mode_id: paymentModesId },
+      });
 
-  const uniqueValues = Array.from(new Set(data.map((item) => item[key])));
-
-  return uniqueValues.map((value) => ({
-    label: String(value ?? "N/A"),
-    value: String(value ?? "N/A"),
-  }));
-};
+      return response;
+    } catch (err) {
+      console.error("Error fetching single payment mode list:", err);
+      return null;
+    }
+  };
