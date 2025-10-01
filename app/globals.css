@@ -59,6 +59,8 @@
   --color-callback-scheduled-foreground: var(--callback-scheduled-foreground);
   --color-pending: var(--pending);
   --color-pending-foreground: var(--pending-foreground);
+  --color-approved: var(--approved);
+  --color-approved-foreground: var(--approved-foreground);
 }
 
 :root {
@@ -110,6 +112,8 @@
   --waiting-foreground: oklch(0.4137 0.1054 45.9);
   --pending: oklch(0.9514 0.025 236.82);
   --pending-foreground: oklch(0.3912 0.0845 240.88);
+  --approved: oklch(0.9226 0.0367 152.82);
+  --approved-foreground: oklch(0.5198 0.176858 142.4953);
 }
 
 .dark {

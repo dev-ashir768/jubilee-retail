@@ -33,6 +33,8 @@ const badgeVariants = cva(
           "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-callback-scheduled text-callback-scheduled-foreground font-semibold [a&]:hover:bg-callback-scheduled/90",
         pending:
           "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-pending text-pending-foreground font-semibold [a&]:hover:bg-pending/90",
+        approved:
+          "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-approved text-approved-foreground font-semibold [a&]:hover:bg-approved/90",
       },
     },
     defaultVariants: {

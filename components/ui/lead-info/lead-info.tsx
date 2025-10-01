@@ -162,7 +162,6 @@ const LeadInfoList = () => {
       const message = data?.message;
       toast.success(message);
       queryClient.invalidateQueries({ queryKey: ["lead-info-list"] });
-      router.push(LISTING_ROUTE);
     },
   });
 
