@@ -44,7 +44,7 @@ const DataTableColumnVisibility = <TData,>({ table }: DataTableViewOptionsProps<
         </Tooltip>
 
 
-        <DropdownMenuContent align="end" className="w-[150px]">
+        <DropdownMenuContent align="end" className="min-w-[150px]">
           {table
             .getAllColumns()
             .filter(
@@ -54,11 +54,11 @@ const DataTableColumnVisibility = <TData,>({ table }: DataTableViewOptionsProps<
             .map((column) => (
               <DropdownMenuCheckboxItem
                 key={column.id}
-                className="capitalize"
+                className="capitalize cursor-pointer"
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {column.id}
+                {column.id.replace(/_/g, " ")}
               </DropdownMenuCheckboxItem>
             ))}
         </DropdownMenuContent>

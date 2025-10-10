@@ -26,7 +26,7 @@ const AddProductOptions = () => {
 
   // ======== REDIRECTION EFFECT ========
   useEffect(() => {
-    if (rights.can_create !== "1") {
+    if (rights.can_create == "0") {
       const timer = setTimeout(() => {
         router.push('/');
       }, 1500);
