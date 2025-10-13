@@ -35,6 +35,24 @@ const badgeVariants = cva(
           "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-pending text-pending-foreground font-semibold [a&]:hover:bg-pending/90",
         approved:
           "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-approved text-approved-foreground font-semibold [a&]:hover:bg-approved/90",
+        accepted:
+          "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-accepted text-accepted-foreground font-semibold [a&]:hover:bg-accepted/90",
+        verified:
+          "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-verified text-verified-foreground font-semibold [a&]:hover:bg-verified/90",
+        unverified:
+          "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-unverified text-unverified-foreground font-semibold [a&]:hover:bg-unverified/90",
+        pendingcod:
+          "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-pendingcod text-pendingcod-foreground font-semibold [a&]:hover:bg-pendingcod/90",
+        rejected:
+          "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-rejected text-rejected-foreground font-semibold [a&]:hover:bg-rejected/90",
+        pendingcbo:
+          "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-pendingcbo text-pendingcbo-foreground font-semibold [a&]:hover:bg-pendingcbo/90",
+        pendingigis:
+          "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-pendingigis text-pendingigis-foreground font-semibold [a&]:hover:bg-pendingigis/90",
+        hisposted:
+          "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-hisposted text-hisposted-foreground font-semibold [a&]:hover:bg-hisposted/90",
+        igisposted:
+          "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-igisposted text-igisposted-foreground font-semibold [a&]:hover:bg-igisposted/90",
       },
     },
     defaultVariants: {

@@ -54,7 +54,7 @@ const DataTablePagination = <TData,>({
           </Select>
         </div>
         <div className="flex items-center space-x-3">
-          <div className="flex w-[100px] items-center justify-center">
+          <div className="flex min-w-[100px] items-center justify-center">
             <p className="text-foreground text-sm font-medium">
               Page {table.getState().pagination.pageIndex + 1} of{" "}
               {table.getPageCount()}

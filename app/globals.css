@@ -61,6 +61,24 @@
   --color-pending-foreground: var(--pending-foreground);
   --color-approved: var(--approved);
   --color-approved-foreground: var(--approved-foreground);
+  --color-rejected: var(--rejected);
+  --color-rejected-foreground: var(--rejected-foreground);
+  --color-verified: var(--verified);
+  --color-verified-foreground: var(--unverified-foreground);
+  --color-unverified: var(--verified);
+  --color-unverified-foreground: var(--unverified-foreground);
+  --color-accepted: var(--accepted);
+  --color-accepted-foreground: var(--accepted-foreground);
+  --color-hisposted: var(--hisposted);
+  --color-hisposted-foreground: var(--hisposted-foreground);
+  --color-igisposted: var(--igisposted);
+  --color-igisposted-foreground: var(--igisposted-foreground);
+  --color-pendingigis: var(--pendingigis);
+  --color-pendingigis-foreground: var(--pendingigis-foreground);
+  --color-pendingcbo: var(--pendingcbo);
+  --color-pendingcbo-foreground: var(--pendingcbo-foreground);
+  --color-pendingcod: var(--pendingcod);
+  --color-pendingcod-foreground: var(--pendingcod-foreground);
 }
 
 :root {
@@ -100,20 +118,38 @@
   --success-foreground: oklch(0.5198 0.176858 142.4953);
   --danger: oklch(0.9075 0.037 11.63);
   --danger-foreground: oklch(0.628 0.2577 29.23);
-  --interested: oklch(0.9319 0.0316 255.59);
-  --interested-foreground: oklch(0.4244 0.1809 265.64);
-  --not-interested: oklch(0.9276 0.0058 264.53);
-  --not-interested-foreground: oklch(0.3729 0.0306 259.73);
-  --cancelled: oklch(0.9356 0.0309 17.72);
-  --cancelled-foreground: ooklch(0.4437 0.1613 26.9);
-  --callback-scheduled: oklch(0.9619 0.058 95.62);
-  --callback-scheduled-foreground: oklch(0.4732 0.1247 46.2);
-  --waiting: oklch(0.9869 0.0214 95.28);
-  --waiting-foreground: oklch(0.4137 0.1054 45.9);
-  --pending: oklch(0.9514 0.025 236.82);
-  --pending-foreground: oklch(0.3912 0.0845 240.88);
-  --approved: oklch(0.9226 0.0367 152.82);
-  --approved-foreground: oklch(0.5198 0.176858 142.4953);
+  --interested: oklch(0.94 0.045 260.2);
+  --interested-foreground: oklch(0.45 0.22 265.1);
+  --not-interested: oklch(0.92 0.015 270.5);
+  --not-interested-foreground: oklch(0.38 0.05 268.3);
+  --cancelled: oklch(0.93 0.04 20.1);
+  --cancelled-foreground: oklch(0.46 0.18 25.4);
+  --callback-scheduled: oklch(0.96 0.065 100.3);
+  --callback-scheduled-foreground: oklch(0.48 0.14 50.7);
+  --waiting: oklch(0.98 0.025 100.8);
+  --waiting-foreground: oklch(0.42 0.12 55.2);
+  --pending: oklch(0.95 0.03 240.6);
+  --pending-foreground: oklch(0.4 0.09 245.1);
+  --approved: oklch(0.92 0.04 155.4);
+  --approved-foreground: oklch(0.52 0.2 150.2);
+  --accepted: oklch(0.93 0.045 145.7);
+  --accepted-foreground: oklch(0.51 0.18 140.9);
+  --unverified: oklch(0.92 0.02 245.3);
+  --unverified-foreground: oklch(0.4 0.07 240.8);
+  --verified: oklch(0.91 0.045 165.6);
+  --verified-foreground: oklch(0.54 0.2 160.4);
+  --rejected: oklch(0.9 0.045 205.7);
+  --rejected-foreground: oklch(0.48 0.21 210.2);
+  --hisposted: oklch(0.91 0.04 185.4);
+  --hisposted-foreground: oklch(0.5 0.15 180.1);
+  --igisposted: oklch(0.91 0.035 215.9);
+  --igisposted-foreground: oklch(0.48 0.13 210.6);
+  --pendingigis: oklch(0.94 0.03 200.7);
+  --pendingigis-foreground: oklch(0.47 0.12 195.3);
+  --pendingcbo: oklch(0.95 0.03 170.2);
+  --pendingcbo-foreground: oklch(0.45 0.11 165.8);
+  --pendingcod: oklch(0.945 0.028 120.7);
+  --pendingcod-foreground: oklch(0.456 0.092 115.2);
 }
 
 .dark {
@@ -162,8 +198,4 @@
     -webkit-appearance: none;
     margin: 0;
   }
-
-  /* input[type="number"] {
-    -moz-appearance: textfield;
-  } */
 }
