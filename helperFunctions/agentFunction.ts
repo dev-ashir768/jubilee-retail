@@ -6,6 +6,7 @@ export const fetchAgentList = async (): Promise<AgentResponseTypes | null> => {
     const response = await axiosFunction({
       method: "GET",
       urlPath: "/agents",
+      
     });
 
     return response;

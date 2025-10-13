@@ -21,10 +21,14 @@ export const singleSelectStyle: StylesConfig<SelectOption, false> = {
   singleValue: (provided) => ({
     ...provided,
     color: "#0a0a0a",
+    textTransform: "capitalize",
+    cursor: "pointer",
   }),
   placeholder: (provided) => ({
     ...provided,
     color: "#737373",
+    textTransform: "capitalize",
+    cursor: "pointer",
   }),
   option: (provided, state) => ({
     ...provided,
@@ -35,6 +39,8 @@ export const singleSelectStyle: StylesConfig<SelectOption, false> = {
       : "white",
     color: state.isSelected ? "#0a0a0a" : "#0a0a0a",
     fontSize: "14px",
+    textTransform: "capitalize",
+    cursor: "pointer",
     "&:hover": {
       backgroundColor: "#f5f5f5",
       color: "#0a0a0a",
@@ -58,10 +64,14 @@ export const multiSelectStyle: StylesConfig<SelectOption, true> = {
   singleValue: (provided) => ({
     ...provided,
     color: "#0a0a0a",
+    textTransform: "capitalize",
+    cursor: "pointer",
   }),
   placeholder: (provided) => ({
     ...provided,
     color: "#737373",
+    textTransform: "capitalize",
+    cursor: "pointer",
   }),
   option: (provided, state) => ({
     ...provided,
@@ -72,6 +82,8 @@ export const multiSelectStyle: StylesConfig<SelectOption, true> = {
       : "white",
     color: state.isSelected ? "#0a0a0a" : "#0a0a0a",
     fontSize: "14px",
+    textTransform: "capitalize",
+    cursor: "pointer",
     "&:hover": {
       backgroundColor: "#f5f5f5",
       color: "#0a0a0a",
@@ -87,6 +99,7 @@ export const multiSelectStyle: StylesConfig<SelectOption, true> = {
     color: "#0a0a0a",
     fontSize: "14px",
     textTransform: "capitalize",
+    cursor: "pointer",
   }),
   multiValueRemove: (provided) => ({
     ...provided,

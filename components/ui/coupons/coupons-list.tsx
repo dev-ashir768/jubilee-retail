@@ -51,32 +51,6 @@ const CouponsList = () => {
     [couponsListResponse]
   );
 
-  // ======== FILTER OPTIONS ========
-  // const codeFilterOptions = useMemo(
-  //   () => createFilterOptions(couponsList, "code"),
-  //   [couponsList]
-  // );
-
-  // const campaignNameFilterOptions = useMemo(
-  //   () => createFilterOptions(couponsList, "code"),
-  //   [couponsList]
-  // );
-
-  // const quantityFilterOptions = useMemo(
-  //   () => createFilterOptions(couponsList, "quantity"),
-  //   [couponsList]
-  // );
-
-  // const couponTypeFilterOptions = useMemo(
-  //   () => createFilterOptions(couponsList, "coupon_type"),
-  //   [couponsList]
-  // );
-
-  // const discountValueFilterOptions = useMemo(
-  //   () => createFilterOptions(couponsList, "discount_value"),
-  //   [couponsList]
-  // );
-
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<CouponsPayloadType>[] = useMemo(
     () => [
@@ -86,12 +60,6 @@ const CouponsList = () => {
           <DatatableColumnHeader column={column} title="Code" />
         ),
         cell: ({ row }) => <div>{row.original.code}</div>,
-        // filterFn: "multiSelect",
-        // meta: {
-        //   filterType: "multiselect",
-        //   filterOptions: codeFilterOptions,
-        //   filterPlaceholder: "Filter by Code...",
-        // } as ColumnMeta,
       },
       {
         accessorKey: "campaign_name",
@@ -173,15 +141,6 @@ const CouponsList = () => {
             </Badge>
           );
         },
-        // filterFn: "multiSelect",
-        // meta: {
-        //   filterType: "multiselect",
-        //   filterOptions: [
-        //     { value: "active", label: "Active" },
-        //     { value: "in_active", label: "Inactive" },
-        //   ],
-        //   filterPlaceholder: "Filter status...",
-        // } as ColumnMeta,
       },
       {
         id: "actions",
