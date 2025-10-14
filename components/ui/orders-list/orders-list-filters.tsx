@@ -19,6 +19,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import Select from "react-select";
 import { singleSelectStyle } from "@/utils/selectStyles";
+import { OrdersListFilterStore } from "@/hooks/ordersListFilterStore";
 
 interface OrdersListFiltersProps {
   isFilterOpen: boolean;
@@ -29,6 +30,9 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
   isFilterOpen,
   setIsFilterOpen,
 }) => {
+  // CONSTANT AND HOOKS
+  const { setFilterValue, resetFilterValue } = OrdersListFilterStore();
+
   // HOOK FORM
   const {
     control,
@@ -72,11 +76,12 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
   // FORM HANDLER
   const handleOnSubmit = (data: OrdersListFilterSchemaType) => {
     console.log(data);
+    setFilterValue(data);
   };
 
   const handleOnReset = () => {
-    reset({ month: null, order_status: null });
-    console.log("hel");
+    reset();
+    resetFilterValue();
   };
 
   return (

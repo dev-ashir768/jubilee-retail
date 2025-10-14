@@ -18,7 +18,7 @@ const monthsEnum = [
   "december",
 ] as const;
 
-const orderStatusEnum = [
+export const orderStatusEnum = [
   "accepted",
   "cancelled",
   "pendingCOD",
