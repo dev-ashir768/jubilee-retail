@@ -1,17 +1,10 @@
 "use client";
 
-import { CouponsPayloadType, CouponsResponseType } from "@/types/couponsTypes";
 import { getRights } from "@/utils/getRights";
 import { useQuery } from "@tanstack/react-query";
-import { Eye, MoreHorizontal, Trash } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useMemo } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../shadcn/dropdown-menu";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "../shadcn/button";
 import { Badge } from "../shadcn/badge";
 import DatatableColumnHeader from "../datatable/datatable-column-header";
@@ -20,19 +13,25 @@ import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
 import Empty from "../foundations/empty";
 import SubNav from "../foundations/sub-nav";
-import { fetchApiUserList } from "@/helperFunctions/userFunction";
-import { ApiUsersResponseType } from "@/types/usersTypes";
 import OrdersListDatatable from "./orders-list-datatable";
 import {
   OrdersListPayloadType,
   OrdersListResponseType,
 } from "@/types/ordersListTypes";
 import { fetchOrdersListing } from "@/helperFunctions/ordersFunctions";
+import { DateRange } from "react-day-picker";
+import { subDays, format } from "date-fns";
+import OrdersListFilters from "./orders-list-filters";
 
 const OrdersListListing = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/orders/list";
   const router = useRouter();
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 364),
+    to: new Date(),
+  });
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -40,15 +39,15 @@ const OrdersListListing = () => {
   }, [LISTING_ROUTE]);
 
   // ======== DATA FETCHING ========
-  const {
-    data: apiUserListResponse,
-    isLoading: apiUserListLoading,
-    isError: apiUserListIsError,
-    error: apiUserListError,
-  } = useQuery<ApiUsersResponseType | null>({
-    queryKey: ["api-user-list"],
-    queryFn: fetchApiUserList,
-  });
+  // const {
+  //   data: apiUserListResponse,
+  //   isLoading: apiUserListLoading,
+  //   isError: apiUserListIsError,
+  //   error: apiUserListError,
+  // } = useQuery<ApiUsersResponseType | null>({
+  //   queryKey: ["api-user-list"],
+  //   queryFn: fetchApiUserList,
+  // });
 
   const {
     data: ordersListListingResponse,
@@ -56,18 +55,26 @@ const OrdersListListing = () => {
     isError: ordersListListingIsError,
     error: ordersListListingError,
   } = useQuery<OrdersListResponseType | null>({
-    queryKey: ["orders-list-linting"],
+    queryKey: [
+      "orders-list-linting",
+      `startDate: ${
+        dateRange?.from ? format(dateRange?.from, "yyyy-MM-dd") : ""
+      }`,
+      `endDate: ${dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : ""}`,
+    ],
     queryFn: () =>
       fetchOrdersListing<OrdersListResponseType>({
         mode: "orders",
+        startDate: dateRange?.from ? format(dateRange?.from, "yyyy-MM-dd") : "",
+        endDate: dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "",
       }),
   });
 
   // ======== PAYLOADS DATA ========
-  const apiUserList = useMemo(
-    () => apiUserListResponse?.payload || [],
-    [apiUserListResponse]
-  );
+  // const apiUserList = useMemo(
+  //   () => apiUserListResponse?.payload || [],
+  //   [apiUserListResponse]
+  // );
 
   const ordersListListing = useMemo(
     () => ordersListListingResponse?.payload || [],
@@ -176,9 +183,9 @@ const OrdersListListing = () => {
   );
 
   // ======== RENDER LOGIC ========
-  const isLoading = apiUserListLoading || ordersListListingLoading;
-  const isError = apiUserListIsError || ordersListListingIsError;
-  const onError = apiUserListError?.message || ordersListListingError?.message;
+  const isLoading = ordersListListingLoading;
+  const isError =  ordersListListingIsError;
+  const onError =  ordersListListingError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -190,8 +197,6 @@ const OrdersListListing = () => {
     }
   }, [rights, router]);
 
-  if (isLoading) return <LoadingState />;
-  if (isError) return <Error err={onError} />;
   if (rights && rights?.can_view === "0")
     return (
       <Empty
@@ -202,9 +207,28 @@ const OrdersListListing = () => {
 
   return (
     <>
-      <SubNav title="Orders List" />
+      <SubNav
+        title="Orders List"
+        filter={true}
+        isFilterOpen={isFilterOpen}
+        setIsFilterOpen={setIsFilterOpen}
+        datePicker={true}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+      />
 
-      <OrdersListDatatable columns={columns} payload={ordersListListing} />
+      {isLoading ? (
+        <LoadingState />
+      ) : isError ? (
+        <Error err={onError} />
+      ) : (
+        <OrdersListDatatable columns={columns} payload={ordersListListing} />
+      )}
+
+      <OrdersListFilters
+        isFilterOpen={isFilterOpen}
+        setIsFilterOpen={() => setIsFilterOpen(false)}
+      />
     </>
   );
 };

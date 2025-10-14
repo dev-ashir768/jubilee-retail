@@ -4,7 +4,7 @@ import { getRights } from "@/utils/getRights";
 import { useQuery } from "@tanstack/react-query";
 import { Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "../shadcn/button";
 import { Badge } from "../shadcn/badge";
 import DatatableColumnHeader from "../datatable/datatable-column-header";
@@ -13,19 +13,27 @@ import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
 import Empty from "../foundations/empty";
 import SubNav from "../foundations/sub-nav";
-import { fetchApiUserList } from "@/helperFunctions/userFunction";
-import { ApiUsersResponseType } from "@/types/usersTypes";
 import { fetchOrdersListing } from "@/helperFunctions/ordersFunctions";
 import RenewalPolicyDatatable from "./renewal-policy-datatable";
 import {
   RenewalPolicyPayloadType,
   RenewalPolicyResponseType,
 } from "@/types/renewalPolicyTypes";
+import { DateRange } from "react-day-picker";
+import { subDays, format } from "date-fns";
 
 const RenewalPolicyList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/orders/renewals";
   const router = useRouter();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 364),
+    to: new Date(),
+  });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -33,15 +41,15 @@ const RenewalPolicyList = () => {
   }, [LISTING_ROUTE]);
 
   // ======== DATA FETCHING ========
-  const {
-    data: apiUserListResponse,
-    isLoading: apiUserListLoading,
-    isError: apiUserListIsError,
-    error: apiUserListError,
-  } = useQuery<ApiUsersResponseType | null>({
-    queryKey: ["api-user-list"],
-    queryFn: fetchApiUserList,
-  });
+  // const {
+  //   data: apiUserListResponse,
+  //   isLoading: apiUserListLoading,
+  //   isError: apiUserListIsError,
+  //   error: apiUserListError,
+  // } = useQuery<ApiUsersResponseType | null>({
+  //   queryKey: ["api-user-list"],
+  //   queryFn: fetchApiUserList,
+  // });
 
   const {
     data: renewalPolicyListResponse,
@@ -49,18 +57,20 @@ const RenewalPolicyList = () => {
     isError: renewalPolicyListIsError,
     error: renewalPolicyListError,
   } = useQuery<RenewalPolicyResponseType | null>({
-    queryKey: ["renewal-policy-list"],
+    queryKey: ["renewal-policy-list", `${startDate} to ${endDate}`],
     queryFn: () =>
       fetchOrdersListing<RenewalPolicyResponseType>({
         mode: "renewal",
+        startDate,
+        endDate,
       }),
   });
 
   // ======== PAYLOADS DATA ========
-  const apiUserList = useMemo(
-    () => apiUserListResponse?.payload || [],
-    [apiUserListResponse]
-  );
+  // const apiUserList = useMemo(
+  //   () => apiUserListResponse?.payload || [],
+  //   [apiUserListResponse]
+  // );
 
   const renewalPolicyList = useMemo(
     () => renewalPolicyListResponse?.payload || [],
@@ -165,9 +175,9 @@ const RenewalPolicyList = () => {
   );
 
   // ======== RENDER LOGIC ========
-  const isLoading = apiUserListLoading || renewalPolicyListIsLoading;
-  const isError = apiUserListIsError || renewalPolicyListIsError;
-  const onError = apiUserListError?.message || renewalPolicyListError?.message;
+  const isLoading = renewalPolicyListIsLoading;
+  const isError = renewalPolicyListIsError;
+  const onError = renewalPolicyListError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -191,7 +201,12 @@ const RenewalPolicyList = () => {
 
   return (
     <>
-      <SubNav title="Renewal Policy List" />
+      <SubNav
+        title="Renewal Policy List"
+        datePicker={true}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+      />
       <RenewalPolicyDatatable columns={columns} payload={renewalPolicyList} />
     </>
   );

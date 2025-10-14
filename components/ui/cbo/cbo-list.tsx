@@ -4,7 +4,7 @@ import { getRights } from "@/utils/getRights";
 import { useQuery } from "@tanstack/react-query";
 import { Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "../shadcn/button";
 import { Badge } from "../shadcn/badge";
 import DatatableColumnHeader from "../datatable/datatable-column-header";
@@ -13,16 +13,24 @@ import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
 import Empty from "../foundations/empty";
 import SubNav from "../foundations/sub-nav";
-import { fetchApiUserList } from "@/helperFunctions/userFunction";
-import { ApiUsersResponseType } from "@/types/usersTypes";
 import { fetchOrdersListing } from "@/helperFunctions/ordersFunctions";
 import { CboPayloadType, CboResponseType } from "@/types/cboTypes";
 import CboDatatable from "./cbo-datatable";
+import { DateRange } from "react-day-picker";
+import { subDays, format } from "date-fns";
 
 const CboList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/orders/cbo";
   const router = useRouter();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 364),
+    to: new Date(),
+  });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -30,15 +38,15 @@ const CboList = () => {
   }, [LISTING_ROUTE]);
 
   // ======== DATA FETCHING ========
-  const {
-    data: apiUserListResponse,
-    isLoading: apiUserListLoading,
-    isError: apiUserListIsError,
-    error: apiUserListError,
-  } = useQuery<ApiUsersResponseType | null>({
-    queryKey: ["api-user-list"],
-    queryFn: fetchApiUserList,
-  });
+  // const {
+  //   data: apiUserListResponse,
+  //   isLoading: apiUserListLoading,
+  //   isError: apiUserListIsError,
+  //   error: apiUserListError,
+  // } = useQuery<ApiUsersResponseType | null>({
+  //   queryKey: ["api-user-list"],
+  //   queryFn: fetchApiUserList,
+  // });
 
   const {
     data: cobListResponse,
@@ -46,18 +54,20 @@ const CboList = () => {
     isError: cboListIsError,
     error: cboListError,
   } = useQuery<CboResponseType | null>({
-    queryKey: ["cbo-list"],
+    queryKey: ["cbo-list", `${startDate} to ${endDate}`],
     queryFn: () =>
       fetchOrdersListing<CboResponseType>({
         mode: "cbo",
+        startDate,
+        endDate,
       }),
   });
 
   // ======== PAYLOADS DATA ========
-  const apiUserList = useMemo(
-    () => apiUserListResponse?.payload || [],
-    [apiUserListResponse]
-  );
+  // const apiUserList = useMemo(
+  //   () => apiUserListResponse?.payload || [],
+  //   [apiUserListResponse]
+  // );
 
   const cboList = useMemo(
     () => cobListResponse?.payload || [],
@@ -162,9 +172,9 @@ const CboList = () => {
   );
 
   // ======== RENDER LOGIC ========
-  const isLoading = apiUserListLoading || cboListIsLoading;
-  const isError = apiUserListIsError || cboListIsError;
-  const onError = apiUserListError?.message || cboListError?.message;
+  const isLoading = cboListIsLoading;
+  const isError =  cboListIsError;
+  const onError = cboListError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -188,7 +198,12 @@ const CboList = () => {
 
   return (
     <>
-      <SubNav title="CBO List" />
+      <SubNav
+        title="CBO List"
+        datePicker={true}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+      />
       <CboDatatable columns={columns} payload={cboList} />
     </>
   );

@@ -13,8 +13,6 @@ import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
 import Empty from "../foundations/empty";
 import SubNav from "../foundations/sub-nav";
-import { fetchApiUserList } from "@/helperFunctions/userFunction";
-import { ApiUsersResponseType } from "@/types/usersTypes";
 import { fetchOrdersListing } from "@/helperFunctions/ordersFunctions";
 import {
   PoliciesPayloadType,
@@ -22,7 +20,7 @@ import {
 } from "@/types/policiesTypes";
 import PoliciesDatatable from "./policies-datatable";
 import { DateRange } from "react-day-picker";
-import { subDays } from "date-fns";
+import { subDays, format } from "date-fns";
 
 const PoliciesList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -32,6 +30,10 @@ const PoliciesList = () => {
     from: subDays(new Date(), 364),
     to: new Date(),
   });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -39,15 +41,15 @@ const PoliciesList = () => {
   }, [LISTING_ROUTE]);
 
   // ======== DATA FETCHING ========
-  const {
-    data: apiUserListResponse,
-    isLoading: apiUserListLoading,
-    isError: apiUserListIsError,
-    error: apiUserListError,
-  } = useQuery<ApiUsersResponseType | null>({
-    queryKey: ["api-user-list"],
-    queryFn: fetchApiUserList,
-  });
+  // const {
+  //   data: apiUserListResponse,
+  //   isLoading: apiUserListLoading,
+  //   isError: apiUserListIsError,
+  //   error: apiUserListError,
+  // } = useQuery<ApiUsersResponseType | null>({
+  //   queryKey: ["api-user-list"],
+  //   queryFn: fetchApiUserList,
+  // });
 
   const {
     data: policiesListResponse,
@@ -55,18 +57,20 @@ const PoliciesList = () => {
     isError: policiesListIsError,
     error: policiesListError,
   } = useQuery<PoliciesResponseType | null>({
-    queryKey: ["policies-list"],
+    queryKey: ["policies-list", `${startDate} to ${endDate}`],
     queryFn: () =>
       fetchOrdersListing<PoliciesResponseType>({
         mode: "policies",
+        startDate,
+        endDate,
       }),
   });
 
   // ======== PAYLOADS DATA ========
-  const apiUserList = useMemo(
-    () => apiUserListResponse?.payload || [],
-    [apiUserListResponse]
-  );
+  // const apiUserList = useMemo(
+  //   () => apiUserListResponse?.payload || [],
+  //   [apiUserListResponse]
+  // );
 
   const policiesList = useMemo(
     () => policiesListResponse?.payload || [],
@@ -186,9 +190,9 @@ const PoliciesList = () => {
   );
 
   // ======== RENDER LOGIC ========
-  const isLoading = apiUserListLoading || policiesListIsLoading;
-  const isError = apiUserListIsError || policiesListIsError;
-  const onError = apiUserListError?.message || policiesListError?.message;
+  const isLoading =  policiesListIsLoading;
+  const isError =  policiesListIsError;
+  const onError =  policiesListError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -214,7 +218,7 @@ const PoliciesList = () => {
     <>
       <SubNav
         title="Policies List"
-        datePicker= {true}
+        datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
       />

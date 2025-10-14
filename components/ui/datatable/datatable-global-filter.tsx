@@ -13,7 +13,7 @@ const DataTableGlobalFilter = <TData,>({ table }: DataTableGlobalFilterProps<TDa
                 placeholder="Global Search..."
                 value={(table.getState().globalFilter as string) ?? ""}
                 onChange={(e) => table.setGlobalFilter(e.target.value)}
-                className="max-w-md"
+                className="max-w-md h-[32px]"
             />
         </>
     )
