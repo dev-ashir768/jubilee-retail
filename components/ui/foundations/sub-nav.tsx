@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { DateRangePicker } from "./date-range-picker";
 import { FunnelIcon } from "lucide-react";
+import { filterCountStore } from "@/hooks/filterCountStore";
 
 const SubNav: React.FC<subNavTypes> = ({
   title,
@@ -20,7 +21,9 @@ const SubNav: React.FC<subNavTypes> = ({
   setDateRange,
   filter = false,
 }) => {
+  // HOOKS AND CONSTANTS
   const pathname = usePathname();
+  const { filterCount } = filterCountStore();
 
   const rights = useMemo(() => {
     return getRights(pathname);
@@ -33,8 +36,17 @@ const SubNav: React.FC<subNavTypes> = ({
       </div>
       <div className="flex flex-wrap gap-3">
         {filter && (
-          <Button onClick={()=> setIsFilterOpen!(!isFilterOpen)} variant="secondary" size="icon" aria-label="Multi Filters">
+          <Button
+            onClick={() => setIsFilterOpen!(!isFilterOpen)}
+            variant="secondary"
+            size="icon"
+            className="relative"
+            aria-label="Multi Filters"
+          >
             <FunnelIcon />
+            <span className="bg-primary rounded-full size-4 text-white text-xs absolute top-[-2px] left-[-6px] flex justify-center items-center">
+              {filterCount}
+            </span>
           </Button>
         )}
 

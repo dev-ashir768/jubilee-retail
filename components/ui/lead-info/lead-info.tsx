@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import SubNav from "../foundations/sub-nav";
 import { useRouter } from "next/navigation";
 import { getRights } from "@/utils/getRights";
@@ -32,12 +32,18 @@ import {
 import { toast } from "sonner";
 import { axiosFunction } from "@/utils/axiosFunction";
 import { AxiosError } from "axios";
+import { DateRange } from "react-day-picker";
+import { subDays } from "date-fns";
 
 const LeadInfoList = () => {
   // ======== CONSTANTS & HOOKS ========
   const queryClient = useQueryClient();
   const LISTING_ROUTE = "/leads/lead-info";
   const router = useRouter();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 364),
+    to: new Date(),
+  });
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -332,7 +338,11 @@ const LeadInfoList = () => {
 
         return (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild disabled={isLocked} className="disabled:cursor-not-allowed">
+            <DropdownMenuTrigger
+              asChild
+              disabled={isLocked}
+              className="disabled:cursor-not-allowed"
+            >
               <Badge
                 variant={
                   currentStatus as
@@ -420,8 +430,6 @@ const LeadInfoList = () => {
     }
   }, [rights, router]);
 
-  if (isLoading) return <LoadingState />;
-  if (isError) return <Error err={onError} />;
   if (rights && rights?.can_view === "0")
     return (
       <Empty
@@ -432,9 +440,15 @@ const LeadInfoList = () => {
 
   return (
     <>
-      <SubNav title="Lead Info List" />
+      <SubNav title="Lead Info List" datePicker={true} dateRange={dateRange} setDateRange={setDateRange} />
 
-      <LeadInfoDatatable columns={columns} payload={leadInfoList} />
+      {isLoading ? (
+        <LoadingState />
+      ) : isError ? (
+        <Error err={onError} />
+      ) : (
+        <LeadInfoDatatable columns={columns} payload={leadInfoList} />
+      )}
     </>
   );
 };

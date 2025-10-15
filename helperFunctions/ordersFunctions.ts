@@ -4,15 +4,26 @@ interface fetchOrdersListingProps {
   mode: string;
   startDate?: string;
   endDate?: string;
+  month?: string | null;
+  order_status?: string | null;
 }
 
 export const fetchOrdersListing = async <T>({
   mode,
   startDate,
   endDate,
+  month,
+  order_status,
 }: fetchOrdersListingProps): Promise<T | null> => {
-  const payload: { mode: string; date?: string } = {
+  const payload: {
+    mode: string;
+    date?: string;
+    month: string | null;
+    order_status: string | null;
+  } = {
     mode,
+    order_status: order_status ?? null,
+    month: month ?? null,
   };
 
   if (startDate && endDate) {

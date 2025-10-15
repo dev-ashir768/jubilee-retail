@@ -43,6 +43,30 @@ export const OrdersListFilterSchema = z.object({
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Order Status contains forbidden code patterns",
     }),
+  api_user: z
+    .string()
+    .nullable()
+    .refine((val) => !forbiddenCodeRegex.test(String(val)), {
+      message: "Api User contains forbidden code patterns",
+    }),
+  product: z
+    .string()
+    .nullable()
+    .refine((val) => !forbiddenCodeRegex.test(String(val)), {
+      message: "Product forbidden code patterns",
+    }),
+  branch: z
+    .string()
+    .nullable()
+    .refine((val) => !forbiddenCodeRegex.test(String(val)), {
+      message: "Branch contains forbidden code patterns",
+    }),
+  payment_mode: z
+    .string()
+    .nullable()
+    .refine((val) => !forbiddenCodeRegex.test(String(val)), {
+      message: "Payment Mode contains forbidden code patterns",
+    }),
 });
 
 export type OrdersListFilterSchemaType = z.infer<typeof OrdersListFilterSchema>;

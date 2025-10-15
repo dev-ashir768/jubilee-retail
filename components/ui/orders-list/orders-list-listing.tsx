@@ -22,16 +22,30 @@ import { fetchOrdersListing } from "@/helperFunctions/ordersFunctions";
 import { DateRange } from "react-day-picker";
 import { subDays, format } from "date-fns";
 import OrdersListFilters from "./orders-list-filters";
+import { ApiUsersResponseType } from "@/types/usersTypes";
+import { fetchApiUserList } from "@/helperFunctions/userFunction";
+import { OrdersListFilterStore } from "@/hooks/ordersListFilterStore";
+import { ProductsResponseTypes } from "@/types/productsTypes";
+import { fetchProductsList } from "@/helperFunctions/productsFunction";
+import { fetchBranchList } from "@/helperFunctions/branchFunction";
+import { BranchResponseType } from "@/types/branchTypes";
+import { PaymentModesResponseType } from "@/types/paymentModesTypes";
+import { fetchPaymentModesList } from "@/helperFunctions/paymentModesFunction";
 
 const OrdersListListing = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/orders/list";
   const router = useRouter();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { filterValue } = OrdersListFilterStore();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), 364),
     to: new Date(),
   });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -39,15 +53,45 @@ const OrdersListListing = () => {
   }, [LISTING_ROUTE]);
 
   // ======== DATA FETCHING ========
-  // const {
-  //   data: apiUserListResponse,
-  //   isLoading: apiUserListLoading,
-  //   isError: apiUserListIsError,
-  //   error: apiUserListError,
-  // } = useQuery<ApiUsersResponseType | null>({
-  //   queryKey: ["api-user-list"],
-  //   queryFn: fetchApiUserList,
-  // });
+  const {
+    data: apiUserListResponse,
+    isLoading: apiUserListLoading,
+    isError: apiUserListIsError,
+    error: apiUserListError,
+  } = useQuery<ApiUsersResponseType | null>({
+    queryKey: ["api-user-list"],
+    queryFn: fetchApiUserList,
+  });
+
+  const {
+    data: productListResponse,
+    isLoading: productListLoading,
+    isError: productListIsError,
+    error: productListError,
+  } = useQuery<ProductsResponseTypes | null>({
+    queryKey: ["products-list"],
+    queryFn: fetchProductsList,
+  });
+
+  const {
+    data: branchListResponse,
+    isLoading: branchListLoading,
+    isError: branchListIsError,
+    error: branchListError,
+  } = useQuery<BranchResponseType | null>({
+    queryKey: ["branch-list"],
+    queryFn: fetchBranchList,
+  });
+
+  const {
+    data: paymentModesListresponse,
+    isLoading: paymentModesListLoading,
+    isError: paymentModesListIsError,
+    error: paymentModesListError,
+  } = useQuery<PaymentModesResponseType | null>({
+    queryKey: ["payment-modes-list"],
+    queryFn: fetchPaymentModesList,
+  });
 
   const {
     data: ordersListListingResponse,
@@ -57,28 +101,44 @@ const OrdersListListing = () => {
   } = useQuery<OrdersListResponseType | null>({
     queryKey: [
       "orders-list-linting",
-      `startDate: ${
-        dateRange?.from ? format(dateRange?.from, "yyyy-MM-dd") : ""
-      }`,
-      `endDate: ${dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : ""}`,
+      `${startDate} to ${endDate}`,
+      filterValue?.month,
+      filterValue?.order_status,
     ],
     queryFn: () =>
       fetchOrdersListing<OrdersListResponseType>({
         mode: "orders",
         startDate: dateRange?.from ? format(dateRange?.from, "yyyy-MM-dd") : "",
         endDate: dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "",
+        month: filterValue?.month,
+        order_status: filterValue?.order_status,
       }),
   });
 
   // ======== PAYLOADS DATA ========
-  // const apiUserList = useMemo(
-  //   () => apiUserListResponse?.payload || [],
-  //   [apiUserListResponse]
-  // );
-
   const ordersListListing = useMemo(
     () => ordersListListingResponse?.payload || [],
     [ordersListListingResponse]
+  );
+
+  const apiUserList = useMemo(
+    () => apiUserListResponse?.payload || [],
+    [apiUserListResponse]
+  );
+
+  const productList = useMemo(
+    () => productListResponse?.payload || [],
+    [productListResponse]
+  );
+
+  const branchList = useMemo(
+    () => branchListResponse?.payload || [],
+    [branchListResponse]
+  );
+
+  const paymentModesList = useMemo(
+    () => paymentModesListresponse?.payload || [],
+    [paymentModesListresponse]
   );
 
   // ======== COLUMN DEFINITIONS ========
@@ -183,9 +243,24 @@ const OrdersListListing = () => {
   );
 
   // ======== RENDER LOGIC ========
-  const isLoading = ordersListListingLoading;
-  const isError =  ordersListListingIsError;
-  const onError =  ordersListListingError?.message;
+  const isLoading =
+    ordersListListingLoading ||
+    apiUserListLoading ||
+    productListLoading ||
+    branchListLoading ||
+    paymentModesListLoading;
+  const isError =
+    ordersListListingIsError ||
+    apiUserListIsError ||
+    productListIsError ||
+    branchListIsError ||
+    paymentModesListIsError;
+  const onError =
+    ordersListListingError?.message ||
+    apiUserListError?.message ||
+    productListError?.message ||
+    branchListError?.message ||
+    paymentModesListError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -228,6 +303,10 @@ const OrdersListListing = () => {
       <OrdersListFilters
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={() => setIsFilterOpen(false)}
+        apiUserList={apiUserList}
+        productList={productList}
+        branchList={branchList}
+        paymentModesList={paymentModesList}
       />
     </>
   );
