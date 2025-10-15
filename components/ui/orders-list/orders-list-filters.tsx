@@ -25,6 +25,7 @@ import { ApiUsersPayloadType } from "@/types/usersTypes";
 import { ProductsPayloadTypes } from "@/types/productsTypes";
 import { BranchPayloadType } from "@/types/branchTypes";
 import { PaymentModesPayloadType } from "@/types/paymentModesTypes";
+import { Input } from "../shadcn/input";
 
 interface OrdersListFiltersProps {
   isFilterOpen: boolean;
@@ -53,15 +54,18 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
     formState: { errors },
     handleSubmit,
     reset,
+    register,
   } = useForm({
     resolver: zodResolver(OrdersListFilterSchema),
     defaultValues: {
       month: null,
       order_status: null,
-      api_user: null,
-      branch: null,
-      payment_mode: null,
-      product: null,
+      api_user_id: null,
+      branch_id: null,
+      payment_mode_id: null,
+      product_id: null,
+      cnic: null,
+      contact: null,
     },
   });
 
@@ -137,7 +141,7 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
   return (
     <>
       <Dialog open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-        <DialogContent className="data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-20 data-[state=open]:zoom-in-100 data-[state=open]:duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-20 data-[state=closed]:zoom-out-95 data-[state=closed]:duration-300 sm:max-w-[620px] gap-6">
+        <DialogContent className="data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-20 data-[state=open]:zoom-in-100 data-[state=open]:duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-20 data-[state=closed]:zoom-out-95 data-[state=closed]:duration-300 sm:max-w-[660px] gap-6">
           <DialogHeader>
             <DialogTitle>Apply Filter</DialogTitle>
             <DialogDescription>
@@ -212,13 +216,13 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
               </div>
               {/* API User */}
               <div className="grid gap-2">
-                <Label htmlFor="api_user">API User</Label>
+                <Label htmlFor="api_user_id">API User</Label>
                 <Controller
-                  name="api_user"
+                  name="api_user_id"
                   control={control}
                   render={({ field }) => (
                     <Select
-                      id="api_user"
+                      id="api_user_id"
                       options={apiUsersOptions}
                       value={
                         apiUsersOptions.find(
@@ -233,21 +237,21 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
                     />
                   )}
                 />
-                {errors.api_user && (
+                {errors.api_user_id && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.api_user.message}
+                    {errors.api_user_id.message}
                   </p>
                 )}
               </div>
               {/* Product */}
               <div className="grid gap-2">
-                <Label htmlFor="product">Product</Label>
+                <Label htmlFor="product_id">Product</Label>
                 <Controller
-                  name="product"
+                  name="product_id"
                   control={control}
                   render={({ field }) => (
                     <Select
-                      id="product"
+                      id="product_id"
                       options={productsOptions}
                       value={
                         productsOptions.find(
@@ -262,21 +266,21 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
                     />
                   )}
                 />
-                {errors.product && (
+                {errors.product_id && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.product.message}
+                    {errors.product_id.message}
                   </p>
                 )}
               </div>
               {/* Branch */}
               <div className="grid gap-2">
-                <Label htmlFor="branch">Branch</Label>
+                <Label htmlFor="branch_id">Branch</Label>
                 <Controller
-                  name="branch"
+                  name="branch_id"
                   control={control}
                   render={({ field }) => (
                     <Select
-                      id="branch"
+                      id="branch_id"
                       options={branchOptions}
                       value={
                         branchOptions.find(
@@ -291,21 +295,21 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
                     />
                   )}
                 />
-                {errors.branch && (
+                {errors.branch_id && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.branch.message}
+                    {errors.branch_id.message}
                   </p>
                 )}
               </div>
               {/* Payment Mode */}
               <div className="grid gap-2">
-                <Label htmlFor="payment_mode">Payment Mode</Label>
+                <Label htmlFor="payment_mode_id">Payment Mode</Label>
                 <Controller
-                  name="payment_mode"
+                  name="payment_mode_id"
                   control={control}
                   render={({ field }) => (
                     <Select
-                      id="payment_mode"
+                      id="payment_mode_id"
                       options={paymentModesOptions}
                       value={
                         paymentModesOptions.find(
@@ -320,9 +324,41 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
                     />
                   )}
                 />
-                {errors.payment_mode && (
+                {errors.payment_mode_id && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.payment_mode.message}
+                    {errors.payment_mode_id.message}
+                  </p>
+                )}
+              </div>
+              {/* Cnic */}
+              <div className="grid gap-2">
+                <Label htmlFor="cnic">Cnic</Label>
+                <Input
+                  id="cnic"
+                  type="number"
+                  {...register("cnic")}
+                  className="w-full"
+                  placeholder="Enter Cnic"
+                />
+                {errors.cnic && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.cnic.message}
+                  </p>
+                )}
+              </div>
+              {/* Contact */}
+              <div className="grid gap-2">
+                <Label htmlFor="contact">Contact</Label>
+                <Input
+                  id="contact"
+                  type="number"
+                  {...register("contact")}
+                  className="w-full"
+                  placeholder="Enter Contact"
+                />
+                {errors.contact && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.contact.message}
                   </p>
                 )}
               </div>

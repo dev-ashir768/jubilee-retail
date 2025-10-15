@@ -12,6 +12,12 @@ interface OrdersListFilterStoreProps {
 const initialFilterValues = {
   month: null,
   order_status: null,
+  contact: null,
+  cnic: null,
+  payment_mode_id: null,
+  branch_id: null,
+  api_user_id: null,
+  product_id: null,
 };
 
 export const OrdersListFilterStore = create<OrdersListFilterStoreProps>(

@@ -104,6 +104,12 @@ const OrdersListListing = () => {
       `${startDate} to ${endDate}`,
       filterValue?.month,
       filterValue?.order_status,
+      filterValue?.contact,
+      filterValue?.api_user_id,
+      filterValue?.branch_id,
+      filterValue?.payment_mode_id,
+      filterValue?.product_id,
+      filterValue?.cnic,
     ],
     queryFn: () =>
       fetchOrdersListing<OrdersListResponseType>({
@@ -112,6 +118,12 @@ const OrdersListListing = () => {
         endDate: dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "",
         month: filterValue?.month,
         order_status: filterValue?.order_status,
+        contact: filterValue?.contact,
+        api_user_id: filterValue?.api_user_id,
+        branch_id: filterValue?.branch_id,
+        payment_mode_id: filterValue?.payment_mode_id,
+        product_id: filterValue?.product_id,
+        cnic: filterValue?.cnic,
       }),
   });
 

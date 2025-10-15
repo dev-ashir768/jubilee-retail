@@ -6,6 +6,12 @@ interface fetchOrdersListingProps {
   endDate?: string;
   month?: string | null;
   order_status?: string | null;
+  cnic?: string | null;
+  contact?: string | null;
+  payment_mode_id?: number | null;
+  branch_id?: number | null;
+  api_user_id?: number | null;
+  product_id?: number | null;
 }
 
 export const fetchOrdersListing = async <T>({
@@ -14,16 +20,34 @@ export const fetchOrdersListing = async <T>({
   endDate,
   month,
   order_status,
+  cnic,
+  contact,
+  payment_mode_id,
+  branch_id,
+  api_user_id,
+  product_id,
 }: fetchOrdersListingProps): Promise<T | null> => {
   const payload: {
     mode: string;
     date?: string;
     month: string | null;
     order_status: string | null;
+    cnic?: string | null;
+    contact?: string | null;
+    payment_mode_id?: number | null;
+    branch_id?: number | null;
+    api_user_id?: number | null;
+    product_id?: number | null;
   } = {
     mode,
     order_status: order_status ?? null,
     month: month ?? null,
+    cnic: cnic ?? null,
+    contact: contact ?? null,
+    payment_mode_id: payment_mode_id ?? null,
+    branch_id: branch_id ?? null,
+    product_id: product_id ?? null,
+    api_user_id: api_user_id ?? null,
   };
 
   if (startDate && endDate) {

@@ -43,30 +43,50 @@ export const OrdersListFilterSchema = z.object({
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Order Status contains forbidden code patterns",
     }),
-  api_user: z
-    .string()
+  api_user_id: z.coerce
+    .number()
     .nullable()
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Api User contains forbidden code patterns",
     }),
-  product: z
-    .string()
+  product_id: z.coerce
+    .number()
     .nullable()
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Product forbidden code patterns",
     }),
-  branch: z
-    .string()
+  branch_id: z.coerce
+    .number()
     .nullable()
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Branch contains forbidden code patterns",
     }),
-  payment_mode: z
-    .string()
+  payment_mode_id: z.coerce
+    .number()
     .nullable()
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Payment Mode contains forbidden code patterns",
     }),
+  cnic: z.coerce
+    .string()
+    .min(13, { message: "CNIC must be 13 digits without dashes." })
+    .nullable()
+    .refine((val) => !forbiddenCodeRegex.test(String(val)), {
+      message: "CNIC contains forbidden code patterns",
+    }),
+  contact: z.coerce
+    .string()
+    .nullable()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === "") return true;
+        const phoneRegex = /^(03\d{9}|923\d{9})$/;
+        return phoneRegex.test(val);
+      },
+      {
+        message: "Invalid format. Use 03xxxxxxxxx or 923xxxxxxxxx.",
+      }
+    ),
 });
 
 export type OrdersListFilterSchemaType = z.infer<typeof OrdersListFilterSchema>;
