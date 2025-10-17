@@ -1,5 +1,18 @@
-export type OrdersListFilterType = {
-  month: string | null;
+export type ordersFilterType = {
+  month:
+    | "january"
+    | "february"
+    | "march"
+    | "april"
+    | "may"
+    | "june"
+    | "july"
+    | "august"
+    | "september"
+    | "october"
+    | "november"
+    | "december"
+    | null;
   // order_status: (typeof orderStatusEnum)[keyof typeof orderStatusEnum] | null;
   order_status:
     | "accepted"
@@ -9,6 +22,17 @@ export type OrdersListFilterType = {
     | "unverified"
     | "verified"
     | "pending"
+    | null;
+  policy_status:
+    | "cancelled"
+    | "HISposted"
+    | "IGISposted"
+    | "pendingIGIS"
+    | "unverified"
+    | "verified"
+    | "pending"
+    | "pendingCOD"
+    | "pendingCBO"
     | null;
   branch_id: number | null;
   payment_mode_id: number | null;

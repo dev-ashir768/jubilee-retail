@@ -21,11 +21,23 @@ import {
 } from "@/types/renewalPolicyTypes";
 import { DateRange } from "react-day-picker";
 import { subDays, format } from "date-fns";
+import { ApiUsersResponseType } from "@/types/usersTypes";
+import { fetchApiUserList } from "@/helperFunctions/userFunction";
+import { ProductsResponseTypes } from "@/types/productsTypes";
+import { fetchProductsList } from "@/helperFunctions/productsFunction";
+import { BranchResponseType } from "@/types/branchTypes";
+import { fetchBranchList } from "@/helperFunctions/branchFunction";
+import { PaymentModesResponseType } from "@/types/paymentModesTypes";
+import { fetchPaymentModesList } from "@/helperFunctions/paymentModesFunction";
+import OrdersFilters from "../filters/orders-filters";
+import { renewalPolicyFilterState } from "@/hooks/renewalPolicyFilterState";
 
 const RenewalPolicyList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/orders/renewals";
   const router = useRouter();
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { filterValue } = renewalPolicyFilterState();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), 364),
     to: new Date(),
@@ -41,15 +53,45 @@ const RenewalPolicyList = () => {
   }, [LISTING_ROUTE]);
 
   // ======== DATA FETCHING ========
-  // const {
-  //   data: apiUserListResponse,
-  //   isLoading: apiUserListLoading,
-  //   isError: apiUserListIsError,
-  //   error: apiUserListError,
-  // } = useQuery<ApiUsersResponseType | null>({
-  //   queryKey: ["api-user-list"],
-  //   queryFn: fetchApiUserList,
-  // });
+  const {
+    data: apiUserListResponse,
+    isLoading: apiUserListLoading,
+    isError: apiUserListIsError,
+    error: apiUserListError,
+  } = useQuery<ApiUsersResponseType | null>({
+    queryKey: ["api-user-list"],
+    queryFn: fetchApiUserList,
+  });
+
+  const {
+    data: productListResponse,
+    isLoading: productListLoading,
+    isError: productListIsError,
+    error: productListError,
+  } = useQuery<ProductsResponseTypes | null>({
+    queryKey: ["products-list"],
+    queryFn: fetchProductsList,
+  });
+
+  const {
+    data: branchListResponse,
+    isLoading: branchListLoading,
+    isError: branchListIsError,
+    error: branchListError,
+  } = useQuery<BranchResponseType | null>({
+    queryKey: ["branch-list"],
+    queryFn: fetchBranchList,
+  });
+
+  const {
+    data: paymentModesListresponse,
+    isLoading: paymentModesListLoading,
+    isError: paymentModesListIsError,
+    error: paymentModesListError,
+  } = useQuery<PaymentModesResponseType | null>({
+    queryKey: ["payment-modes-list"],
+    queryFn: fetchPaymentModesList,
+  });
 
   const {
     data: renewalPolicyListResponse,
@@ -57,24 +99,58 @@ const RenewalPolicyList = () => {
     isError: renewalPolicyListIsError,
     error: renewalPolicyListError,
   } = useQuery<RenewalPolicyResponseType | null>({
-    queryKey: ["renewal-policy-list", `${startDate} to ${endDate}`],
+    queryKey: [
+      "renewal-policy-list",
+      `${startDate} to ${endDate}`,
+      filterValue?.month,
+      filterValue?.policy_status,
+      filterValue?.contact,
+      filterValue?.api_user_id,
+      filterValue?.branch_id,
+      filterValue?.payment_mode_id,
+      filterValue?.product_id,
+      filterValue?.cnic,
+    ],
     queryFn: () =>
       fetchOrdersListing<RenewalPolicyResponseType>({
         mode: "renewal",
         startDate,
         endDate,
+        month: filterValue?.month,
+        policy_status: filterValue?.policy_status,
+        contact: filterValue?.contact,
+        api_user_id: filterValue?.api_user_id,
+        branch_id: filterValue?.branch_id,
+        payment_mode_id: filterValue?.payment_mode_id,
+        product_id: filterValue?.product_id,
+        cnic: filterValue?.cnic,
       }),
   });
 
   // ======== PAYLOADS DATA ========
-  // const apiUserList = useMemo(
-  //   () => apiUserListResponse?.payload || [],
-  //   [apiUserListResponse]
-  // );
-
   const renewalPolicyList = useMemo(
     () => renewalPolicyListResponse?.payload || [],
     [renewalPolicyListResponse]
+  );
+
+  const apiUserList = useMemo(
+    () => apiUserListResponse?.payload || [],
+    [apiUserListResponse]
+  );
+
+  const productList = useMemo(
+    () => productListResponse?.payload || [],
+    [productListResponse]
+  );
+
+  const branchList = useMemo(
+    () => branchListResponse?.payload || [],
+    [branchListResponse]
+  );
+
+  const paymentModesList = useMemo(
+    () => paymentModesListresponse?.payload || [],
+    [paymentModesListresponse]
   );
 
   // ======== COLUMN DEFINITIONS ========
@@ -175,9 +251,24 @@ const RenewalPolicyList = () => {
   );
 
   // ======== RENDER LOGIC ========
-  const isLoading = renewalPolicyListIsLoading;
-  const isError = renewalPolicyListIsError;
-  const onError = renewalPolicyListError?.message;
+  const isLoading =
+    renewalPolicyListIsLoading ||
+    paymentModesListLoading ||
+    branchListLoading ||
+    productListLoading ||
+    apiUserListLoading;
+  const isError =
+    renewalPolicyListIsError ||
+    paymentModesListIsError ||
+    branchListIsError ||
+    productListIsError ||
+    apiUserListIsError;
+  const onError =
+    renewalPolicyListError?.message ||
+    paymentModesListError?.message ||
+    branchListError?.message ||
+    productListError?.message ||
+    apiUserListError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -189,8 +280,6 @@ const RenewalPolicyList = () => {
     }
   }, [rights, router]);
 
-  if (isLoading) return <LoadingState />;
-  if (isError) return <Error err={onError} />;
   if (rights && rights?.can_view === "0")
     return (
       <Empty
@@ -206,8 +295,26 @@ const RenewalPolicyList = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
+        filter={true}
+        isFilterOpen={isFilterOpen}
+        setIsFilterOpen={setIsFilterOpen}
       />
-      <RenewalPolicyDatatable columns={columns} payload={renewalPolicyList} />
+      {isLoading ? (
+        <LoadingState />
+      ) : isError ? (
+        <Error err={onError} />
+      ) : (
+        <RenewalPolicyDatatable columns={columns} payload={renewalPolicyList} />
+      )}
+
+      <OrdersFilters
+        isFilterOpen={isFilterOpen}
+        setIsFilterOpen={() => setIsFilterOpen(false)}
+        apiUserList={apiUserList}
+        productList={productList}
+        branchList={branchList}
+        paymentModesList={paymentModesList}
+      />
     </>
   );
 };

@@ -13,21 +13,27 @@ import { Button } from "../shadcn/button";
 import { Label } from "../shadcn/label";
 import { Controller, useForm } from "react-hook-form";
 import {
-  OrdersListFilterSchema,
-  OrdersListFilterSchemaType,
-} from "@/schemas/ordersListFilterSchema";
+  OrdersFilterSchema,
+  OrdersFilterSchemaType,
+} from "@/schemas/ordersFilterSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Select from "react-select";
 import { singleSelectStyle } from "@/utils/selectStyles";
-import { OrdersListFilterStore } from "@/hooks/ordersListFilterStore";
-import { filterCountStore } from "@/hooks/filterCountStore";
 import { ApiUsersPayloadType } from "@/types/usersTypes";
 import { ProductsPayloadTypes } from "@/types/productsTypes";
 import { BranchPayloadType } from "@/types/branchTypes";
 import { PaymentModesPayloadType } from "@/types/paymentModesTypes";
 import { Input } from "../shadcn/input";
+import { usePathname } from "next/navigation";
+import {
+  initialFilterValue,
+  ordersListFilterState,
+} from "@/hooks/ordersListFilterState";
+import { policyListFilterState } from "@/hooks/policyListFilterState";
+import { renewalPolicyFilterState } from "@/hooks/renewalPolicyFilterState";
+import { cboListFilterState } from "@/hooks/cboListFilterState";
 
-interface OrdersListFiltersProps {
+interface ordersFiltersProps {
   isFilterOpen: boolean;
   setIsFilterOpen: () => void;
   apiUserList: ApiUsersPayloadType[];
@@ -36,7 +42,7 @@ interface OrdersListFiltersProps {
   paymentModesList: PaymentModesPayloadType[];
 }
 
-const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
+const OrdersFilters: React.FC<ordersFiltersProps> = ({
   isFilterOpen,
   setIsFilterOpen,
   apiUserList,
@@ -45,8 +51,41 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
   paymentModesList,
 }) => {
   // ======== CONSTANT AND HOOKS ========
-  const { setFilterValue, resetFilterValue } = OrdersListFilterStore();
-  const { setFilterCount, resetFilterCount } = filterCountStore();
+  const pathname = usePathname();
+  let resetFilterValue, setFilterValue, filterValue;
+
+  switch (pathname) {
+    case "/orders/list": {
+      ({ resetFilterValue, setFilterValue, filterValue } =
+        ordersListFilterState());
+      break;
+    }
+
+    case "/orders/policies": {
+      ({ resetFilterValue, setFilterValue, filterValue } =
+        policyListFilterState());
+      break;
+    }
+
+    case "/orders/renewals": {
+      ({ resetFilterValue, setFilterValue, filterValue } =
+        renewalPolicyFilterState());
+      break;
+    }
+
+    case "/orders/cbo": {
+      ({ resetFilterValue, setFilterValue, filterValue } =
+        cboListFilterState());
+      break;
+    }
+
+    default: {
+      filterValue = initialFilterValue;
+      setFilterValue = setFilterValue!(initialFilterValue);
+      resetFilterValue = resetFilterValue!(initialFilterValue);
+      break;
+    }
+  }
 
   // ======== HOOK FORM ========
   const {
@@ -56,16 +95,17 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
     reset,
     register,
   } = useForm({
-    resolver: zodResolver(OrdersListFilterSchema),
+    resolver: zodResolver(OrdersFilterSchema),
     defaultValues: {
-      month: null,
-      order_status: null,
-      api_user_id: null,
-      branch_id: null,
-      payment_mode_id: null,
-      product_id: null,
-      cnic: null,
-      contact: null,
+      month: filterValue?.month,
+      order_status: filterValue?.order_status,
+      policy_status: filterValue?.policy_status,
+      api_user_id: filterValue?.api_user_id,
+      branch_id: filterValue?.branch_id,
+      payment_mode_id: filterValue?.payment_mode_id,
+      product_id: filterValue?.product_id,
+      cnic: filterValue?.cnic,
+      contact: filterValue?.contact,
     },
   });
 
@@ -95,6 +135,18 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
     { value: "pending", label: "Pending" },
   ];
 
+  const policyStatusOptions = [
+    { value: "cancelled", label: "Cancelled" },
+    { value: "HISposted", label: "HISposted" },
+    { value: "IGISposted", label: "IGISposted" },
+    { value: "pendingIGIS", label: "pendingIGIS" },
+    { value: "unverified", label: "Unverified" },
+    { value: "verified", label: "Verified" },
+    { value: "pending", label: "Pending" },
+    { value: "pendingCOD", label: "pendingCOD" },
+    { value: "pendingCOD", label: "pendingCBO" },
+  ];
+
   const apiUsersOptions = apiUserList.map((item) => ({
     value: item.id,
     label: item.name,
@@ -116,14 +168,13 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
   }));
 
   // ======== HANDLER ========
-  const handleOnSubmit = (data: OrdersListFilterSchemaType) => {
+  const handleOnSubmit = (data: OrdersFilterSchemaType) => {
     setFilterValue(data);
 
     const appliedFiltersCount = Object.values(data).filter(
       (value) => value
     ).length;
 
-    setFilterCount(appliedFiltersCount);
     const hasAppliedFilters = appliedFiltersCount > 0;
 
     if (hasAppliedFilters) {
@@ -134,7 +185,6 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
   const handleOnReset = () => {
     reset();
     resetFilterValue();
-    resetFilterCount();
     setIsFilterOpen();
   };
 
@@ -182,38 +232,72 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
                   )}
                 </div>
               </div>
-              {/* Order Status */}
-              <div className="grid gap-2">
-                <Label htmlFor="order_status">Order Status</Label>
-                <div className="space-y-2">
-                  <Controller
-                    control={control}
-                    name="order_status"
-                    render={({ field }) => (
-                      <Select
-                        key={`order_status-${field.value ?? "empty"}`}
-                        id="order_status"
-                        options={orderStatusOptions}
-                        value={
-                          orderStatusOptions.find(
-                            (opt) => opt.value === field.value
-                          ) ?? null
-                        }
-                        onChange={(opt) => field.onChange(opt?.value ?? null)}
-                        styles={singleSelectStyle}
-                        placeholder="Select Order Status"
-                        isClearable
-                        className="w-full"
-                      />
+              {/* Order Status */} {/* Policy Status */}
+              {pathname === "/orders/list" ? (
+                <div className="grid gap-2">
+                  <Label htmlFor="order_status">Order Status</Label>
+                  <div className="space-y-2">
+                    <Controller
+                      control={control}
+                      name="order_status"
+                      render={({ field }) => (
+                        <Select
+                          key={`order_status-${field.value ?? "empty"}`}
+                          id="order_status"
+                          options={orderStatusOptions}
+                          value={
+                            orderStatusOptions.find(
+                              (opt) => opt.value === field.value
+                            ) ?? null
+                          }
+                          onChange={(opt) => field.onChange(opt?.value ?? null)}
+                          styles={singleSelectStyle}
+                          placeholder="Select Order Status"
+                          isClearable
+                          className="w-full"
+                        />
+                      )}
+                    />
+                    {errors.order_status && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.order_status.message}
+                      </p>
                     )}
-                  />
-                  {errors.order_status && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.order_status.message}
-                    </p>
-                  )}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="grid gap-2">
+                  <Label htmlFor="policy_status">Policy Status</Label>
+                  <div className="space-y-2">
+                    <Controller
+                      control={control}
+                      name="policy_status"
+                      render={({ field }) => (
+                        <Select
+                          key={`policy_status-${field.value ?? "empty"}`}
+                          id="policy_status"
+                          options={policyStatusOptions}
+                          value={
+                            policyStatusOptions.find(
+                              (opt) => opt.value === field.value
+                            ) ?? null
+                          }
+                          onChange={(opt) => field.onChange(opt?.value ?? null)}
+                          styles={singleSelectStyle}
+                          placeholder="Select Policy Status"
+                          isClearable
+                          className="w-full"
+                        />
+                      )}
+                    />
+                    {errors.order_status && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.order_status.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
               {/* API User */}
               <div className="grid gap-2">
                 <Label htmlFor="api_user_id">API User</Label>
@@ -388,4 +472,4 @@ const OrdersListFilters: React.FC<OrdersListFiltersProps> = ({
   );
 };
 
-export default OrdersListFilters;
+export default OrdersFilters;

@@ -21,23 +21,23 @@ import {
 import { fetchOrdersListing } from "@/helperFunctions/ordersFunctions";
 import { DateRange } from "react-day-picker";
 import { subDays, format } from "date-fns";
-import OrdersListFilters from "./orders-list-filters";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import { fetchApiUserList } from "@/helperFunctions/userFunction";
-import { OrdersListFilterStore } from "@/hooks/ordersListFilterStore";
 import { ProductsResponseTypes } from "@/types/productsTypes";
 import { fetchProductsList } from "@/helperFunctions/productsFunction";
 import { fetchBranchList } from "@/helperFunctions/branchFunction";
 import { BranchResponseType } from "@/types/branchTypes";
 import { PaymentModesResponseType } from "@/types/paymentModesTypes";
 import { fetchPaymentModesList } from "@/helperFunctions/paymentModesFunction";
+import OrdersFilters from "../filters/orders-filters";
+import { ordersListFilterState } from "@/hooks/ordersListFilterState";
 
 const OrdersListListing = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/orders/list";
   const router = useRouter();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const { filterValue } = OrdersListFilterStore();
+  const { filterValue } = ordersListFilterState();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), 364),
     to: new Date(),
@@ -114,8 +114,8 @@ const OrdersListListing = () => {
     queryFn: () =>
       fetchOrdersListing<OrdersListResponseType>({
         mode: "orders",
-        startDate: dateRange?.from ? format(dateRange?.from, "yyyy-MM-dd") : "",
-        endDate: dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "",
+        startDate,
+        endDate,
         month: filterValue?.month,
         order_status: filterValue?.order_status,
         contact: filterValue?.contact,
@@ -312,7 +312,7 @@ const OrdersListListing = () => {
         <OrdersListDatatable columns={columns} payload={ordersListListing} />
       )}
 
-      <OrdersListFilters
+      <OrdersFilters
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={() => setIsFilterOpen(false)}
         apiUserList={apiUserList}

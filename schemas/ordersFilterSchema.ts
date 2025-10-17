@@ -28,7 +28,19 @@ export const orderStatusEnum = [
   "pending",
 ] as const;
 
-export const OrdersListFilterSchema = z.object({
+export const policyStatusEnum = [
+  "cancelled",
+  "HISposted",
+  "IGISposted",
+  "pendingIGIS",
+  "unverified",
+  "verified",
+  "pending",
+  "pendingCOD",
+  "pendingCBO",
+] as const;
+
+export const OrdersFilterSchema = z.object({
   month: z
     .enum(monthsEnum, { required_error: "Please select a month." })
     .nullable()
@@ -42,6 +54,14 @@ export const OrdersListFilterSchema = z.object({
     .nullable()
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Order Status contains forbidden code patterns",
+    }),
+  policy_status: z
+    .enum(policyStatusEnum, {
+      required_error: "Please select policy status.",
+    })
+    .nullable()
+    .refine((val) => !forbiddenCodeRegex.test(String(val)), {
+      message: "Policy Status contains forbidden code patterns",
     }),
   api_user_id: z.coerce
     .number()
@@ -89,4 +109,4 @@ export const OrdersListFilterSchema = z.object({
     ),
 });
 
-export type OrdersListFilterSchemaType = z.infer<typeof OrdersListFilterSchema>;
+export type OrdersFilterSchemaType = z.infer<typeof OrdersFilterSchema>;

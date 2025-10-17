@@ -8,7 +8,10 @@ import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { DateRangePicker } from "./date-range-picker";
 import { FunnelIcon } from "lucide-react";
-import { filterCountStore } from "@/hooks/filterCountStore";
+import { ordersListFilterState } from "@/hooks/ordersListFilterState";
+import { renewalPolicyFilterState } from "@/hooks/renewalPolicyFilterState";
+import { cboListFilterState } from "@/hooks/cboListFilterState";
+import { policyListFilterState } from "@/hooks/policyListFilterState";
 
 const SubNav: React.FC<subNavTypes> = ({
   title,
@@ -23,7 +26,34 @@ const SubNav: React.FC<subNavTypes> = ({
 }) => {
   // HOOKS AND CONSTANTS
   const pathname = usePathname();
-  const { filterCount } = filterCountStore();
+  let filterCount;
+
+  switch (pathname) {
+    case "/orders/list": {
+      ({ filterCount } = ordersListFilterState());
+      break;
+    }
+
+    case "/orders/policies": {
+      ({ filterCount } = policyListFilterState());
+      break;
+    }
+
+    case "/orders/renewals": {
+      ({ filterCount } = renewalPolicyFilterState());
+      break;
+    }
+
+    case "/orders/cbo": {
+      ({ filterCount } = cboListFilterState());
+      break;
+    }
+
+    default: {
+      filterCount = 0;
+      break;
+    }
+  }
 
   const rights = useMemo(() => {
     return getRights(pathname);
