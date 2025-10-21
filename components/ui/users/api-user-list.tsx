@@ -44,7 +44,7 @@ const ApiUserList = () => {
   >({
     mutationFn: (data) => {
       return axiosFunction({
-        method: "GET",
+        method: "POST",
         urlPath: `/api-users/${data.id}`
       })
     },

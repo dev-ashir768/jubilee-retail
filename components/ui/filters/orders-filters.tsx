@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,7 @@ import {
 } from "@/schemas/ordersFilterSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Select from "react-select";
-import { singleSelectStyle } from "@/utils/selectStyles";
+import { multiSelectStyle } from "@/utils/selectStyles";
 import { ApiUsersPayloadType } from "@/types/usersTypes";
 import { ProductsPayloadTypes } from "@/types/productsTypes";
 import { BranchPayloadType } from "@/types/branchTypes";
@@ -97,55 +97,71 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
   } = useForm({
     resolver: zodResolver(OrdersFilterSchema),
     defaultValues: {
-      month: filterValue?.month,
-      order_status: filterValue?.order_status,
-      policy_status: filterValue?.policy_status,
       api_user_id: filterValue?.api_user_id,
       branch_id: filterValue?.branch_id,
-      payment_mode_id: filterValue?.payment_mode_id,
-      product_id: filterValue?.product_id,
       cnic: filterValue?.cnic,
       contact: filterValue?.contact,
+      month: filterValue?.month,
+      order_status: filterValue?.order_status,
+      payment_mode_id: filterValue?.payment_mode_id,
+      policy_status: filterValue?.policy_status,
+      product_id: filterValue?.product_id,
     },
   });
 
+  useEffect(() => {
+    if (isFilterOpen) {
+      reset({
+        api_user_id: filterValue?.api_user_id || null,
+        branch_id: filterValue?.branch_id || null,
+        cnic: filterValue?.cnic || null,
+        contact: filterValue?.contact || null,
+        month: filterValue?.month || null,
+        order_status: filterValue?.order_status || null,
+        payment_mode_id: filterValue?.payment_mode_id || null,
+        policy_status: filterValue?.policy_status || null,
+        product_id: filterValue?.product_id || null,
+      });
+    }
+  }, [isFilterOpen, filterValue, reset]);
+
   // ======== SELECT OPTIONS ========
   const monthOptions = [
-    { value: "january", label: "January" },
-    { value: "february", label: "February" },
-    { value: "march", label: "March" },
-    { value: "april", label: "April" },
-    { value: "may", label: "May" },
-    { value: "june", label: "June" },
-    { value: "july", label: "July" },
-    { value: "august", label: "August" },
-    { value: "september", label: "September" },
-    { value: "october", label: "October" },
-    { value: "november", label: "November" },
-    { value: "december", label: "December" },
-  ];
+    { value: "january" as const, label: "January" },
+    { value: "february" as const, label: "February" },
+    { value: "march" as const, label: "March" },
+    { value: "april" as const, label: "April" },
+    { value: "may" as const, label: "May" },
+    { value: "june" as const, label: "June" },
+    { value: "july" as const, label: "July" },
+    { value: "august" as const, label: "August" },
+    { value: "september" as const, label: "September" },
+    { value: "october" as const, label: "October" },
+    { value: "november" as const, label: "November" },
+    { value: "december" as const, label: "December" },
+  ] as const;
 
   const orderStatusOptions = [
-    { value: "accepted", label: "Accepted" },
-    { value: "cancelled", label: "Cancelled" },
-    { value: "pendingCOD", label: "PendingCOD" },
-    { value: "rejected", label: "Rejected" },
-    { value: "unverified", label: "Unverified" },
-    { value: "verified", label: "Verified" },
-    { value: "pending", label: "Pending" },
-  ];
+    { value: "accepted" as const, label: "Accepted" },
+    { value: "cancelled" as const, label: "Cancelled" },
+    { value: "pendingCOD" as const, label: "PendingCOD" },
+    { value: "rejected" as const, label: "Rejected" },
+    { value: "unverified" as const, label: "Unverified" },
+    { value: "verified" as const, label: "Verified" },
+    { value: "pending" as const, label: "Pending" },
+  ] as const;
 
   const policyStatusOptions = [
-    { value: "cancelled", label: "Cancelled" },
-    { value: "HISposted", label: "HISposted" },
-    { value: "IGISposted", label: "IGISposted" },
-    { value: "pendingIGIS", label: "pendingIGIS" },
-    { value: "unverified", label: "Unverified" },
-    { value: "verified", label: "Verified" },
-    { value: "pending", label: "Pending" },
-    { value: "pendingCOD", label: "pendingCOD" },
-    { value: "pendingCOD", label: "pendingCBO" },
-  ];
+    { value: "cancelled" as const, label: "Cancelled" },
+    { value: "HISposted" as const, label: "HISposted" },
+    { value: "IGISposted" as const, label: "IGISposted" },
+    { value: "pendingIGIS" as const, label: "pendingIGIS" },
+    { value: "unverified" as const, label: "Unverified" },
+    { value: "verified" as const, label: "Verified" },
+    { value: "pending" as const, label: "Pending" },
+    { value: "pendingCOD" as const, label: "pendingCOD" },
+    { value: "pendingCBO" as const, label: "pendingCBO" },
+  ] as const;
 
   const apiUsersOptions = apiUserList.map((item) => ({
     value: item.id,
@@ -183,9 +199,20 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
   };
 
   const handleOnReset = () => {
-    reset();
+    reset({
+      api_user_id: null,
+      branch_id: null,
+      cnic: null,
+      contact: null,
+      month: null,
+      order_status: null,
+      payment_mode_id: null,
+      policy_status: null,
+      product_id: null,
+    });
     resetFilterValue();
     setIsFilterOpen();
+    console.log("filterValue", filterValue);
   };
 
   return (
@@ -200,41 +227,9 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
           </DialogHeader>
           <form id="orders-filter" onSubmit={handleSubmit(handleOnSubmit)}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Month */}
-              <div className="grid gap-2">
-                <Label htmlFor="month">Month</Label>
-                <div className="space-y-2">
-                  <Controller
-                    control={control}
-                    name="month"
-                    render={({ field }) => (
-                      <Select
-                        id="month"
-                        key={`month-${field.value ?? "empty"}`}
-                        options={monthOptions}
-                        value={
-                          monthOptions.find(
-                            (opt) => opt.value === field.value
-                          ) ?? null
-                        }
-                        onChange={(opt) => field.onChange(opt?.value ?? null)}
-                        styles={singleSelectStyle}
-                        isClearable
-                        placeholder="Select Month"
-                        className="w-full"
-                      />
-                    )}
-                  />
-                  {errors.month && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.month.message}
-                    </p>
-                  )}
-                </div>
-              </div>
               {/* Order Status */} {/* Policy Status */}
               {pathname === "/orders/list" ? (
-                <div className="grid gap-2">
+                <div className="space-y-2">
                   <Label htmlFor="order_status">Order Status</Label>
                   <div className="space-y-2">
                     <Controller
@@ -242,18 +237,24 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
                       name="order_status"
                       render={({ field }) => (
                         <Select
-                          key={`order_status-${field.value ?? "empty"}`}
+                          key={`order_status-${
+                            (field.value || []).join(",") || "empty"
+                          }`}
                           id="order_status"
                           options={orderStatusOptions}
-                          value={
-                            orderStatusOptions.find(
-                              (opt) => opt.value === field.value
-                            ) ?? null
-                          }
-                          onChange={(opt) => field.onChange(opt?.value ?? null)}
-                          styles={singleSelectStyle}
+                          value={orderStatusOptions.filter((opt) =>
+                            (field.value || []).includes(opt.value)
+                          )}
+                          onChange={(opt) => {
+                            const values = opt?.map((item) => item.value) ?? [];
+                            return field.onChange(
+                              values.length === 0 ? null : values
+                            );
+                          }}
+                          styles={multiSelectStyle}
                           placeholder="Select Order Status"
                           isClearable
+                          isMulti
                           className="w-full"
                         />
                       )}
@@ -266,7 +267,7 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className="grid gap-2">
+                <div className="space-y-2">
                   <Label htmlFor="policy_status">Policy Status</Label>
                   <div className="space-y-2">
                     <Controller
@@ -277,29 +278,33 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
                           key={`policy_status-${field.value ?? "empty"}`}
                           id="policy_status"
                           options={policyStatusOptions}
-                          value={
-                            policyStatusOptions.find(
-                              (opt) => opt.value === field.value
-                            ) ?? null
-                          }
-                          onChange={(opt) => field.onChange(opt?.value ?? null)}
-                          styles={singleSelectStyle}
+                          value={policyStatusOptions.filter((opt) =>
+                            (field.value || []).includes(opt.value)
+                          )}
+                          onChange={(opt) => {
+                            const values = opt?.map((item) => item.value) ?? [];
+                            return field.onChange(
+                              values.length === 0 ? null : values
+                            );
+                          }}
+                          styles={multiSelectStyle}
                           placeholder="Select Policy Status"
                           isClearable
+                          isMulti
                           className="w-full"
                         />
                       )}
                     />
-                    {errors.order_status && (
+                    {errors.policy_status && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors.order_status.message}
+                        {errors.policy_status.message}
                       </p>
                     )}
                   </div>
                 </div>
               )}
               {/* API User */}
-              <div className="grid gap-2">
+              <div className="space-y-2">
                 <Label htmlFor="api_user_id">API User</Label>
                 <Controller
                   name="api_user_id"
@@ -308,15 +313,19 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
                     <Select
                       id="api_user_id"
                       options={apiUsersOptions}
-                      value={
-                        apiUsersOptions.find(
-                          (opt) => opt.value === Number(field.value)
-                        ) || null
-                      }
-                      onChange={(opt) => field.onChange(opt?.value ?? null)}
+                      value={apiUsersOptions.filter(
+                        (opt) => (field.value || []).includes(opt.value) ?? null
+                      )}
+                      onChange={(opt) => {
+                        const values = opt?.map((item) => item.value) ?? [];
+                        return field.onChange(
+                          values.length === 0 ? null : values
+                        );
+                      }}
                       isClearable
+                      isMulti
                       placeholder="Select API User"
-                      styles={singleSelectStyle}
+                      styles={multiSelectStyle}
                       className="w-full"
                     />
                   )}
@@ -328,7 +337,7 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
                 )}
               </div>
               {/* Product */}
-              <div className="grid gap-2">
+              <div className="space-y-2">
                 <Label htmlFor="product_id">Product</Label>
                 <Controller
                   name="product_id"
@@ -337,15 +346,19 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
                     <Select
                       id="product_id"
                       options={productsOptions}
-                      value={
-                        productsOptions.find(
-                          (opt) => opt.value === Number(field.value)
-                        ) || null
-                      }
-                      onChange={(opt) => field.onChange(opt?.value ?? null)}
+                      value={productsOptions.filter(
+                        (opt) => (field.value || []).includes(opt.value) ?? null
+                      )}
+                      onChange={(opt) => {
+                        const values = opt?.map((item) => item.value) ?? [];
+                        return field.onChange(
+                          values.length === 0 ? null : values
+                        );
+                      }}
                       isClearable
+                      isMulti
                       placeholder="Select Product"
-                      styles={singleSelectStyle}
+                      styles={multiSelectStyle}
                       className="w-full"
                     />
                   )}
@@ -357,7 +370,7 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
                 )}
               </div>
               {/* Branch */}
-              <div className="grid gap-2">
+              <div className="space-y-2">
                 <Label htmlFor="branch_id">Branch</Label>
                 <Controller
                   name="branch_id"
@@ -366,15 +379,19 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
                     <Select
                       id="branch_id"
                       options={branchOptions}
-                      value={
-                        branchOptions.find(
-                          (opt) => opt.value === Number(field.value)
-                        ) || null
-                      }
-                      onChange={(opt) => field.onChange(opt?.value ?? null)}
+                      value={branchOptions.filter((opt) =>
+                        (field.value || []).includes(opt.value)
+                      )}
+                      onChange={(opt) => {
+                        const values = opt?.map((item) => item.value) ?? [];
+                        return field.onChange(
+                          values.length === 0 ? null : values
+                        );
+                      }}
                       isClearable
+                      isMulti
                       placeholder="Select Branch"
-                      styles={singleSelectStyle}
+                      styles={multiSelectStyle}
                       className="w-full"
                     />
                   )}
@@ -386,7 +403,7 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
                 )}
               </div>
               {/* Payment Mode */}
-              <div className="grid gap-2">
+              <div className="space-y-2">
                 <Label htmlFor="payment_mode_id">Payment Mode</Label>
                 <Controller
                   name="payment_mode_id"
@@ -395,15 +412,19 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
                     <Select
                       id="payment_mode_id"
                       options={paymentModesOptions}
-                      value={
-                        paymentModesOptions.find(
-                          (opt) => opt.value === Number(field.value)
-                        ) || null
-                      }
-                      onChange={(opt) => field.onChange(opt?.value ?? null)}
+                      value={paymentModesOptions.filter((opt) =>
+                        (field.value || []).includes(opt.value)
+                      )}
+                      onChange={(opt) => {
+                        const values = opt?.map((item) => item.value) ?? [];
+                        return field.onChange(
+                          values.length === 0 ? null : values
+                        );
+                      }}
                       isClearable
+                      isMulti
                       placeholder="Select Payment Mode"
-                      styles={singleSelectStyle}
+                      styles={multiSelectStyle}
                       className="w-full"
                     />
                   )}
@@ -414,8 +435,46 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
                   </p>
                 )}
               </div>
+              {/* Month */}
+              <div className="space-y-2">
+                <Label htmlFor="month">Month</Label>
+                <div className="space-y-2">
+                  <Controller
+                    control={control}
+                    name="month"
+                    render={({ field }) => (
+                      <Select
+                        id="month"
+                        key={`month-${field.value ?? "empty"}`}
+                        options={monthOptions}
+                        value={
+                          monthOptions.filter((opt) =>
+                            (field.value || []).includes(opt.value)
+                          ) ?? null
+                        }
+                        onChange={(opt) => {
+                          const values = opt?.map((item) => item.value) ?? [];
+                          return field.onChange(
+                            values.length === 0 ? null : values
+                          );
+                        }}
+                        styles={multiSelectStyle}
+                        isClearable
+                        placeholder="Select Month"
+                        className="w-full"
+                        isMulti
+                      />
+                    )}
+                  />
+                  {errors.month && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.month.message}
+                    </p>
+                  )}
+                </div>
+              </div>
               {/* Cnic */}
-              <div className="grid gap-2">
+              <div className="space-y-2">
                 <Label htmlFor="cnic">Cnic</Label>
                 <Input
                   id="cnic"
@@ -431,7 +490,7 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
                 )}
               </div>
               {/* Contact */}
-              <div className="grid gap-2">
+              <div className="space-y-2">
                 <Label htmlFor="contact">Contact</Label>
                 <Input
                   id="contact"

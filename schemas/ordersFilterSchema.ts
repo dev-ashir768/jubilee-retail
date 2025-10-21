@@ -3,7 +3,7 @@ import z from "zod";
 const forbiddenCodeRegex =
   /(<\?php|<script|function\s*\(|SELECT\s+|INSERT\s+|UPDATE\s+|DELETE\s+|DROP\s+|CREATE\s+|EXEC\s+|system\(|eval\(|require\(|import\s+|export\s+)/i;
 
-const monthsEnum = [
+export const monthsEnum = [
   "january",
   "february",
   "march",
@@ -42,55 +42,67 @@ export const policyStatusEnum = [
 
 export const OrdersFilterSchema = z.object({
   month: z
-    .enum(monthsEnum, { required_error: "Please select a month." })
+    .array(z.enum(monthsEnum, { required_error: "Please select a month." }))
     .nullable()
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Month contains forbidden code patterns",
     }),
   order_status: z
-    .enum(orderStatusEnum, {
-      required_error: "Please select order status.",
-    })
+    .array(
+      z.enum(orderStatusEnum, {
+        required_error: "Please select order status.",
+      })
+    )
     .nullable()
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Order Status contains forbidden code patterns",
     }),
   policy_status: z
-    .enum(policyStatusEnum, {
-      required_error: "Please select policy status.",
-    })
+    .array(
+      z.enum(policyStatusEnum, {
+        required_error: "Please select policy status.",
+      })
+    )
     .nullable()
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Policy Status contains forbidden code patterns",
     }),
-  api_user_id: z.coerce
-    .number()
+  api_user_id: z
+    .array(z.coerce.number())
     .nullable()
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Api User contains forbidden code patterns",
     }),
-  product_id: z.coerce
-    .number()
+  product_id: z
+    .array(z.coerce.number())
     .nullable()
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Product forbidden code patterns",
     }),
-  branch_id: z.coerce
-    .number()
+  branch_id: z
+    .array(z.coerce.number())
     .nullable()
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Branch contains forbidden code patterns",
     }),
-  payment_mode_id: z.coerce
-    .number()
+  payment_mode_id: z
+    .array(z.coerce.number())
     .nullable()
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Payment Mode contains forbidden code patterns",
     }),
   cnic: z.coerce
     .string()
-    .min(13, { message: "CNIC must be 13 digits without dashes." })
     .nullable()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === "") return true;
+        return val.length === 13;
+      },
+      {
+        message: "CNIC must be 13 digits without dashes.",
+      }
+    )
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "CNIC contains forbidden code patterns",
     }),

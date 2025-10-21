@@ -100,6 +100,7 @@ export const multiSelectStyle: StylesConfig<SelectOption, true> = {
     fontSize: "14px",
     textTransform: "capitalize",
     cursor: "pointer",
+    whiteSpace: "normal",
   }),
   multiValueRemove: (provided) => ({
     ...provided,

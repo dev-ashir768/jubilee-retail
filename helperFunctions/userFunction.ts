@@ -18,7 +18,7 @@ export const fetchUserList = async () => {
 export const fetchApiUserList = async () => {
   try {
     const response = axiosFunction({
-      method: "GET",
+      method: "POST",
       urlPath: "/api-users",
     });
     return response;

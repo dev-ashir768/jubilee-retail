@@ -7,8 +7,8 @@ export const fetchBranchList =
   async (): Promise<BranchResponseType | null> => {
     try {
       const response = await axiosFunction({
-        method: "GET",
-        urlPath: "/branches",
+        method: "POST",
+        urlPath: "/branches/all",
       });
 
       return response;

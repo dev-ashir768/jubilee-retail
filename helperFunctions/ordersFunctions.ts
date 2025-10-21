@@ -4,15 +4,15 @@ interface fetchOrdersListingProps {
   mode: string;
   startDate?: string;
   endDate?: string;
-  month?: string | null;
-  order_status?: string | null;
-  policy_status?: string | null;
+  month?: string[] | null;
+  order_status?: string[] | null;
+  policy_status?: string[] | null;
   cnic?: string | null;
   contact?: string | null;
-  payment_mode_id?: number | null;
-  branch_id?: number | null;
-  api_user_id?: number | null;
-  product_id?: number | null;
+  payment_mode_id?: number[] | null;
+  branch_id?: number[] | null;
+  api_user_id?: number[] | null;
+  product_id?: number[] | null;
 }
 
 export const fetchOrdersListing = async <T>({
@@ -32,15 +32,15 @@ export const fetchOrdersListing = async <T>({
   const payload: {
     mode: string;
     date?: string;
-    month: string | null;
-    order_status?: string | null;
-    policy_status?: string | null;
+    month: string[] | null;
+    order_status?: string[] | null;
+    policy_status?: string[] | null;
     cnic?: string | null;
     contact?: string | null;
-    payment_mode_id?: number | null;
-    branch_id?: number | null;
-    api_user_id?: number | null;
-    product_id?: number | null;
+    payment_mode_id?: number[] | null;
+    branch_id?: number[] | null;
+    api_user_id?: number[] | null;
+    product_id?: number[] | null;
   } = {
     mode,
     month: month ?? null,

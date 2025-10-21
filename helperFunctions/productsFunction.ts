@@ -5,8 +5,8 @@ export const fetchProductsList =
   async (): Promise<ProductsResponseTypes | null> => {
     try {
       const response = await axiosFunction({
-        method: "GET",
-        urlPath: "/products",
+        method: "POST",
+        urlPath: "/products/all",
       });
 
       return response;

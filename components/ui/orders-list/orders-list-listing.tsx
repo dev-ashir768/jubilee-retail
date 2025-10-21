@@ -46,7 +46,6 @@ const OrdersListListing = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
-
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE);
@@ -101,7 +100,7 @@ const OrdersListListing = () => {
   } = useQuery<OrdersListResponseType | null>({
     queryKey: [
       "orders-list-linting",
-      `${startDate} to ${endDate}`,
+      startDate && endDate && `${startDate} to ${endDate}`,
       filterValue?.month,
       filterValue?.order_status,
       filterValue?.contact,
