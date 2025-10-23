@@ -295,6 +295,8 @@ const OrdersListListing = () => {
     <>
       <SubNav
         title="Orders List"
+        addBtnTitle="Create Order"
+        urlPath="/orders/create-order"
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}
