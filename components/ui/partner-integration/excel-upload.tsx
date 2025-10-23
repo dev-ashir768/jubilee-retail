@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { ExcelDataExpectedRow } from "@/types/uploadExcelTypes";
 import { DATE_KEYS, NUMBER_KEYS, validateRow } from "@/utils/excelValidation";
 import { createBulkOrderState } from "@/hooks/createBulkOrderState";
-import { RiderTypes } from "@/types/createBulkOrder";
+import { RiderTypes, BulkPolicyDetailType } from "@/types/createBulkOrder";
 
 const ExcelUpload = () => {
   const { setJsonResult} = createBulkOrderState();
@@ -103,8 +103,8 @@ const ExcelUpload = () => {
                 }
               }
 
-              if (value !== undefined) {
-                transformed[newKey] = value;
+              if (value !== undefined && value !== null) {
+                (transformed as Record<string, unknown>)[newKey] = value;
               }
             });
             return transformed;
@@ -136,7 +136,7 @@ const ExcelUpload = () => {
         }
 
         const transformedJsonData = validRows.map((row) => {
-          const policy_detail: any[] = [];
+          const policy_detail: BulkPolicyDetailType[] = [];
 
           // Add spouses (spouse, spouse1, spouse2, spouse3)
           for (let i = 0; i <= 3; i++) {
@@ -145,25 +145,27 @@ const ExcelUpload = () => {
               `spouse${suffix}_name` as keyof ExcelDataExpectedRow;
             if (row[nameKey]) {
               policy_detail.push({
-                name: row[nameKey]!, // Non-null assertion as we checked it
+                name: String(row[nameKey]!), // Non-null assertion as we checked it
                 type: `spouse${suffix}`, // <-- Use the dynamic key (e.g., "spouse", "spouse1")
                 relation:
-                  row[
+                  String(row[
                     `spouse${suffix}_relationship` as keyof ExcelDataExpectedRow
-                  ] || "Spouse",
+                  ] || "Spouse"),
                 cnic:
-                  row[`spouse${suffix}_cnic` as keyof ExcelDataExpectedRow] ||
-                  null,
+                  row[`spouse${suffix}_cnic` as keyof ExcelDataExpectedRow] ?
+                  String(row[`spouse${suffix}_cnic` as keyof ExcelDataExpectedRow]) : null,
                 cnic_issue_date:
                   row[
                     `spouse${suffix}_cnic_issue_date` as keyof ExcelDataExpectedRow
-                  ] || null,
+                  ] ? String(row[
+                    `spouse${suffix}_cnic_issue_date` as keyof ExcelDataExpectedRow
+                  ]) : null,
                 dob:
-                  row[`spouse${suffix}_dob` as keyof ExcelDataExpectedRow] ||
-                  null,
+                  row[`spouse${suffix}_dob` as keyof ExcelDataExpectedRow] ?
+                  String(row[`spouse${suffix}_dob` as keyof ExcelDataExpectedRow]) : null,
                 gender:
-                  row[`spouse${suffix}_gender` as keyof ExcelDataExpectedRow] ||
-                  null,
+                  row[`spouse${suffix}_gender` as keyof ExcelDataExpectedRow] ?
+                  String(row[`spouse${suffix}_gender` as keyof ExcelDataExpectedRow]) : null,
               });
             }
           }
@@ -173,19 +175,24 @@ const ExcelUpload = () => {
             const nameKey = `kid${i}_name` as keyof ExcelDataExpectedRow;
             if (row[nameKey]) {
               policy_detail.push({
-                name: row[nameKey]!, // Non-null assertion
+                name: String(row[nameKey]!), // Non-null assertion
                 type: `kid${i}`, // <-- Use the dynamic key (e.g., "kid1", "kid2")
                 relation:
-                  row[`kid${i}_relationship` as keyof ExcelDataExpectedRow] ||
-                  "Child",
-                cnic: row[`kid${i}_cnic` as keyof ExcelDataExpectedRow] || null,
+                  String(row[`kid${i}_relationship` as keyof ExcelDataExpectedRow] ||
+                  "Child"),
+                cnic: row[`kid${i}_cnic` as keyof ExcelDataExpectedRow] ?
+                  String(row[`kid${i}_cnic` as keyof ExcelDataExpectedRow]) : null,
                 cnic_issue_date:
                   row[
                     `kid${i}_cnic_issue_date` as keyof ExcelDataExpectedRow
-                  ] || null,
-                dob: row[`kid${i}_dob` as keyof ExcelDataExpectedRow] || null,
+                  ] ? String(row[
+                    `kid${i}_cnic_issue_date` as keyof ExcelDataExpectedRow
+                  ]) : null,
+                dob: row[`kid${i}_dob` as keyof ExcelDataExpectedRow] ?
+                  String(row[`kid${i}_dob` as keyof ExcelDataExpectedRow]) : null,
                 gender:
-                  row[`kid${i}_gender` as keyof ExcelDataExpectedRow] || null,
+                  row[`kid${i}_gender` as keyof ExcelDataExpectedRow] ?
+                  String(row[`kid${i}_gender` as keyof ExcelDataExpectedRow]) : null,
               });
             }
           }
