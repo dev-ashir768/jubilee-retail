@@ -19,6 +19,8 @@ const badgeVariants = cva(
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         success:
           "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-success text-success-foreground font-semibold [a&]:hover:bg-success/90",
+        failed:
+          "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-failed text-failed-foreground font-semibold [a&]:hover:bg-failed/90",
         danger:
           "justify-center py-1 min-w-[50px] cursor-pointer border-transparent bg-danger text-danger-foreground font-semibold [a&]:hover:bg-danger/90",
         interested:

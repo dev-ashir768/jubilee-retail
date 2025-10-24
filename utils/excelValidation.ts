@@ -401,33 +401,33 @@ export const KID_GROUPS = [
 export const SPOUSE_GROUPS = [
   [
     "spouse_name",
-    "spouse_cnic",
     "spouse_dob",
     "spouse_relationship",
     "spouse_cnic_issue_date",
+    "spouse_cnic",
     "spouse_gender",
   ],
   [
     "spouse1_name",
-    "spouse1_cnic",
     "spouse1_dob",
     "spouse1_relationship",
     "spouse1_gender",
+    "spouse1_cnic",
     "spouse1_cnic_issue_date",
   ],
   [
     "spouse2_name",
-    "spouse2_cnic",
     "spouse2_dob",
     "spouse2_relationship",
+    "spouse2_cnic",
     "spouse2_gender",
     "spouse2_cnic_issue_date",
   ],
   [
     "spouse3_name",
-    "spouse3_cnic",
     "spouse3_dob",
     "spouse3_relationship",
+    "spouse3_cnic",
     "spouse3_gender",
     "spouse3_cnic_issue_date",
   ],
@@ -472,6 +472,39 @@ export const NUMBER_KEYS: (keyof ExcelDataExpectedRow)[] = [
   "rider2_sum_assured",
 ];
 
+// All CNIC keys for validation
+export const CNIC_KEYS: (keyof ExcelDataExpectedRow)[] = [
+  "client_cnic",
+  "spouse_cnic",
+  "spouse1_cnic",
+  "spouse2_cnic",
+  "spouse3_cnic",
+  "kid1_cnic",
+  "kid2_cnic",
+  "kid3_cnic",
+  "kid4_cnic",
+  "kid5_cnic",
+  "kid6_cnic",
+  "kid7_cnic",
+  "kid8_cnic",
+];
+
+const GENDER_KEYS: (keyof ExcelDataExpectedRow)[] = [
+  "gender",
+  "spouse_gender",
+  "spouse1_gender",
+  "spouse2_gender",
+  "spouse3_gender",
+  "kid1_gender",
+  "kid2_gender",
+  "kid3_gender",
+  "kid4_gender",
+  "kid5_gender",
+  "kid6_gender",
+  "kid7_gender",
+  "kid8_gender",
+];
+
 // New helper: Format field names (e.g., "client_name" → "Client Name")
 const formatFieldName = (key: string): string => {
   return key
@@ -486,7 +519,6 @@ const isFilled = (value: any): boolean => {
   if (typeof value === "number") return !isNaN(value) && value !== 0; // Adjust if 0 is valid
   return !!value;
 };
-
 
 // Main validation function
 export const validateRow = (
@@ -504,6 +536,52 @@ export const validateRow = (
           key
         )}`
       );
+    }
+  });
+
+  // 1.1 Specific validation for payment_mode - must be exactly "B2B"
+  const paymentMode = row["payment_mode"];
+  if (
+    isFilled(paymentMode) &&
+    paymentMode?.replace(" ", "").toLocaleUpperCase() !== "B2B"
+  ) {
+    errors.push(`Row ${rowIndex + 1}: Invalid payment mode - must be 'B2B'`);
+  }
+
+  // 1.2 Specific validation for all CNIC fields - exactly 13 digits, no dashes, must be string
+  CNIC_KEYS.forEach((key) => {
+    const cnicValue = row[key];
+    if (isFilled(cnicValue)) {
+      let cnicStr: string;
+      if (typeof cnicValue === "string") {
+        cnicStr = cnicValue.replace(/[-\s]/g, "");
+      } else {
+        // If not string, convert to string and validate
+        cnicStr = String(cnicValue).replace(/[-\s]/g, "");
+      }
+      const cnicRegex = /^\d{13}$/;
+      if (!cnicRegex.test(cnicStr)) {
+        errors.push(
+          `Row ${rowIndex + 1}: ${formatFieldName(
+            key
+          )} must be a string of exactly 13 digits without dashes`
+        );
+      }
+    }
+  });
+
+  // 1.3 Enhanced gender validation (after core check)
+  GENDER_KEYS.forEach((key) => {
+    const value = row[key];
+    if (isFilled(value) && typeof value === "string") {
+      const normalized = value.toLowerCase().trim();
+      if (!["male", "female", "others"].includes(normalized)) {
+        errors.push(
+          `Row ${rowIndex + 1}: Invalid value in ${formatFieldName(
+            key
+          )} - must be 'male', 'female', or 'others' (case-insensitive)`
+        );
+      }
     }
   });
 

@@ -44,3 +44,30 @@ export type BulkPolicyDetail = {
   dob: string | null;
   gender: string | null;
 };
+
+export type BulkOrderSuccessResult = {
+  order_code: string;
+  status: string;
+  message: string;
+  orderId: number;
+  policyId: number;
+};
+
+export type BulkOrderFailedResult = {
+  order_code: string;
+  status: string;
+  message: string;
+};
+
+export type BulkOrderPayloadType = {
+  total: number;
+  success: number;
+  failed: number;
+  successResults: BulkOrderSuccessResult[];
+  failedResults: BulkOrderFailedResult[];
+};
+export type BulkOrderResponseType = {
+  status: 1 | 0;
+  message: string;
+  payload: BulkOrderPayloadType[];
+};

@@ -165,7 +165,7 @@ const ExcelUpload = () => {
                   String(row[`spouse${suffix}_dob` as keyof ExcelDataExpectedRow]) : null,
                 gender:
                   row[`spouse${suffix}_gender` as keyof ExcelDataExpectedRow] ?
-                  String(row[`spouse${suffix}_gender` as keyof ExcelDataExpectedRow]) : null,
+                  String(row[`spouse${suffix}_gender` as keyof ExcelDataExpectedRow]?.toLocaleString().toLowerCase()) : null,
               });
             }
           }
@@ -192,7 +192,7 @@ const ExcelUpload = () => {
                   String(row[`kid${i}_dob` as keyof ExcelDataExpectedRow]) : null,
                 gender:
                   row[`kid${i}_gender` as keyof ExcelDataExpectedRow] ?
-                  String(row[`kid${i}_gender` as keyof ExcelDataExpectedRow]) : null,
+                  String(row[`kid${i}_gender` as keyof ExcelDataExpectedRow]?.toLocaleString().toLowerCase()) : null,
               });
             }
           }
@@ -215,17 +215,17 @@ const ExcelUpload = () => {
           // Assemble the final nested object
           return {
             api_user_name: row.partner_name,
-            payment_mode_code: row.payment_mode,
+            payment_mode_code: row.payment_mode.toLocaleUpperCase(),
             child_sku: row.plan,
-            order_code: row.order_no,
+            order_code: String(row.order_no),
             customer_name: row.client_name,
-            customer_cnic: row.client_cnic,
+            customer_cnic: String(row.client_cnic),
             customer_dob: row.client_dob,
             customer_email: row.client_email,
             cnic_issue_date: row.client_cnic_issue_date,
             customer_contact: row.client_contact_no,
             customer_address: row.address,
-            customer_gender: row.gender,
+            customer_gender: row.gender.toLocaleLowerCase(),
             customer_occupation: row.client_occupation,
             start_date: row.start_date,
             expiry_date: row.expiry_date,
@@ -272,9 +272,6 @@ const ExcelUpload = () => {
   return (
     <>
       <Dropzone {...dropzone}>
-        <div className="flex justify-between">
-          <DropzoneMessage />
-        </div>
         <DropZoneArea
           className={cn(
             "border-dashed min-h-[150px] justify-center",
@@ -311,6 +308,9 @@ const ExcelUpload = () => {
             )}
           </DropzoneTrigger>
         </DropZoneArea>
+        <div className="flex justify-between">
+          <DropzoneMessage />
+        </div>
       </Dropzone>
 
 

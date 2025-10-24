@@ -1,18 +1,24 @@
 import React from "react";
 import DataTable from "../datatable/data-table";
 import { ColumnDef } from "@tanstack/react-table";
-import { CreateBulkOrder } from "@/types/createBulkOrder";
 
-interface OrdersListDatatableProps {
-  columns: ColumnDef<CreateBulkOrder>[];
-  payload: CreateBulkOrder[] | null;
+interface OrdersListDatatableProps<TData> {
+  columns: ColumnDef<TData>[];
+  payload: TData[];
 }
 
-const CreateOrderDatatable: React.FC<OrdersListDatatableProps> = ({ columns, payload }) => {
+const CreateOrderDatatable = <TData,>({
+  columns,
+  payload,
+}: OrdersListDatatableProps<TData>) => {
   return (
-    <>
-      <DataTable columns={columns} data={payload!} title="List of all orders" />
-    </>
+    <DataTable
+      columns={columns}
+      data={payload}
+      title="List of all uploaded orders"
+      enableColumnVisibility={false}
+      enableExport={false}
+    />
   );
 };
 

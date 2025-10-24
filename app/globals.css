@@ -43,6 +43,8 @@
   --radius-xl: calc(var(--radius) + 4px);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+   --color-failed: var(--failed);
+  --color-failed-foreground: var(--failed-foreground);
   --color-danger: var(--danger);
   --color-danger-foreground: var(--danger-foreground);
   --color-interested: var(--interested);
@@ -116,6 +118,8 @@
   --sidebar-ring: oklch(0.708 0 0);
   --success: oklch(0.9226 0.0367 152.82);
   --success-foreground: oklch(0.5198 0.176858 142.4953);
+  --failed: oklch(0.9075 0.037 11.63);
+  --failed-foreground: oklch(0.628 0.2577 29.23);
   --danger: oklch(0.9075 0.037 11.63);
   --danger-foreground: oklch(0.628 0.2577 29.23);
   --interested: oklch(0.94 0.045 260.2);
