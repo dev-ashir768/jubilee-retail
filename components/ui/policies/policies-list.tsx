@@ -196,12 +196,12 @@ const PoliciesList = () => {
   );
 
   // ======== HANDLERS ========
-   const handleSingleOrderFetch = useCallback(
-     (orderId: string) => {
-       return singleOrderMutation.mutate({ orderId });
-     },
-     [singleOrderMutation]
-   );
+  const handleSingleOrderFetch = useCallback(
+    (orderId: string) => {
+      return singleOrderMutation.mutate({ orderId });
+    },
+    [singleOrderMutation]
+  );
 
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<PoliciesPayloadType>[] = React.useMemo(
@@ -315,7 +315,11 @@ const PoliciesList = () => {
         },
       },
     ],
-[rights, handleSingleOrderFetch, singleOrderMutation]
+    [
+      rights,
+      handleSingleOrderFetch,
+      singleOrderMutation,
+    ]
   );
 
   // ======== RENDER LOGIC ========

@@ -198,7 +198,7 @@ const RenewalPolicyList = () => {
   // ======== HANDLERS ========
   const handleSingleOrderFetch = useCallback(
     (orderId: string) => {
-      return singleOrderMutation.mutate({ orderId });
+      singleOrderMutation.mutate({ orderId });
     },
     [singleOrderMutation]
   );
@@ -300,7 +300,11 @@ const RenewalPolicyList = () => {
         },
       },
     ],
-   [rights, handleSingleOrderFetch, singleOrderMutation]
+    [
+      rights,
+      handleSingleOrderFetch,
+      singleOrderMutation,
+    ]
   );
 
   // ======== RENDER LOGIC ========

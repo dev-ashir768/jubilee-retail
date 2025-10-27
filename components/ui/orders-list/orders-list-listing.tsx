@@ -195,7 +195,7 @@ const OrdersListListing = () => {
 
   const handleSingleOrderFetch = useCallback(
     (orderId: string) => {
-      return singleOrderMutation.mutate({ orderId });
+      singleOrderMutation.mutate({ orderId });
     },
     [singleOrderMutation]
   );
@@ -307,6 +307,7 @@ const OrdersListListing = () => {
                 size="icon"
                 variant="ghost"
                 onClick={() => handleSingleOrderFetch(row.original.order_code)}
+                disabled={isCurrentOrderLoading}
               >
                 {isCurrentOrderLoading ? (
                   <Loader2 className="animate-spin size-4 stroke-primary" />
@@ -319,7 +320,11 @@ const OrdersListListing = () => {
         },
       },
     ],
-    [rights, handleSingleOrderFetch, singleOrderMutation]
+    [
+      rights,
+      handleSingleOrderFetch,
+      singleOrderMutation,
+    ]
   );
 
   // ======== RENDER LOGIC ========

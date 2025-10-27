@@ -195,7 +195,7 @@ const CboList = () => {
   // ======== HANDLERS ========
   const handleSingleOrderFetch = useCallback(
     (orderId: string) => {
-      return singleOrderMutation.mutate({ orderId });
+      singleOrderMutation.mutate({ orderId });
     },
     [singleOrderMutation]
   );
@@ -297,7 +297,11 @@ const CboList = () => {
         },
       },
     ],
-    [rights, handleSingleOrderFetch, singleOrderMutation]
+    [
+      rights,
+      handleSingleOrderFetch,
+      singleOrderMutation,
+    ]
   );
 
   // ======== RENDER LOGIC ========
