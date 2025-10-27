@@ -1,10 +1,10 @@
 "use client";
 
 import { getRights } from "@/utils/getRights";
-import { useQuery } from "@tanstack/react-query";
-import { Eye } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Eye, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../shadcn/button";
 import { Badge } from "../shadcn/badge";
 import DatatableColumnHeader from "../datatable/datatable-column-header";
@@ -28,12 +28,23 @@ import { PaymentModesResponseType } from "@/types/paymentModesTypes";
 import { fetchPaymentModesList } from "@/helperFunctions/paymentModesFunction";
 import OrdersFilters from "../filters/orders-filters";
 import { cboListFilterState } from "@/hooks/cboListFilterState";
+import {
+  SingleOrderPayloadTypes,
+  SingleOrderResponseTypes,
+} from "@/types/singleOrderType";
+import { AxiosError } from "axios";
+import { axiosFunction } from "@/utils/axiosFunction";
+import { toast } from "sonner";
+import SingleOrderDetailDialog from "../modal-dialog/single-order-detail-dialog";
 
 const CboList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/orders/cbo";
   const router = useRouter();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [orderSingleData, setSingleOrderData] =
+    useState<SingleOrderPayloadTypes | null>(null);
   const { filterValue } = cboListFilterState();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), 364),
@@ -98,15 +109,15 @@ const CboList = () => {
   } = useQuery<CboResponseType | null>({
     queryKey: [
       "cbo-list",
-      `${startDate} to ${endDate}`,
-      filterValue?.month,
-      filterValue?.policy_status,
-      filterValue?.contact,
-      filterValue?.api_user_id,
-      filterValue?.branch_id,
-      filterValue?.payment_mode_id,
-      filterValue?.product_id,
-      filterValue?.cnic,
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+      ...(filterValue?.month ? [filterValue.month] : []),
+      ...(filterValue?.order_status ? [filterValue.order_status] : []),
+      ...(filterValue?.contact ? [filterValue.contact] : []),
+      ...(filterValue?.api_user_id ? [filterValue.api_user_id] : []),
+      ...(filterValue?.branch_id ? [filterValue.branch_id] : []),
+      ...(filterValue?.payment_mode_id ? [filterValue.payment_mode_id] : []),
+      ...(filterValue?.product_id ? [filterValue.product_id] : []),
+      ...(filterValue?.cnic ? [filterValue.cnic] : []),
     ],
     queryFn: () =>
       fetchOrdersListing<CboResponseType>({
@@ -122,6 +133,37 @@ const CboList = () => {
         product_id: filterValue?.product_id,
         cnic: filterValue?.cnic,
       }),
+  });
+
+  // ======== MUTATION ========
+  const singleOrderMutation = useMutation<
+    SingleOrderResponseTypes,
+    AxiosError<SingleOrderResponseTypes>,
+    { orderId: string }
+  >({
+    mutationFn: (record) => {
+      return axiosFunction({
+        method: "POST",
+        urlPath: `/orders/single`,
+        data: { order_code: record.orderId },
+        isServer: true,
+      });
+    },
+    onError: (err) => {
+      const message = err?.response?.data?.message;
+      console.log("Add single order mutation error", err);
+      toast.error(message);
+    },
+    onSuccess: (data) => {
+      const message = data?.message;
+      toast.success(message);
+      if (data?.payload && data.payload.length > 0) {
+        setSingleOrderData(data?.payload[0] || null);
+        setDialogOpen(true);
+      } else {
+        toast.error("No order details found.");
+      }
+    },
   });
 
   // ======== PAYLOADS DATA ========
@@ -148,6 +190,14 @@ const CboList = () => {
   const paymentModesList = useMemo(
     () => paymentModesListresponse?.payload || [],
     [paymentModesListresponse]
+  );
+
+  // ======== HANDLERS ========
+  const handleSingleOrderFetch = useCallback(
+    (orderId: string) => {
+      return singleOrderMutation.mutate({ orderId });
+    },
+    [singleOrderMutation]
   );
 
   // ======== COLUMN DEFINITIONS ========
@@ -224,27 +274,30 @@ const CboList = () => {
       },
       {
         id: "actions",
-        header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Action" />
-        ),
+        header: "Actions",
         cell: ({ row }) => {
+          const isCurrentOrderLoading =
+            singleOrderMutation.isPending &&
+            singleOrderMutation.variables?.orderId === row.original.order_code;
           return (
             rights?.can_view === "1" && (
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={() =>
-                  console.log("Viewing CBO policy:", row.original.id)
-                }
+                onClick={() => handleSingleOrderFetch(row.original.order_code)}
               >
-                <Eye className="h-4 w-4" />
+                {isCurrentOrderLoading ? (
+                  <Loader2 className="animate-spin size-4 stroke-primary" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </Button>
             )
           );
         },
       },
     ],
-    [rights]
+    [rights, handleSingleOrderFetch, singleOrderMutation]
   );
 
   // ======== RENDER LOGIC ========
@@ -312,6 +365,12 @@ const CboList = () => {
         productList={productList}
         branchList={branchList}
         paymentModesList={paymentModesList}
+      />
+
+      <SingleOrderDetailDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        orderSingleData={orderSingleData}
       />
     </>
   );

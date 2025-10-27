@@ -1,10 +1,10 @@
 "use client";
 
 import { getRights } from "@/utils/getRights";
-import { useQuery } from "@tanstack/react-query";
-import { Eye } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Eye, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../shadcn/button";
 import { Badge } from "../shadcn/badge";
 import DatatableColumnHeader from "../datatable/datatable-column-header";
@@ -31,6 +31,14 @@ import { PaymentModesResponseType } from "@/types/paymentModesTypes";
 import { fetchPaymentModesList } from "@/helperFunctions/paymentModesFunction";
 import OrdersFilters from "../filters/orders-filters";
 import { ordersListFilterState } from "@/hooks/ordersListFilterState";
+import {
+  SingleOrderPayloadTypes,
+  SingleOrderResponseTypes,
+} from "@/types/singleOrderType";
+import { AxiosError } from "axios";
+import { axiosFunction } from "@/utils/axiosFunction";
+import { toast } from "sonner";
+import SingleOrderDetailDialog from "../modal-dialog/single-order-detail-dialog";
 
 const OrdersListListing = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -38,6 +46,9 @@ const OrdersListListing = () => {
   const router = useRouter();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterValue } = ordersListFilterState();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [orderSingleData, setSingleOrderData] =
+    useState<SingleOrderPayloadTypes | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), 364),
     to: new Date(),
@@ -46,6 +57,7 @@ const OrdersListListing = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE);
@@ -100,15 +112,15 @@ const OrdersListListing = () => {
   } = useQuery<OrdersListResponseType | null>({
     queryKey: [
       "orders-list-linting",
-      startDate && endDate && `${startDate} to ${endDate}`,
-      filterValue?.month,
-      filterValue?.order_status,
-      filterValue?.contact,
-      filterValue?.api_user_id,
-      filterValue?.branch_id,
-      filterValue?.payment_mode_id,
-      filterValue?.product_id,
-      filterValue?.cnic,
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+      ...(filterValue?.month ? [filterValue.month] : []),
+      ...(filterValue?.order_status ? [filterValue.order_status] : []),
+      ...(filterValue?.contact ? [filterValue.contact] : []),
+      ...(filterValue?.api_user_id ? [filterValue.api_user_id] : []),
+      ...(filterValue?.branch_id ? [filterValue.branch_id] : []),
+      ...(filterValue?.payment_mode_id ? [filterValue.payment_mode_id] : []),
+      ...(filterValue?.product_id ? [filterValue.product_id] : []),
+      ...(filterValue?.cnic ? [filterValue.cnic] : []),
     ],
     queryFn: () =>
       fetchOrdersListing<OrdersListResponseType>({
@@ -124,6 +136,33 @@ const OrdersListListing = () => {
         product_id: filterValue?.product_id,
         cnic: filterValue?.cnic,
       }),
+  });
+
+  // ======== MUTATION ========
+  const singleOrderMutation = useMutation<
+    SingleOrderResponseTypes,
+    AxiosError<SingleOrderResponseTypes>,
+    { orderId: string }
+  >({
+    mutationFn: (record) => {
+      return axiosFunction({
+        method: "POST",
+        urlPath: `/orders/single`,
+        data: { order_code: record.orderId },
+        isServer: true,
+      });
+    },
+    onError: (err) => {
+      const message = err?.response?.data?.message;
+      console.log("Add single order mutation error", err);
+      toast.error(message);
+    },
+    onSuccess: (data) => {
+      const message = data?.message;
+      setSingleOrderData(data?.payload[0] || null);
+      setDialogOpen(true);
+      toast.success(message);
+    },
   });
 
   // ======== PAYLOADS DATA ========
@@ -152,8 +191,17 @@ const OrdersListListing = () => {
     [paymentModesListresponse]
   );
 
+  // ======== HANDLERS ========
+
+  const handleSingleOrderFetch = useCallback(
+    (orderId: string) => {
+      return singleOrderMutation.mutate({ orderId });
+    },
+    [singleOrderMutation]
+  );
+
   // ======== COLUMN DEFINITIONS ========
-  const columns: ColumnDef<OrdersListPayloadType>[] = React.useMemo(
+  const columns: ColumnDef<OrdersListPayloadType>[] = useMemo(
     () => [
       {
         accessorKey: "order_code",
@@ -163,39 +211,63 @@ const OrdersListListing = () => {
         cell: ({ row }) => <div>{row.original.order_code}</div>,
       },
       {
-        accessorKey: "customer_name",
+        accessorKey: "create_date",
         header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Customer Name" />
+          <DatatableColumnHeader column={column} title="Created At" />
         ),
-        cell: ({ row }) => <div>{row.original.customer_name}</div>,
-      },
-      {
-        accessorKey: "customer_contact",
-        header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Contact" />
-        ),
-        cell: ({ row }) => <div>{row.original.customer_contact}</div>,
+        cell: ({ row }) => {
+          const date = new Date(row.original.create_date);
+          return <div>{date.toLocaleDateString()}</div>;
+        },
       },
       {
         accessorKey: "premium",
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Premium" />
         ),
-        cell: ({ row }) => <div>{row.original.premium}</div>,
+        cell: ({ row }) => <div>{row.original.premium || "N/A"}</div>,
       },
       {
-        accessorKey: "payment_mode",
+        accessorKey: "customer_name",
         header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Payment Mode" />
+          <DatatableColumnHeader column={column} title="Customer Name" />
         ),
-        cell: ({ row }) => <div>{row.original.payment_mode}</div>,
+        cell: ({ row }) => <div>{row.original.customer_name || "N/A"}</div>,
+      },
+      {
+        accessorKey: "customer_contact",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Contact" />
+        ),
+        cell: ({ row }) => <div>{row.original.customer_contact || "N/A"}</div>,
       },
       {
         accessorKey: "branch_name",
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Branch" />
         ),
-        cell: ({ row }) => <div>{row.original.branch_name}</div>,
+        cell: ({ row }) => <div>{row.original.branch_name || "N/A"}</div>,
+      },
+      {
+        accessorKey: "cnno",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="CN Number" />
+        ),
+        cell: ({ row }) => <div>{row.original.cnno || "N/A"}</div>,
+      },
+      {
+        accessorKey: "payment_mode",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Payment Mode" />
+        ),
+        cell: ({ row }) => <div>{row.original.payment_mode || "N/A"}</div>,
+      },
+      {
+        accessorKey: "api_user_name",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="API User Name" />
+        ),
+        cell: ({ row }) => <div>{row.original.api_user_name || "N/A"}</div>,
       },
       {
         accessorKey: "order_status",
@@ -223,34 +295,31 @@ const OrdersListListing = () => {
         },
       },
       {
-        accessorKey: "create_date",
-        header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Created At" />
-        ),
-        cell: ({ row }) => {
-          const date = new Date(row.original.create_date);
-          return <div>{date.toLocaleDateString()}</div>;
-        },
-      },
-      {
         id: "actions",
         header: "Actions",
         cell: ({ row }) => {
+          const isCurrentOrderLoading =
+            singleOrderMutation.isPending &&
+            singleOrderMutation.variables?.orderId === row.original.order_code;
           return (
             rights?.can_view === "1" && (
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={() => console.log("view id:", row.original.id)}
+                onClick={() => handleSingleOrderFetch(row.original.order_code)}
               >
-                <Eye className="h-4 w-4" />
+                {isCurrentOrderLoading ? (
+                  <Loader2 className="animate-spin size-4 stroke-primary" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </Button>
             )
           );
         },
       },
     ],
-    [rights]
+    [rights, handleSingleOrderFetch, singleOrderMutation]
   );
 
   // ======== RENDER LOGIC ========
@@ -320,6 +389,12 @@ const OrdersListListing = () => {
         productList={productList}
         branchList={branchList}
         paymentModesList={paymentModesList}
+      />
+
+      <SingleOrderDetailDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        orderSingleData={orderSingleData}
       />
     </>
   );
