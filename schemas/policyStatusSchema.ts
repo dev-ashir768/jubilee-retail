@@ -22,7 +22,7 @@ export const PolicyStatusSchema = z.object({
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Client contains forbidden code patterns",
     }),
-    policy_status: z
+    status: z
     .string()
     .min(1, { message: "Policy Status is required" })
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {

@@ -20,11 +20,12 @@ import { BranchPayloadType } from "@/types/branchTypes";
 import { singleSelectStyle } from "@/utils/selectStyles";
 import { AgentPayloadTypes } from "@/types/agentTypes";
 import { ClientPayloadType } from "@/types/clientTypes";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { PolicyStatusResponseType } from "@/types/policyStatusTypes";
 import { AxiosError } from "axios";
 import { axiosFunction } from "@/utils/axiosFunction";
+import { policyListFilterState } from "@/hooks/policyListFilterState";
 
 interface ChangeStatusDialogProps {
   statusDialogOpen: boolean;
@@ -32,6 +33,9 @@ interface ChangeStatusDialogProps {
   branchList: BranchPayloadType[];
   agentList: AgentPayloadTypes[];
   clientList: ClientPayloadType[];
+  policyId?: number;
+  startDate: string | null;
+  endDate: string | null;
 }
 
 interface BranchOption {
@@ -60,7 +64,12 @@ const ChangeStatusDialog: React.FC<ChangeStatusDialogProps> = ({
   branchList,
   agentList,
   clientList,
+  policyId,
+  startDate,
+  endDate
 }) => {
+  const queryClient = useQueryClient();
+  const { filterValue } = policyListFilterState();
   // ======== SELECT OPTIONS ========
   const branchOptions: BranchOption[] = branchList.map((item) => ({
     value: item.id,
@@ -94,7 +103,7 @@ const ChangeStatusDialog: React.FC<ChangeStatusDialogProps> = ({
       branch_id: undefined,
       agent_id: undefined,
       client_id: undefined,
-      policy_status: "",
+      status: "",
     },
   });
 
@@ -108,7 +117,7 @@ const ChangeStatusDialog: React.FC<ChangeStatusDialogProps> = ({
       return axiosFunction({
         method: "POST",
         urlPath: `/orders/status`,
-        data: record,
+        data: { ...record, policy_id: policyId! },
         isServer: true,
       });
     },
@@ -123,8 +132,24 @@ const ChangeStatusDialog: React.FC<ChangeStatusDialogProps> = ({
     onSuccess: (data) => {
       const message = data?.message;
       toast.success(message);
+      queryClient.invalidateQueries({
+        queryKey: [
+          "policies-list",
+          ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+          ...(filterValue?.month ? [filterValue.month] : []),
+          ...(filterValue?.policy_status ? [filterValue.policy_status] : []),
+          ...(filterValue?.contact ? [filterValue.contact] : []),
+          ...(filterValue?.api_user_id ? [filterValue.api_user_id] : []),
+          ...(filterValue?.branch_id ? [filterValue.branch_id] : []),
+          ...(filterValue?.payment_mode_id
+            ? [filterValue.payment_mode_id]
+            : []),
+          ...(filterValue?.product_id ? [filterValue.product_id] : []),
+          ...(filterValue?.cnic ? [filterValue.cnic] : []),
+        ],
+      });
       setStatusDialogOpen(false);
-      reset()
+      reset();
     },
   });
 
@@ -166,9 +191,7 @@ const ChangeStatusDialog: React.FC<ChangeStatusDialogProps> = ({
                         ) ?? null
                       }
                       onChange={(selectedVal) =>
-                        field.onChange(
-                          selectedVal ? selectedVal.value : null
-                        )
+                        field.onChange(selectedVal ? selectedVal.value : null)
                       }
                       placeholder="Select Branch"
                       styles={singleSelectStyle}
@@ -251,15 +274,15 @@ const ChangeStatusDialog: React.FC<ChangeStatusDialogProps> = ({
               </div>
               {/* Cancelled || IGISposted */}
               <div className="space-y-2">
-                <Label htmlFor="policy_status">
+                <Label htmlFor="status">
                   Policy Status <span className="text-red-500">*</span>
                 </Label>
                 <Controller
-                  name="policy_status"
+                  name="status"
                   control={control}
                   render={({ field }) => (
                     <Select
-                      id="policy_status"
+                      id="status"
                       options={policyStatusOptions}
                       value={
                         policyStatusOptions.find(
@@ -277,9 +300,9 @@ const ChangeStatusDialog: React.FC<ChangeStatusDialogProps> = ({
                     />
                   )}
                 />
-                {errors.policy_status && (
+                {errors.status && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.policy_status.message}
+                    {errors.status.message}
                   </p>
                 )}
               </div>

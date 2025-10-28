@@ -58,6 +58,7 @@ const PoliciesList = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterValue } = policyListFilterState();
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [isPolicyId, setIsPolicyId] = useState<number>();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [orderSingleData, setSingleOrderData] =
     useState<SingleOrderPayloadTypes | null>(null);
@@ -194,7 +195,7 @@ const PoliciesList = () => {
     queryFn: fetchAgentList,
   });
 
-   const {
+  const {
     data: clientListResponse,
     isLoading: clientListLoading,
     isError: clientListIsError,
@@ -248,9 +249,13 @@ const PoliciesList = () => {
     [singleOrderMutation]
   );
 
-  const handlePolicyStatusDialog = useCallback(() => {
-    setStatusDialogOpen(true);
-  }, [setStatusDialogOpen]);
+  const handlePolicyStatusDialog = useCallback(
+    (policyId: number) => {
+      setStatusDialogOpen(true);
+      setIsPolicyId(policyId);
+    },
+    [setStatusDialogOpen, setIsPolicyId]
+  );
 
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<PoliciesPayloadType>[] = useMemo(
@@ -368,7 +373,11 @@ const PoliciesList = () => {
                 {rights?.can_edit === "1" &&
                   row?.original.policy_status.toLocaleLowerCase() ===
                     "pendingigis" && (
-                    <DropdownMenuItem onClick={handlePolicyStatusDialog}>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        handlePolicyStatusDialog(row.original?.id)
+                      }
+                    >
                       <span>Change Status</span>
                     </DropdownMenuItem>
                   )}
@@ -378,7 +387,12 @@ const PoliciesList = () => {
         },
       },
     ],
-    [rights, handleSingleOrderFetch, singleOrderMutation, handlePolicyStatusDialog]
+    [
+      rights,
+      handleSingleOrderFetch,
+      singleOrderMutation,
+      handlePolicyStatusDialog,
+    ]
   );
 
   // ======== RENDER LOGIC ========
@@ -387,21 +401,24 @@ const PoliciesList = () => {
     apiUserListLoading ||
     productListLoading ||
     branchListLoading ||
-    paymentModesListLoading || clientListLoading ||
+    paymentModesListLoading ||
+    clientListLoading ||
     agentListLoading;
   const isError =
     policiesListIsError ||
     apiUserListIsError ||
     productListIsError ||
     branchListIsError ||
-    agentListIsError || clientListIsError ||
+    agentListIsError ||
+    clientListIsError ||
     paymentModesListIsError;
   const onError =
     policiesListError?.message ||
     apiUserListError?.message ||
     productListError?.message ||
     branchListError?.message ||
-    paymentModesListError?.message || clientListError?.message ||
+    paymentModesListError?.message ||
+    clientListError?.message ||
     agentListError?.message;
 
   useEffect(() => {
@@ -458,6 +475,9 @@ const PoliciesList = () => {
           branchList={branchList}
           agentList={agentList}
           clientList={clientList}
+          policyId={isPolicyId}
+          startDate={startDate}
+          endDate={endDate}
         />
       )}
 
