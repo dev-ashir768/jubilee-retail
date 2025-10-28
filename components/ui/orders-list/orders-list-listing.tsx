@@ -1,8 +1,8 @@
 "use client";
 
 import { getRights } from "@/utils/getRights";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Eye, Loader2 } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../shadcn/button";
@@ -39,6 +39,13 @@ import { AxiosError } from "axios";
 import { axiosFunction } from "@/utils/axiosFunction";
 import { toast } from "sonner";
 import SingleOrderDetailDialog from "../modal-dialog/single-order-detail-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../shadcn/dropdown-menu";
+import { OrderVerifyManuallyResponseTypes } from "@/types/orderVerifyManuallyTypes";
 
 const OrdersListListing = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -47,6 +54,7 @@ const OrdersListListing = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterValue } = ordersListFilterState();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
   const [orderSingleData, setSingleOrderData] =
     useState<SingleOrderPayloadTypes | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -152,6 +160,9 @@ const OrdersListListing = () => {
         isServer: true,
       });
     },
+    onMutate: () => {
+      toast.success("Fetching order details...");
+    },
     onError: (err) => {
       const message = err?.response?.data?.message;
       console.log("Add single order mutation error", err);
@@ -162,6 +173,92 @@ const OrdersListListing = () => {
       setSingleOrderData(data?.payload[0] || null);
       setDialogOpen(true);
       toast.success(message);
+    },
+  });
+
+  const orderVerifyManuallyMutation = useMutation<
+    OrderVerifyManuallyResponseTypes,
+    AxiosError<OrderVerifyManuallyResponseTypes>,
+    { order_code: string }
+  >({
+    mutationFn: (record) => {
+      return axiosFunction({
+        method: "POST",
+        urlPath: `/orders/verify-manually`,
+        data: { order_code: record.order_code },
+        isServer: true,
+      });
+    },
+    onMutate: () => {
+      toast.success("Verifying order manually...");
+    },
+    onError: (err) => {
+      const message = err?.response?.data?.message;
+      console.log("Manually Order verification error", err);
+      toast.error(message);
+    },
+    onSuccess: (data) => {
+      const message = data?.message;
+      toast.success(message);
+      queryClient.invalidateQueries({
+        queryKey: [
+          "orders-list-linting",
+          ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+          ...(filterValue?.month ? [filterValue.month] : []),
+          ...(filterValue?.order_status ? [filterValue.order_status] : []),
+          ...(filterValue?.contact ? [filterValue.contact] : []),
+          ...(filterValue?.api_user_id ? [filterValue.api_user_id] : []),
+          ...(filterValue?.branch_id ? [filterValue.branch_id] : []),
+          ...(filterValue?.payment_mode_id
+            ? [filterValue.payment_mode_id]
+            : []),
+          ...(filterValue?.product_id ? [filterValue.product_id] : []),
+          ...(filterValue?.cnic ? [filterValue.cnic] : []),
+        ],
+      });
+    },
+  });
+
+  const orderRepushMutation = useMutation<
+    OrderVerifyManuallyResponseTypes,
+    AxiosError<OrderVerifyManuallyResponseTypes>,
+    { order_code: string }
+  >({
+    mutationFn: (record) => {
+      return axiosFunction({
+        method: "POST",
+        urlPath: `/orders/repush`,
+        data: { order_code: record.order_code },
+        isServer: true,
+      });
+    },
+    onMutate: () => {
+      toast.success("Repushing order...");
+    },
+    onError: (err) => {
+      const message = err?.response?.data?.message;
+      console.log("Order repush error", err);
+      toast.error(message);
+    },
+    onSuccess: (data) => {
+      const message = data?.message;
+      toast.success(message);
+      queryClient.invalidateQueries({
+        queryKey: [
+          "orders-list-linting",
+          ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+          ...(filterValue?.month ? [filterValue.month] : []),
+          ...(filterValue?.order_status ? [filterValue.order_status] : []),
+          ...(filterValue?.contact ? [filterValue.contact] : []),
+          ...(filterValue?.api_user_id ? [filterValue.api_user_id] : []),
+          ...(filterValue?.branch_id ? [filterValue.branch_id] : []),
+          ...(filterValue?.payment_mode_id
+            ? [filterValue.payment_mode_id]
+            : []),
+          ...(filterValue?.product_id ? [filterValue.product_id] : []),
+          ...(filterValue?.cnic ? [filterValue.cnic] : []),
+        ],
+      });
     },
   });
 
@@ -192,12 +289,25 @@ const OrdersListListing = () => {
   );
 
   // ======== HANDLERS ========
-
   const handleSingleOrderFetch = useCallback(
     (orderId: string) => {
       singleOrderMutation.mutate({ orderId });
     },
     [singleOrderMutation]
+  );
+
+  const handleOrderVerifyManually = useCallback(
+    (order_code: string) => {
+      orderVerifyManuallyMutation.mutate({ order_code });
+    },
+    [orderVerifyManuallyMutation]
+  );
+
+  const handleOrderRepush = useCallback(
+    (order_code: string) => {
+      orderRepushMutation.mutate({ order_code });
+    },
+    [orderRepushMutation]
   );
 
   // ======== COLUMN DEFINITIONS ========
@@ -263,6 +373,13 @@ const OrdersListListing = () => {
         cell: ({ row }) => <div>{row.original.payment_mode || "N/A"}</div>,
       },
       {
+        accessorKey: "payment_code",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Payment Code" />
+        ),
+        cell: ({ row }) => <div>{row.original.payment_code || "N/A"}</div>,
+      },
+      {
         accessorKey: "api_user_name",
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="API User Name" />
@@ -302,29 +419,51 @@ const OrdersListListing = () => {
             singleOrderMutation.isPending &&
             singleOrderMutation.variables?.orderId === row.original.order_code;
           return (
-            rights?.can_view === "1" && (
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => handleSingleOrderFetch(row.original.order_code)}
-                disabled={isCurrentOrderLoading}
-              >
-                {isCurrentOrderLoading ? (
-                  <Loader2 className="animate-spin size-4 stroke-primary" />
-                ) : (
-                  <Eye className="h-4 w-4" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {rights?.can_view === "1" && (
+                  <DropdownMenuItem
+                    onClick={() =>
+                      handleSingleOrderFetch(row.original.order_code)
+                    }
+                    disabled={isCurrentOrderLoading}
+                  >
+                    <span>View Details</span>
+                  </DropdownMenuItem>
                 )}
-              </Button>
-            )
+                {row?.original.payment_code.toLocaleLowerCase() === "cc" &&
+                  row?.original.order_status.toLocaleLowerCase() ===
+                    "unverified" && (
+                    <DropdownMenuItem
+                      onClick={() =>
+                        handleOrderVerifyManually(row.original.order_code)
+                      }
+                    >
+                      <span>Approve Order</span>
+                    </DropdownMenuItem>
+                  )}
+                {row?.original.payment_code.toLocaleLowerCase() === "cod" &&
+                  row?.original.order_status.toLocaleLowerCase() ===
+                    "unverified" && (
+                    <DropdownMenuItem
+                      onClick={() => handleOrderRepush(row.original.order_code)}
+                    >
+                      <span>Repush to Orio</span>
+                    </DropdownMenuItem>
+                  )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           );
         },
       },
     ],
-    [
-      rights,
-      handleSingleOrderFetch,
-      singleOrderMutation,
-    ]
+    [rights, handleSingleOrderFetch, singleOrderMutation, handleOrderRepush, handleOrderVerifyManually]
   );
 
   // ======== RENDER LOGIC ========

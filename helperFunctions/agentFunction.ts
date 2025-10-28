@@ -4,9 +4,9 @@ import { axiosFunction } from "@/utils/axiosFunction";
 export const fetchAgentList = async (): Promise<AgentResponseTypes | null> => {
   try {
     const response = await axiosFunction({
-      method: "GET",
-      urlPath: "/agents",
-      
+      method: "POST",
+      urlPath: "/agents/all",
+      data:{}
     });
 
     return response;

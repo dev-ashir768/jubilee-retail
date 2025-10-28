@@ -1,0 +1,45 @@
+export type PolicyStatusPayloadType = {
+  id: number;
+  policy_code: string;
+  igis_policy_code: string;
+  pmdc_no: string | null;
+  order_id: number;
+  parent_id: number | null;
+  plan_id: number;
+  product_id: number;
+  product_option_id: number;
+  extended_warranty_id: number | null;
+  api_user_id: number | null;
+  issue_date: string;
+  start_date: string;
+  expiry_date: string;
+  item_price: string;
+  received_premium: string;
+  discount_amount: string;
+  sum_insured: string;
+  filer_tax_per_item: string;
+  filer_tax_total: string;
+  filer_tax_status: boolean;
+  status: string;
+  type: string;
+  product_type: number | null;
+  takaful_policy: boolean;
+  is_renewed: boolean;
+  refunded: boolean;
+  quantity: number;
+  qr_doc_url: string;
+  schengen: boolean;
+  is_active: boolean;
+  is_deleted: boolean;
+  created_by: number;
+  deleted_by: number | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+export type PolicyStatusResponseType = {
+  status: 1 | 0;
+  message: string;
+  payload: PolicyStatusPayloadType[];
+};

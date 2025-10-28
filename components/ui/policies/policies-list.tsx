@@ -2,7 +2,7 @@
 
 import { getRights } from "@/utils/getRights";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Eye, Loader2 } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../shadcn/button";
@@ -39,6 +39,17 @@ import { AxiosError } from "axios";
 import { axiosFunction } from "@/utils/axiosFunction";
 import { toast } from "sonner";
 import SingleOrderDetailDialog from "../modal-dialog/single-order-detail-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../shadcn/dropdown-menu";
+import ChangeStatusDialog from "./change-stataus-dialog";
+import { AgentResponseTypes } from "@/types/agentTypes";
+import { fetchAgentList } from "@/helperFunctions/agentFunction";
+import { ClientResponseType } from "@/types/clientTypes";
+import { fetchClientList } from "@/helperFunctions/clientFunction";
 
 const PoliciesList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -46,6 +57,7 @@ const PoliciesList = () => {
   const router = useRouter();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterValue } = policyListFilterState();
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [orderSingleData, setSingleOrderData] =
     useState<SingleOrderPayloadTypes | null>(null);
@@ -114,7 +126,7 @@ const PoliciesList = () => {
       "policies-list",
       ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
       ...(filterValue?.month ? [filterValue.month] : []),
-      ...(filterValue?.order_status ? [filterValue.order_status] : []),
+      ...(filterValue?.policy_status ? [filterValue.policy_status] : []),
       ...(filterValue?.contact ? [filterValue.contact] : []),
       ...(filterValue?.api_user_id ? [filterValue.api_user_id] : []),
       ...(filterValue?.branch_id ? [filterValue.branch_id] : []),
@@ -152,6 +164,9 @@ const PoliciesList = () => {
         isServer: true,
       });
     },
+    onMutate: () => {
+      toast.success("Fetching order details...");
+    },
     onError: (err) => {
       const message = err?.response?.data?.message;
       console.log("Add single order mutation error", err);
@@ -167,6 +182,26 @@ const PoliciesList = () => {
         toast.error("No order details found.");
       }
     },
+  });
+
+  const {
+    data: agentListResponse,
+    isLoading: agentListLoading,
+    isError: agentListIsError,
+    error: agentListError,
+  } = useQuery<AgentResponseTypes | null>({
+    queryKey: ["agent-list"],
+    queryFn: fetchAgentList,
+  });
+
+   const {
+    data: clientListResponse,
+    isLoading: clientListLoading,
+    isError: clientListIsError,
+    error: clientListError,
+  } = useQuery<ClientResponseType | null>({
+    queryKey: ["client-list"],
+    queryFn: fetchClientList,
   });
 
   // ======== PAYLOADS DATA ========
@@ -190,6 +225,16 @@ const PoliciesList = () => {
     [branchListResponse]
   );
 
+  const agentList = useMemo(
+    () => agentListResponse?.payload || [],
+    [agentListResponse]
+  );
+
+  const clientList = useMemo(
+    () => clientListResponse?.payload || [],
+    [clientListResponse]
+  );
+
   const paymentModesList = useMemo(
     () => paymentModesListresponse?.payload || [],
     [paymentModesListresponse]
@@ -203,8 +248,12 @@ const PoliciesList = () => {
     [singleOrderMutation]
   );
 
+  const handlePolicyStatusDialog = useCallback(() => {
+    setStatusDialogOpen(true);
+  }, [setStatusDialogOpen]);
+
   // ======== COLUMN DEFINITIONS ========
-  const columns: ColumnDef<PoliciesPayloadType>[] = React.useMemo(
+  const columns: ColumnDef<PoliciesPayloadType>[] = useMemo(
     () => [
       {
         accessorKey: "policy_number",
@@ -298,28 +347,38 @@ const PoliciesList = () => {
             singleOrderMutation.isPending &&
             singleOrderMutation.variables?.orderId === row.original.order_code;
           return (
-            rights?.can_view === "1" && (
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => handleSingleOrderFetch(row.original.order_code)}
-              >
-                {isCurrentOrderLoading ? (
-                  <Loader2 className="animate-spin size-4 stroke-primary" />
-                ) : (
-                  <Eye className="h-4 w-4" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {rights?.can_view === "1" && (
+                  <DropdownMenuItem
+                    onClick={() =>
+                      handleSingleOrderFetch(row.original.order_code)
+                    }
+                    disabled={isCurrentOrderLoading}
+                  >
+                    <span>View Details</span>
+                  </DropdownMenuItem>
                 )}
-              </Button>
-            )
+                {rights?.can_edit === "1" &&
+                  row?.original.policy_status.toLocaleLowerCase() ===
+                    "pendingigis" && (
+                    <DropdownMenuItem onClick={handlePolicyStatusDialog}>
+                      <span>Change Status</span>
+                    </DropdownMenuItem>
+                  )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           );
         },
       },
     ],
-    [
-      rights,
-      handleSingleOrderFetch,
-      singleOrderMutation,
-    ]
+    [rights, handleSingleOrderFetch, singleOrderMutation, handlePolicyStatusDialog]
   );
 
   // ======== RENDER LOGIC ========
@@ -328,19 +387,22 @@ const PoliciesList = () => {
     apiUserListLoading ||
     productListLoading ||
     branchListLoading ||
-    paymentModesListLoading;
+    paymentModesListLoading || clientListLoading ||
+    agentListLoading;
   const isError =
     policiesListIsError ||
     apiUserListIsError ||
     productListIsError ||
     branchListIsError ||
+    agentListIsError || clientListIsError ||
     paymentModesListIsError;
   const onError =
     policiesListError?.message ||
     apiUserListError?.message ||
     productListError?.message ||
     branchListError?.message ||
-    paymentModesListError?.message;
+    paymentModesListError?.message || clientListError?.message ||
+    agentListError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -388,6 +450,16 @@ const PoliciesList = () => {
         branchList={branchList}
         paymentModesList={paymentModesList}
       />
+
+      {!isLoading && (
+        <ChangeStatusDialog
+          statusDialogOpen={statusDialogOpen}
+          setStatusDialogOpen={setStatusDialogOpen}
+          branchList={branchList}
+          agentList={agentList}
+          clientList={clientList}
+        />
+      )}
 
       <SingleOrderDetailDialog
         open={dialogOpen}

@@ -4,8 +4,9 @@ import { axiosFunction } from "@/utils/axiosFunction";
 export const fetchClientList = async ():Promise<ClientResponseType | null> => {
   try {
     const response = await axiosFunction({
-      method: "GET",
-      urlPath: "/clients",
+      method: "POST",
+      urlPath: "/clients/all",
+      data: {}
     });
 
     return response;

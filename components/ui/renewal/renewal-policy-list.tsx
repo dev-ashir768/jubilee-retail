@@ -2,7 +2,7 @@
 
 import { getRights } from "@/utils/getRights";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Eye, Loader2 } from "lucide-react";
+import {  MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../shadcn/button";
@@ -39,6 +39,12 @@ import {
 import { AxiosError } from "axios";
 import { axiosFunction } from "@/utils/axiosFunction";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../shadcn/dropdown-menu";
 
 const RenewalPolicyList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -114,7 +120,7 @@ const RenewalPolicyList = () => {
       "renewal-policy-list",
       ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
       ...(filterValue?.month ? [filterValue.month] : []),
-      ...(filterValue?.order_status ? [filterValue.order_status] : []),
+      ...(filterValue?.policy_status ? [filterValue.policy_status] : []),
       ...(filterValue?.contact ? [filterValue.contact] : []),
       ...(filterValue?.api_user_id ? [filterValue.api_user_id] : []),
       ...(filterValue?.branch_id ? [filterValue.branch_id] : []),
@@ -203,6 +209,18 @@ const RenewalPolicyList = () => {
     [singleOrderMutation]
   );
 
+  const handleRenewalPolicy = useCallback(
+    (order_code: string, is_takaful: number) => {
+      window.open(
+        `https://dev-coverage.jubileegeneral.com.pk/renewalpolicy?order=${order_code}&site=${
+          is_takaful ? "Takaful" : "Insurance"
+        }`,
+        "_blank"
+      );
+    },
+    []
+  );
+
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<RenewalPolicyPayloadType>[] = useMemo(
     () => [
@@ -283,28 +301,41 @@ const RenewalPolicyList = () => {
             singleOrderMutation.isPending &&
             singleOrderMutation.variables?.orderId === row.original.order_code;
           return (
-            rights?.can_view === "1" && (
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => handleSingleOrderFetch(row.original.order_code)}
-              >
-                {isCurrentOrderLoading ? (
-                  <Loader2 className="animate-spin size-4 stroke-primary" />
-                ) : (
-                  <Eye className="h-4 w-4" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {rights?.can_view === "1" && (
+                  <DropdownMenuItem
+                    onClick={() =>
+                      handleSingleOrderFetch(row.original.order_code)
+                    }
+                    disabled={isCurrentOrderLoading}
+                  >
+                    <span>View Details</span>
+                  </DropdownMenuItem>
                 )}
-              </Button>
-            )
+                <DropdownMenuItem
+                  onClick={() =>
+                    handleRenewalPolicy(
+                      row.original.order_code,
+                      row.original.is_takaful
+                    )
+                  }
+                >
+                  <span>Renewal Policy</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           );
         },
       },
     ],
-    [
-      rights,
-      handleSingleOrderFetch,
-      singleOrderMutation,
-    ]
+    [rights, handleSingleOrderFetch, singleOrderMutation, handleRenewalPolicy]
   );
 
   // ======== RENDER LOGIC ========

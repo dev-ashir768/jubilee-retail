@@ -6,8 +6,11 @@ export type subNavTypes = {
   datePicker?: boolean;
   urlPath?: string;
   filter?: boolean;
+  exportZip?: boolean;
   dateRange?: DateRange;
-  isFilterOpen?: boolean,
-  setIsFilterOpen?: (isFilterOpen: boolean)=> void 
+  isFilterOpen?: boolean;
+  setIsFilterOpen?: (isFilterOpen: boolean) => void;
   setDateRange?: (date: DateRange | undefined) => void;
+  isExportZipOpen?: boolean;
+  setIsExportZipOpen?: (isExportZipOpen: boolean) => void;
 };

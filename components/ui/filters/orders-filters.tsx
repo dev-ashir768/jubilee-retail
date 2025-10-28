@@ -212,7 +212,6 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
     });
     resetFilterValue();
     setIsFilterOpen();
-    console.log("filterValue", filterValue);
   };
 
   return (

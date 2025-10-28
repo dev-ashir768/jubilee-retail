@@ -36,12 +36,14 @@ import { AxiosError } from "axios";
 import { axiosFunction } from "@/utils/axiosFunction";
 import { toast } from "sonner";
 import SingleOrderDetailDialog from "../modal-dialog/single-order-detail-dialog";
+import GenerateHis from "./generate-his";
 
 const CboList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/orders/cbo";
   const router = useRouter();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isExportZipOpen, setIsExportZipOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [orderSingleData, setSingleOrderData] =
     useState<SingleOrderPayloadTypes | null>(null);
@@ -111,7 +113,7 @@ const CboList = () => {
       "cbo-list",
       ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
       ...(filterValue?.month ? [filterValue.month] : []),
-      ...(filterValue?.order_status ? [filterValue.order_status] : []),
+      ...(filterValue?.policy_status ? [filterValue.policy_status] : []),
       ...(filterValue?.contact ? [filterValue.contact] : []),
       ...(filterValue?.api_user_id ? [filterValue.api_user_id] : []),
       ...(filterValue?.branch_id ? [filterValue.branch_id] : []),
@@ -297,11 +299,7 @@ const CboList = () => {
         },
       },
     ],
-    [
-      rights,
-      handleSingleOrderFetch,
-      singleOrderMutation,
-    ]
+    [rights, handleSingleOrderFetch, singleOrderMutation]
   );
 
   // ======== RENDER LOGIC ========
@@ -352,6 +350,9 @@ const CboList = () => {
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}
+        isExportZipOpen={isExportZipOpen}
+        setIsExportZipOpen={setIsExportZipOpen}
+        exportZip={true}
       />
 
       {isLoading ? (
@@ -369,6 +370,11 @@ const CboList = () => {
         productList={productList}
         branchList={branchList}
         paymentModesList={paymentModesList}
+      />
+
+      <GenerateHis
+        isExportZipOpen={isExportZipOpen}
+        setIsExportZipOpen={setIsExportZipOpen}
       />
 
       <SingleOrderDetailDialog

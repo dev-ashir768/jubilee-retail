@@ -10,11 +10,19 @@ export type RenewalPolicyPayloadType = {
   customer_contact: string;
   branch_name: string;
   product: string;
-  cnno: string;
+  cnno: string | null;
   payment_mode: string;
   api_user_name: string | null;
   order_status: string;
   policy_status: string;
+  customer_cnic: string;
+  product_id: number;
+  no_of_persons_covered: string;
+  policy_category: string | null;
+  pec_coverage: string | null;
+  renewal_number: string | null;
+  payment_code: string;
+  is_takaful: number;
 };
 
 export type RenewalPolicyResponseType = {
