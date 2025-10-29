@@ -1,6 +1,6 @@
 import { StylesConfig } from "react-select";
 
-interface SelectOption {
+export interface SelectOption {
   label: string;
   value: number | string;
 }

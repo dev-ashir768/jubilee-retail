@@ -5,8 +5,9 @@ export const fetchDevelopmentOfficerList =
   async (): Promise<DevelopmentOfficerResponseTypes | null> => {
     try {
       const response = await axiosFunction({
-        method: "GET",
-        urlPath: "/development-officers",
+        method: "POST",
+        urlPath: "/development-officers/all",
+        data: {}
       });
 
       return response;
