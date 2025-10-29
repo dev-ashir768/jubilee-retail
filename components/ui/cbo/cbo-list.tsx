@@ -2,7 +2,7 @@
 
 import { getRights } from "@/utils/getRights";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Eye, Loader2 } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../shadcn/button";
@@ -37,6 +37,13 @@ import { axiosFunction } from "@/utils/axiosFunction";
 import { toast } from "sonner";
 import SingleOrderDetailDialog from "../modal-dialog/single-order-detail-dialog";
 import GenerateHis from "./generate-his";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../shadcn/dropdown-menu";
+import ChangeCBOPolicyStatus from "./change-cbo-policy-status";
 
 const CboList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -45,6 +52,8 @@ const CboList = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isExportZipOpen, setIsExportZipOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [isPolicyId, setIsPolicyId] = useState<number>();
   const [orderSingleData, setSingleOrderData] =
     useState<SingleOrderPayloadTypes | null>(null);
   const { filterValue } = cboListFilterState();
@@ -202,6 +211,14 @@ const CboList = () => {
     [singleOrderMutation]
   );
 
+  const handlePolicyStatusDialog = useCallback(
+    (policyId: number) => {
+      setStatusDialogOpen(true);
+      setIsPolicyId(policyId);
+    },
+    [setStatusDialogOpen, setIsPolicyId]
+  );
+
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<CboPayloadType>[] = useMemo(
     () => [
@@ -282,24 +299,40 @@ const CboList = () => {
             singleOrderMutation.isPending &&
             singleOrderMutation.variables?.orderId === row.original.order_code;
           return (
-            rights?.can_view === "1" && (
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => handleSingleOrderFetch(row.original.order_code)}
-              >
-                {isCurrentOrderLoading ? (
-                  <Loader2 className="animate-spin size-4 stroke-primary" />
-                ) : (
-                  <Eye className="h-4 w-4" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {rights?.can_view === "1" && (
+                  <DropdownMenuItem
+                    onClick={() =>
+                      handleSingleOrderFetch(row.original.order_code)
+                    }
+                    disabled={isCurrentOrderLoading}
+                  >
+                    <span>View Details</span>
+                  </DropdownMenuItem>
                 )}
-              </Button>
-            )
+                {rights?.can_edit === "1" &&
+                  row?.original.policy_status.toLocaleLowerCase() ===
+                    "pendingcbo" && (
+                    <DropdownMenuItem
+                      onClick={() => handlePolicyStatusDialog(row.original?.id)}
+                    >
+                      <span>Change Status</span>
+                    </DropdownMenuItem>
+                  )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           );
         },
       },
     ],
-    [rights, handleSingleOrderFetch, singleOrderMutation]
+    [rights, handleSingleOrderFetch, singleOrderMutation, handlePolicyStatusDialog]
   );
 
   // ======== RENDER LOGIC ========
@@ -376,6 +409,16 @@ const CboList = () => {
         isExportZipOpen={isExportZipOpen}
         setIsExportZipOpen={setIsExportZipOpen}
       />
+
+      {!isLoading && (
+        <ChangeCBOPolicyStatus
+          statusDialogOpen={statusDialogOpen}
+          setStatusDialogOpen={setStatusDialogOpen}
+          policyId={isPolicyId}
+          startDate={startDate}
+          endDate={endDate}
+        />
+      )}
 
       <SingleOrderDetailDialog
         open={dialogOpen}

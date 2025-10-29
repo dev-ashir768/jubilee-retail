@@ -88,7 +88,7 @@ const ChangeStatusDialog: React.FC<ChangeStatusDialogProps> = ({
 
   const policyStatusOptions: PolicyStatusOption[] = [
     { value: "cancelled", label: "Cancelled" },
-    { value: "IGISposted", label: "IGIS Posted" },
+    { value: "IGISposted", label: "IGISPosted" },
   ];
 
   // ======== HOOK FORM ========
