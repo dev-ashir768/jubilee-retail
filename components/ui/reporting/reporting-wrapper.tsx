@@ -21,6 +21,10 @@ import { fetchPlansList } from "@/helperFunctions/plansFunction";
 import { fetchApiUserList } from "@/helperFunctions/userFunction";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import { Card, CardContent, CardHeader, CardTitle } from "../shadcn/card";
+import { CityResponseType } from "@/types/cityTypes";
+import { fetchCityList } from "@/helperFunctions/cityFunction";
+import { fetchCouponsList } from "@/helperFunctions/couponsFunction";
+import { CouponsResponseType } from "@/types/couponsTypes";
 
 const ReportingWrapper = () => {
   // ======== DATA FETCHING ========
@@ -85,6 +89,26 @@ const ReportingWrapper = () => {
   });
 
   const {
+    data: cityListResponse,
+    isLoading: cityListLoading,
+    isError: cityListIsError,
+    error: cityListError,
+  } = useQuery<CityResponseType | null>({
+    queryKey: ["city-list"],
+    queryFn: fetchCityList,
+  });
+
+  const {
+    data: couponListResponse,
+    isLoading: couponListLoading,
+    isError: couponListIsError,
+    error: couponListError,
+  } = useQuery<CouponsResponseType | null>({
+    queryKey: ["coupons-list"],
+    queryFn: fetchCouponsList,
+  });
+
+  const {
     data: apiUsersListResponse,
     isLoading: apiUsersListLoading,
     isError: apiUsersListIsError,
@@ -95,6 +119,11 @@ const ReportingWrapper = () => {
   });
 
   // ======== PAYLOADS DATA ========
+  const couponList = useMemo(
+    () => couponListResponse?.payload || [],
+    [couponListResponse]
+  );
+
   const agentList = useMemo(
     () => agentListResponse?.payload || [],
     [agentListResponse]
@@ -127,6 +156,11 @@ const ReportingWrapper = () => {
     [apiUsersListResponse]
   );
 
+  const cityList = useMemo(
+    () => cityListResponse?.payload || [],
+    [cityListResponse]
+  );
+
   // ======== RENDER LOGIC ========
   const isLoading =
     agentListLoading ||
@@ -134,15 +168,17 @@ const ReportingWrapper = () => {
     apiUsersListLoading ||
     productListLoading ||
     doListLoading ||
-    clientListLoading ||
+    clientListLoading || couponListLoading ||
+    cityListLoading ||
     branchListLoading;
   const isError =
     agentListIsError ||
     apiUsersListIsError ||
     planListIsError ||
-    productListIsError ||
+    productListIsError || couponListIsError ||
     doListIsError ||
     clientListIsError ||
+    cityListIsError ||
     branchListIsError;
   const onError =
     agentListError?.message ||
@@ -151,7 +187,8 @@ const ReportingWrapper = () => {
     productListError?.message ||
     clientListError?.message ||
     branchListError?.message ||
-    doListError?.message;
+    cityListError?.message ||
+    doListError?.message || couponListError?.message;
 
   return (
     <>
@@ -176,6 +213,8 @@ const ReportingWrapper = () => {
                 branchList={branchList}
                 productList={productList}
                 apiUsersList={apiUsersList}
+                cityList={cityList}
+                couponList={couponList}
               />
             </div>
           </CardContent>

@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, Method } from "axios";
+import axios, { AxiosRequestConfig, Method , ResponseType} from "axios";
 import { getCookie } from "cookies-next";
 import { toast } from "sonner";
 import { handleLogout } from "./handleLogout";
@@ -9,6 +9,7 @@ type axiosParams = {
   data?: any;
   token?: string;
   isServer?: boolean;
+  responseType?: ResponseType;
 };
 
 export type axiosReturnType = {
@@ -23,6 +24,7 @@ export const axiosFunction = async ({
   data = {},
   token = undefined,
   isServer = false,
+  responseType = 'json'
 }: axiosParams) => {
   const url = process.env.NEXT_PUBLIC_API_BASE_URL + urlPath;
   const cookieToken = getCookie("jubilee-retail-token")?.toString() || null;
@@ -35,6 +37,7 @@ export const axiosFunction = async ({
       Authorization: authToken ? `Bearer ${authToken}` : "",
     },
     data,
+    responseType
   };
 
   try {

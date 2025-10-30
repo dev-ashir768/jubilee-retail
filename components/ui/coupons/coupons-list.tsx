@@ -67,12 +67,6 @@ const CouponsList = () => {
           <DatatableColumnHeader column={column} title="Campaign Name" />
         ),
         cell: ({ row }) => <div>{row.original.campaign_name}</div>,
-        // filterFn: "multiSelect",
-        // meta: {
-        //   filterType: "multiselect",
-        //   filterOptions: campaignNameFilterOptions,
-        //   filterPlaceholder: "Filter by Campaign Name...",
-        // } as ColumnMeta,
       },
       {
         accessorKey: "quantity",
@@ -80,12 +74,6 @@ const CouponsList = () => {
           <DatatableColumnHeader column={column} title="Quantity" />
         ),
         cell: ({ row }) => <div>{row.original.quantity}</div>,
-        // filterFn: "multiSelect",
-        // meta: {
-        //   filterType: "multiselect",
-        //   filterOptions: quantityFilterOptions,
-        //   filterPlaceholder: "Filter by Quantity...",
-        // } as ColumnMeta,
       },
       {
         accessorKey: "coupon_type",
@@ -93,12 +81,6 @@ const CouponsList = () => {
           <DatatableColumnHeader column={column} title="Coupon Type" />
         ),
         cell: ({ row }) => <div>{row.original.coupon_type}</div>,
-        // filterFn: "multiSelect",
-        // meta: {
-        //   filterType: "multiselect",
-        //   filterOptions: couponTypeFilterOptions,
-        //   filterPlaceholder: "Filter by coupon type...",
-        // } as ColumnMeta,
       },
       {
         accessorKey: "discount_value",

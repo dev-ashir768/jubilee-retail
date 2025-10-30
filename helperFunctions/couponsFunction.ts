@@ -5,8 +5,8 @@ export const fetchCouponsList =
   async (): Promise<CouponsResponseType | null> => {
     try {
       const response = await axiosFunction({
-        method: "GET",
-        urlPath: "/coupons",
+        method: "POST",
+        urlPath: "/coupons/all",
       });
 
       return response;

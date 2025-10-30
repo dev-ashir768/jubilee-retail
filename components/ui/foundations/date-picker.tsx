@@ -1,9 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { format, subDays } from "date-fns"; // Import subDays
-import { DateRange } from "react-day-picker";
-
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 import { Calendar } from "@/components/ui/shadcn/calendar";
@@ -14,20 +12,20 @@ import {
 } from "@/components/ui/shadcn/popover";
 import { useEffect, useState } from "react";
 
-interface DateRangePickerProps extends React.HTMLAttributes<HTMLDivElement> {
-  date: DateRange | undefined;
-  setDate: (date: DateRange | undefined) => void;
-  align?: "end" | "center" | "start"
+interface DatePickerProps extends React.HTMLAttributes<HTMLDivElement> {
+  date: Date | undefined;
+  setDate: (date: Date | undefined) => void;
+  align?: "end" | "center" | "start";
 }
 
-export function DateRangePicker({
+export function DatePicker({
   className,
   date,
   setDate,
-  align= "end"
-}: DateRangePickerProps) {
+  align = "end",
+}: DatePickerProps) {
   // Local state to hold the date selection before applying
-  const [localDate, setLocalDate] = useState<DateRange | undefined>(date);
+  const [localDate, setLocalDate] = useState<Date | undefined>(date);
   const [isOpen, setIsOpen] = useState(false);
 
   // Update local state when the prop changes
@@ -47,11 +45,8 @@ export function DateRangePicker({
   };
 
   const handleReset = () => {
-    const defaultDateRange = {
-      from: subDays(new Date(), 6),
-      to: new Date(),
-    };
-    setDate(defaultDateRange);
+    const today = new Date();
+    setDate(today);
     setIsOpen(false);
   };
 
@@ -67,27 +62,17 @@ export function DateRangePicker({
               "w-full justify-center text-left font-normal cursor-pointer"
             )}
           >
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {format(date.from, "LLL dd, yy")} -{" "}
-                  {format(date.to, "LLL dd, yy")}
-                </>
-              ) : (
-                format(date.from, "LLL dd, y")
-              )
-            ) : (
-              <span>Pick a date range</span>
-            )}
+            {date ? format(date, "LLL dd, yy") : <span>Pick a date</span>}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align={align}>
           <Calendar
-            mode="range"
-            defaultMonth={localDate?.from}
+            mode="single"
+            defaultMonth={localDate || new Date()}
             selected={localDate}
             onSelect={setLocalDate}
-            numberOfMonths={2}
+            numberOfMonths={1}
+            className="w-full"
           />
           <div className="flex justify-end gap-2 p-4 border-t">
             <Button

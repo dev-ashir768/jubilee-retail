@@ -3,6 +3,9 @@ import z from "zod";
 const forbiddenCodeRegex =
   /(<\?php|<script|function\s*\(|SELECT\s+|INSERT\s+|UPDATE\s+|DELETE\s+|DROP\s+|CREATE\s+|EXEC\s+|system\(|eval\(|require\(|import\s+|export\s+)/i;
 
+const dateModes = z.enum(["between", "greater", "lesser"]);
+const amountModes = z.enum(["greater", "lesser", "exact"]);
+
 export const ReportingFilterSchema = z.object({
   policy_code: z
     .string()
@@ -106,6 +109,100 @@ export const ReportingFilterSchema = z.object({
     .refine((val) => !forbiddenCodeRegex.test(String(val)), {
       message: "Partners forbidden code patterns",
     }),
+  issue_date: z
+    .object({
+      date: z.string().nullable(),
+      mode: dateModes.default("between").nullable(),
+    })
+    .nullable()
+    .refine(
+      (obj) => {
+        if (!obj?.mode || !obj?.date) return true;
+        if (obj.mode === "between") {
+          return obj.date.includes(" to ");
+        } else {
+          return !obj.date.includes(" to ");
+        }
+      },
+      {
+        message:
+          "Date format must match mode (range for 'between', single for others)",
+      }
+    ),
+  start_date: z
+    .object({
+      date: z.string().nullable(),
+      mode: dateModes.default("between").nullable(),
+    })
+    .nullable()
+    .refine(
+      (obj) => {
+        if (!obj?.mode || !obj?.date) return true;
+        if (obj.mode === "between") {
+          return obj.date.includes(" to ");
+        } else {
+          return !obj.date.includes(" to ");
+        }
+      },
+      {
+        message:
+          "Date format must match mode (range for 'between', single for others)",
+      }
+    ),
+  expiry_date: z
+    .object({
+      date: z.string().nullable(),
+      mode: dateModes.default("between").nullable(),
+    })
+    .nullable()
+    .refine(
+      (obj) => {
+        if (!obj?.mode || !obj?.date) return true;
+        if (obj.mode === "between") {
+          return obj.date.includes(" to ");
+        } else {
+          return !obj.date.includes(" to ");
+        }
+      },
+      {
+        message:
+          "Date format must match mode (range for 'between', single for others)",
+      }
+    ),
+  modified_date: z
+    .object({
+      date: z.string().nullable(),
+      mode: dateModes.default("between").nullable(),
+    })
+    .nullable()
+    .refine(
+      (obj) => {
+        if (!obj?.mode || !obj?.date) return true;
+        if (obj.mode === "between") {
+          return obj.date.includes(" to ");
+        } else {
+          return !obj.date.includes(" to ");
+        }
+      },
+      {
+        message:
+          "Date format must match mode (range for 'between', single for others)",
+      }
+    ),
+  amount_assured: z
+    .object({
+      amount: z
+        .string()
+        .nullable()
+        .refine((val) => !forbiddenCodeRegex.test(String(val)), {
+          message: "Amount contains forbidden code patterns",
+        })
+        .refine((val) => val === null || /^\d+$/.test(val), {
+          message: "Amount must be a positive integer",
+        }),
+      mode: amountModes.default("greater").nullable(),
+    })
+    .nullable(),
 });
 
 export type ReportingFilterSchemaType = z.infer<typeof ReportingFilterSchema>;

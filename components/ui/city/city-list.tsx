@@ -21,7 +21,8 @@ import { Badge } from '../shadcn/badge';
 import LoadingState from '../foundations/loading-state';
 import useCityIdStore from '@/hooks/useCityIdStore';
 
-const CityList = () => {  // Constants
+const CityList = () => {  
+
   // Constants
   const ADD_URL = '/cites-couiers/add-cities'
   const EDIT_URL = '/cites-couiers/edit-cities'
