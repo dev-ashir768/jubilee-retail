@@ -9,8 +9,8 @@ export const fetchLeadsMotorInfoList =
   async (): Promise<LeadMotorInfoResponseTypes | null> => {
     try {
       const response = await axiosFunction({
-        method: "GET",
-        urlPath: "/lead-motor-infos",
+        method: "POST",
+        urlPath: "/lead-motor-infos/all",
       });
 
       return response;

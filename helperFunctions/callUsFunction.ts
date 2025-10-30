@@ -4,8 +4,8 @@ import { axiosFunction } from "@/utils/axiosFunction";
 export const fetchCallUsList = async (): Promise<CallUsResponseType | null> => {
   try {
     const response = await axiosFunction({
-      method: "GET",
-      urlPath: "/call-us-data",
+      method: "POST",
+      urlPath: "/call-us-data/all",
     });
 
     return response;

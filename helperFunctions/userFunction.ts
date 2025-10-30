@@ -4,8 +4,9 @@ import { axiosFunction } from "@/utils/axiosFunction";
 export const fetchUserList = async () => {
   try {
     const response = await axiosFunction({
-      method: "GET",
-      urlPath: "/users",
+      method: "POST",
+      urlPath: "/users/all",
+      data: {},
     });
 
     return response;

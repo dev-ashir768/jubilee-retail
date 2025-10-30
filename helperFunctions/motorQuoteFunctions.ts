@@ -4,8 +4,8 @@ import { axiosFunction } from "@/utils/axiosFunction";
 export const fetchMotorQuoteList = async (): Promise<MotorQuoteResponseTypes | null> => {
   try {
     const response = await axiosFunction({
-      method: "GET",
-      urlPath: "/motor-quotes",
+      method: "POST",
+      urlPath: "/motor-quotes/all",
     });
 
     return response;

@@ -7,8 +7,9 @@ export const fetchApiUserProductsList =
   async (): Promise<ApiUserProductsResponseType | null> => {
     try {
       const response = await axiosFunction({
-        method: "GET",
-        urlPath: "/api-user-products",
+        method: "POST",
+        urlPath: "/api-user-products/all",
+        data: {}
       });
 
       return response;
