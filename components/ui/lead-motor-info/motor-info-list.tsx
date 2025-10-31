@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import MotorInfoDatatable from "./motor-info-datatable";
 import SubNav from "../foundations/sub-nav";
 import { useRouter } from "next/navigation";
@@ -32,12 +32,23 @@ import { Button } from "../shadcn/button";
 import { AxiosError } from "axios";
 import { axiosFunction } from "@/utils/axiosFunction";
 import { toast } from "sonner";
+import { DateRange } from "react-day-picker";
+import { format, subDays } from "date-fns";
 
 const MotorInfoList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/leads/lead-motor-info";
   const queryClient = useQueryClient();
   const router = useRouter();
+  const defaultDaysBack = 366;
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), defaultDaysBack),
+    to: new Date(),
+  });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -132,8 +143,15 @@ const MotorInfoList = () => {
     error: LeadsMotorInfoListError,
     isError: LeadsMotorInfoListIsError,
   } = useQuery<LeadMotorInfoResponseTypes | null>({
-    queryKey: ["lead-motor-info-list"],
-    queryFn: fetchLeadsMotorInfoList,
+    queryKey: [
+      "lead-motor-info-list",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchLeadsMotorInfoList({
+        startDate,
+        endDate,
+      }),
   });
 
   // ======== MUTATION ========
@@ -281,7 +299,11 @@ const MotorInfoList = () => {
 
         return (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild disabled={isLocked} className="disabled:cursor-not-allowed">
+            <DropdownMenuTrigger
+              asChild
+              disabled={isLocked}
+              className="disabled:cursor-not-allowed"
+            >
               <Badge
                 variant={
                   currentStatus as
@@ -369,8 +391,6 @@ const MotorInfoList = () => {
     }
   }, [rights, router]);
 
-  if (isLoading) return <LoadingState />;
-  if (isError) return <Error err={onError} />;
   if (rights && rights?.can_view === "0")
     return (
       <Empty
@@ -379,11 +399,35 @@ const MotorInfoList = () => {
       />
     );
 
+  const renderPageContent = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
+
+    if (isError) {
+      return <Error err={onError} />;
+    }
+
+    if (!leadsMotorInfoList || leadsMotorInfoList.length === 0) {
+      return <Empty title="Not Found" description="Not Found" />;
+    }
+
+    return (
+      <MotorInfoDatatable columns={columns} payload={leadsMotorInfoList} />
+    );
+  };
+
   return (
     <>
-      <SubNav title="Lead Motor Info List" />
+      <SubNav
+        title="Lead Motor Info List"
+        datePicker={true}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        defaultDaysBack={defaultDaysBack}
+      />
 
-      <MotorInfoDatatable columns={columns} payload={leadsMotorInfoList} />
+      {renderPageContent()}
     </>
   );
 };

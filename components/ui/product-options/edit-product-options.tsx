@@ -9,7 +9,7 @@ import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import EditProductOptionsForm from './edit-product-options-form';
-import { fetchProductsList } from '@/helperFunctions/productsFunction';
+import { fetchAllProductsList } from '@/helperFunctions/productsFunction';
 import { ProductsResponseTypes } from '@/types/productsTypes';
 import { useQuery } from '@tanstack/react-query';
 import LoadingState from '../foundations/loading-state';
@@ -40,8 +40,8 @@ const EditProductOptions = () => {
 
   // ======== DATA FETCHING ========
   const { data: productListResponse, isLoading: productListLoading, isError: productListIsError, error: productListError } = useQuery<ProductsResponseTypes | null>({
-    queryKey: ['products-list'],
-    queryFn: fetchProductsList
+    queryKey: ['all-products-list'],
+    queryFn: fetchAllProductsList
   })
 
   const { data: singleProductOptionResponse, isLoading: singleProductOptionLoading, isError: singleProductOptionIsError, error: singleProductOptionError } = useQuery<ProductOptionsResponseTypes | null>({

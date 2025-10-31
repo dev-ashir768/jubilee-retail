@@ -1,45 +1,86 @@
 "use client";
 
-import { fetchDevelopmentOfficerList } from '@/helperFunctions/developmentOfficerFunction';
-import { DevelopmentOfficerPayloadTypes, DevelopmentOfficerResponseTypes } from '@/types/developmentOfficerTypes';
-import { getRights } from '@/utils/getRights';
-import { useQuery } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
-import React, { useMemo } from 'react';
-import Error from '../foundations/error';
-import Empty from '../foundations/empty';
-import DatatableColumnHeader from '../datatable/datatable-column-header';
-import { ColumnDef } from '@tanstack/react-table';
-import { ColumnMeta } from '@/types/dataTableTypes';
-import { Badge } from '../shadcn/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../shadcn/dropdown-menu';
-import { Edit, MoreHorizontal, Trash } from 'lucide-react';
-import { Button } from '../shadcn/button';
-import Link from 'next/link';
-import SubNav from '../foundations/sub-nav';
-import useDevelopmentOfficerIdStore from '@/hooks/useDevelopmentOfficerStore';
-import { fetchAllBranchList } from '@/helperFunctions/branchFunction';
-import { BranchResponseType } from '@/types/branchTypes';
-import DevelopmentOfficerDatatable from './development-officer-datatable';
-import LoadingState from '../foundations/loading-state';
+import { fetchDevelopmentOfficerList } from "@/helperFunctions/developmentOfficerFunction";
+import {
+  DevelopmentOfficerPayloadTypes,
+  DevelopmentOfficerResponseTypes,
+} from "@/types/developmentOfficerTypes";
+import { getRights } from "@/utils/getRights";
+import { useQuery } from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import Error from "../foundations/error";
+import Empty from "../foundations/empty";
+import DatatableColumnHeader from "../datatable/datatable-column-header";
+import { ColumnDef } from "@tanstack/react-table";
+import { ColumnMeta } from "@/types/dataTableTypes";
+import { Badge } from "../shadcn/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../shadcn/dropdown-menu";
+import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Button } from "../shadcn/button";
+import Link from "next/link";
+import SubNav from "../foundations/sub-nav";
+import useDevelopmentOfficerIdStore from "@/hooks/useDevelopmentOfficerStore";
+import { fetchAllBranchList } from "@/helperFunctions/branchFunction";
+import { BranchResponseType } from "@/types/branchTypes";
+import DevelopmentOfficerDatatable from "./development-officer-datatable";
+import LoadingState from "../foundations/loading-state";
+import { DateRange } from "react-day-picker";
+import { format, subDays } from "date-fns";
 
 const DevelopmentOfficersList = () => {
   const router = useRouter();
   const pathname = usePathname();
-
-  // Zustand
   const { setDevelopmentOfficerId } = useDevelopmentOfficerIdStore();
+  const defaultDaysBack = 366;
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), defaultDaysBack),
+    to: new Date(),
+  });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => {
+    return getRights(pathname);
+  }, [pathname]);
 
   // Fetch branch list data using react-query
-  const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseType | null>({
-    queryKey: ['all-branch-list'],
-        queryFn: fetchAllBranchList
-  })
+  const {
+    data: branchListResponse,
+    isLoading: branchListLoading,
+    isError: branchListIsError,
+    error: branchListError,
+  } = useQuery<BranchResponseType | null>({
+    queryKey: ["all-branch-list"],
+    queryFn: fetchAllBranchList,
+  });
 
   // Fetch development officer list data using react-query
-  const { data: developmentOfficerListResponse, isLoading: developmentOfficerListLoading, isError: developmentOfficerListIsError, error: developmentOfficerListError } = useQuery<DevelopmentOfficerResponseTypes | null>({
-    queryKey: ['development-officers-list'],
-    queryFn: fetchDevelopmentOfficerList,
+  const {
+    data: developmentOfficerListResponse,
+    isLoading: developmentOfficerListLoading,
+    isError: developmentOfficerListIsError,
+    error: developmentOfficerListError,
+  } = useQuery<DevelopmentOfficerResponseTypes | null>({
+    queryKey: [
+      "development-officers-list",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchDevelopmentOfficerList({
+        startDate,
+        endDate,
+      }),
   });
 
   // Create a branch ID to name mapping
@@ -53,7 +94,8 @@ const DevelopmentOfficersList = () => {
 
   // Column filter options
   const nameFilterOptions = useMemo(() => {
-    const allNames = developmentOfficerListResponse?.payload?.map((item) => item.name) || [];
+    const allNames =
+      developmentOfficerListResponse?.payload?.map((item) => item.name) || [];
     const uniqueNames = Array.from(new Set(allNames));
     return uniqueNames.map((name) => ({
       label: name,
@@ -62,7 +104,9 @@ const DevelopmentOfficersList = () => {
   }, [developmentOfficerListResponse]);
 
   const igisCodeFilterOptions = useMemo(() => {
-    const allIgisCodes = developmentOfficerListResponse?.payload?.map((item) => item.igis_code) || [];
+    const allIgisCodes =
+      developmentOfficerListResponse?.payload?.map((item) => item.igis_code) ||
+      [];
     const uniqueIgisCodes = Array.from(new Set(allIgisCodes));
     return uniqueIgisCodes.map((igis_code) => ({
       label: igis_code,
@@ -71,20 +115,24 @@ const DevelopmentOfficersList = () => {
   }, [developmentOfficerListResponse]);
 
   const branchNameFilterOptions = useMemo(() => {
-    const allBranchIds = developmentOfficerListResponse?.payload?.map((item) => item.branch_id.toString()) || [];
+    const allBranchIds =
+      developmentOfficerListResponse?.payload?.map((item) =>
+        item.branch_id.toString()
+      ) || [];
     const uniqueBranchIds = Array.from(new Set(allBranchIds));
-    return uniqueBranchIds
-      .map((branch_id) => ({
-        label: branchNameMap.get(+branch_id),
-        value: branchNameMap.get(+branch_id)
-      }))
+    return uniqueBranchIds.map((branch_id) => ({
+      label: branchNameMap.get(+branch_id),
+      value: branchNameMap.get(+branch_id),
+    }));
   }, [developmentOfficerListResponse, branchNameMap]);
 
   // Define columns for the data table
   const columns: ColumnDef<DevelopmentOfficerPayloadTypes>[] = [
     {
-      accessorKey: 'name',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Name" />,
+      accessorKey: "name",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Name" />
+      ),
       cell: ({ row }) => <div>{row.getValue("name")}</div>,
       filterFn: "multiSelect",
       meta: {
@@ -94,8 +142,10 @@ const DevelopmentOfficersList = () => {
       } as ColumnMeta,
     },
     {
-      accessorKey: 'igis_code',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="IGIS Code" />,
+      accessorKey: "igis_code",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="IGIS Code" />
+      ),
       cell: ({ row }) => <div>{row.getValue("igis_code")}</div>,
       filterFn: "multiSelect",
       meta: {
@@ -105,13 +155,18 @@ const DevelopmentOfficersList = () => {
       } as ColumnMeta,
     },
     {
-      accessorKey: 'is_active',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Status" />,
+      accessorKey: "is_active",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Status" />
+      ),
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
         return (
-          <Badge className="justify-center py-1 min-w-[50px] w-[70px]" variant={status === "active" ? "success" : "danger"}>
+          <Badge
+            className="justify-center py-1 min-w-[50px] w-[70px]"
+            variant={status === "active" ? "success" : "danger"}
+          >
             {status}
           </Badge>
         );
@@ -121,14 +176,16 @@ const DevelopmentOfficersList = () => {
         filterType: "multiselect",
         filterOptions: [
           { label: "Active", value: "active" },
-          { label: "Inactive", value: "inactive" }
+          { label: "Inactive", value: "inactive" },
         ],
         filterPlaceholder: "Filter status...",
       } as ColumnMeta,
     },
     {
-      accessorKey: 'branch_id',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Branch Name" />,
+      accessorKey: "branch_id",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Branch Name" />
+      ),
       accessorFn: (row) => branchNameMap.get(row.branch_id) || row.branch_id,
       cell: ({ row }) => <div>{row.getValue("branch_id")}</div>,
       filterFn: "multiSelect",
@@ -139,7 +196,7 @@ const DevelopmentOfficersList = () => {
       } as ColumnMeta,
     },
     {
-      id: 'actions',
+      id: "actions",
       header: "Actions",
       cell: ({ row }) => {
         const record = row.original;
@@ -155,7 +212,10 @@ const DevelopmentOfficersList = () => {
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
-                <DropdownMenuItem onClick={() => setDevelopmentOfficerId(record.id)} asChild>
+                <DropdownMenuItem
+                  onClick={() => setDevelopmentOfficerId(record.id)}
+                  asChild
+                >
                   <Link href="/agents-dos/edit-development-officers">
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
@@ -175,40 +235,67 @@ const DevelopmentOfficersList = () => {
     },
   ];
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
+  // ======== RENDER LOGIC ========
+  const isLoading = branchListLoading || developmentOfficerListLoading;
+  const isError = branchListIsError || developmentOfficerListIsError;
+  const onError =
+    branchListError?.message || developmentOfficerListError?.message;
 
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view development officer listing." />;
-  }
+  useEffect(() => {
+    if (rights && rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
 
-  // Loading state
-  if (developmentOfficerListLoading || branchListLoading) {
-    return <LoadingState />;
-  }
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
 
-  // Error state
-  if (developmentOfficerListIsError || branchListIsError) {
-    return <Error err={developmentOfficerListError?.message || branchListError?.message} />;
-  }
+  if (rights && rights?.can_view === "0")
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have permission."
+      />
+    );
 
-  // Empty state
-  if (!developmentOfficerListResponse?.payload || developmentOfficerListResponse.payload.length === 0) {
-    return <Empty title="Not Found" description="No development officers found" />;
-  }
+  const renderPageContent = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
 
-  return (
-    <>
-      <SubNav title="Development Officer List" addBtnTitle="Add Development Officer" urlPath='/agents-dos/add-development-officers' />
+    if (isError) {
+      return <Error err={onError} />;
+    }
+
+    if (
+      !developmentOfficerListResponse?.payload ||
+      developmentOfficerListResponse?.payload.length === 0
+    ) {
+      return <Empty title="Not Found" description="Not Found" />;
+    }
+
+    return (
       <DevelopmentOfficerDatatable
         columns={columns}
         payload={developmentOfficerListResponse?.payload || []}
       />
+    );
+  };
+
+  return (
+    <>
+      <SubNav
+        title="Development Officer List"
+        addBtnTitle="Add Development Officer"
+        urlPath="/agents-dos/add-development-officers"
+        datePicker={true}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        defaultDaysBack={defaultDaysBack}
+      />
+      
+      {renderPageContent()}
     </>
   );
 };

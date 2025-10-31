@@ -20,7 +20,7 @@ const DashboardLayout = async ({ children }: { children: ReactNode }) => {
         <AppSidebar />
         <SidebarInset>
           {userInfo && <Header userInfo={userInfo} />}
-          <div className="flex flex-1 flex-col px-4 py-4 pb-0 gap-4 bg-gray-100/70 contain-inline-size">
+          <div className="flex flex-1 flex-col px-4 py-4 pb-0 gap-4 bg-gray-50 contain-inline-size">
             {children}
           </div>
           <Footer />

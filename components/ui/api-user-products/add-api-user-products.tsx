@@ -18,7 +18,7 @@ import { ApiUsersResponseType } from "@/types/usersTypes";
 import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
 import { ProductsResponseTypes } from "@/types/productsTypes";
-import { fetchProductsList } from "@/helperFunctions/productsFunction";
+import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 
 const AddApiUserProducts = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -47,8 +47,8 @@ const AddApiUserProducts = () => {
     isError: productListIsError,
     error: productListError,
   } = useQuery<ProductsResponseTypes | null>({
-    queryKey: ["products-list"],
-    queryFn: fetchProductsList,
+    queryKey: ["all-products-list"],
+    queryFn: fetchAllProductsList,
   });
 
   // ======== PAYLOADS DATA ========

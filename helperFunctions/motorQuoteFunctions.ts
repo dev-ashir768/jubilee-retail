@@ -2,18 +2,15 @@ import { MotorQuoteResponseTypes } from "@/types/motorQuote";
 import { axiosFunction } from "@/utils/axiosFunction";
 
 interface fetchMotorQuoteListProps {
-  startDate?: string;
-  endDate?: string;
+  startDate: string;
+  endDate: string;
 }
 
 export const fetchMotorQuoteList = async <T>({
   startDate,
   endDate,
 }: fetchMotorQuoteListProps): Promise<MotorQuoteResponseTypes | null> => {
-  const payload: { date?: string } = {};
-  if (startDate && endDate) {
-    payload.date = `${startDate} to ${endDate}`;
-  }
+  const payload = { date: `${startDate} to ${endDate}` };
   try {
     const response = await axiosFunction({
       method: "POST",

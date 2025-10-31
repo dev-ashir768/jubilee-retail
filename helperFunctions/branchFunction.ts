@@ -2,18 +2,15 @@ import { BranchResponseType } from "@/types/branchTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
 interface fetchBranchListProps {
-  startDate?: string;
-  endDate?: string;
+  startDate: string;
+  endDate: string;
 }
 
 export const fetchBranchList = async <T>({
   startDate,
   endDate,
 }: fetchBranchListProps): Promise<BranchResponseType | null> => {
-  const payload: { date?: string } = {};
-  if (startDate && endDate) {
-    payload.date = `${startDate} to ${endDate}`;
-  }
+  const payload = { date: `${startDate} to ${endDate}` };
 
   try {
     const response = await axiosFunction({

@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchProductOptionsList } from '@/helperFunctions/productOptionsFunction';
-import { fetchProductsList } from '@/helperFunctions/productsFunction';
+import { fetchAllProductsList, } from '@/helperFunctions/productsFunction';
 import { fetchAllUserList } from '@/helperFunctions/userFunction';
 import useProductOptionsIdStore from '@/hooks/useProductOptionsIdStore';
 import { ProductOptionsPayloadTypes, ProductOptionsResponseTypes } from '@/types/productOptionsTypes';
@@ -48,8 +48,8 @@ const ProductOptionsList = () => {
   })
 
   const { data: productListResponse, isLoading: productListLoading, isError: productListIsError, error: productListError } = useQuery<ProductsResponseTypes | null>({
-    queryKey: ['products-list'],
-    queryFn: fetchProductsList
+     queryKey: ['all-products-list'],
+    queryFn: fetchAllProductsList
   });
 
   // ======== PAYLOADS DATA ========

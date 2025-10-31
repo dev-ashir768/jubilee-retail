@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import SubNav from "../foundations/sub-nav";
 import { AgentResponseTypes } from "@/types/agentTypes";
-import { fetchAgentList } from "@/helperFunctions/agentFunction";
+
 import { useQuery } from "@tanstack/react-query";
 import ReportingForm from "./reporting-form";
 import LoadingState from "../foundations/loading-state";
@@ -13,8 +13,7 @@ import { fetchAllBranchList } from "@/helperFunctions/branchFunction";
 import { ClientResponseType } from "@/types/clientTypes";
 import { fetchAllClientList } from "@/helperFunctions/clientFunction";
 import { DevelopmentOfficerResponseTypes } from "@/types/developmentOfficerTypes";
-import { fetchDevelopmentOfficerList } from "@/helperFunctions/developmentOfficerFunction";
-import { fetchProductsList } from "@/helperFunctions/productsFunction";
+import { fetchAllDevelopmentOfficerList } from "@/helperFunctions/developmentOfficerFunction";
 import { ProductsResponseTypes } from "@/types/productsTypes";
 import { PlanResponseTypes } from "@/types/planTypes";
 import { fetchPlansList } from "@/helperFunctions/plansFunction";
@@ -23,8 +22,10 @@ import { ApiUsersResponseType } from "@/types/usersTypes";
 import { Card, CardContent, CardHeader, CardTitle } from "../shadcn/card";
 import { CityResponseType } from "@/types/cityTypes";
 import { fetchCityList } from "@/helperFunctions/cityFunction";
-import { fetchCouponsList } from "@/helperFunctions/couponsFunction";
 import { CouponsResponseType } from "@/types/couponsTypes";
+import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
+import { fetchAllAgentList } from "@/helperFunctions/agentFunction";
+import { fetchAllCouponsList } from "@/helperFunctions/couponsFunction";
 
 const ReportingWrapper = () => {
   // ======== DATA FETCHING ========
@@ -34,8 +35,8 @@ const ReportingWrapper = () => {
     isError: agentListIsError,
     error: agentListError,
   } = useQuery<AgentResponseTypes | null>({
-    queryKey: ["agents-list"],
-    queryFn: fetchAgentList,
+    queryKey: ["all-agents-list"],
+    queryFn: fetchAllAgentList,
   });
 
   const {
@@ -64,8 +65,8 @@ const ReportingWrapper = () => {
     isError: doListIsError,
     error: doListError,
   } = useQuery<DevelopmentOfficerResponseTypes | null>({
-    queryKey: ["development-officers-list"],
-    queryFn: fetchDevelopmentOfficerList,
+   queryKey: ["all-development-officers-list"],
+       queryFn: fetchAllDevelopmentOfficerList,
   });
 
   const {
@@ -74,8 +75,8 @@ const ReportingWrapper = () => {
     isError: productListIsError,
     error: productListError,
   } = useQuery<ProductsResponseTypes | null>({
-    queryKey: ["products-list"],
-    queryFn: fetchProductsList,
+    queryKey: ["all-products-list"],
+    queryFn: fetchAllProductsList,
   });
 
   const {
@@ -104,8 +105,8 @@ const ReportingWrapper = () => {
     isError: couponListIsError,
     error: couponListError,
   } = useQuery<CouponsResponseType | null>({
-    queryKey: ["coupons-list"],
-    queryFn: fetchCouponsList,
+    queryKey: ["all-coupons-list"],
+    queryFn: fetchAllCouponsList,
   });
 
   const {

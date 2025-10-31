@@ -2,13 +2,13 @@ import { SingleUserResponseType } from "@/types/usersTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
 interface fetchUserListProps {
-  startDate?: string;
-  endDate?: string;
+  startDate: string;
+  endDate: string;
 }
 
 interface fetchApiUserListProps {
-  startDate?: string;
-  endDate?: string;
+  startDate: string;
+  endDate: string;
 }
 
 // ======== USER ========
@@ -16,10 +16,7 @@ export const fetchUserList = async <T>({
   startDate,
   endDate,
 }: fetchUserListProps): Promise<T | null> => {
-  const payload: { date?: string } = {};
-  if (startDate && endDate) {
-    payload.date = `${startDate} to ${endDate}`;
-  }
+  const payload = { date: `${startDate} to ${endDate}` };
 
   try {
     const response = await axiosFunction({
@@ -68,10 +65,7 @@ export const fetchApiUserList = async <T>({
   startDate,
   endDate,
 }: fetchApiUserListProps): Promise<T | null> => {
-  const payload: { date?: string } = {};
-  if (startDate && endDate) {
-    payload.date = `${startDate} to ${endDate}`;
-  }
+  const payload = { date: `${startDate} to ${endDate}` };
 
   try {
     const response = axiosFunction({

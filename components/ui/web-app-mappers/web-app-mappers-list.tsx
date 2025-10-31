@@ -2,7 +2,6 @@
 
 import { fetchPlansList } from "@/helperFunctions/plansFunction";
 import { fetchProductOptionsList } from "@/helperFunctions/productOptionsFunction";
-import { fetchProductsList } from "@/helperFunctions/productsFunction";
 import {
   fetchAllUserList,
 } from "@/helperFunctions/userFunction";
@@ -40,6 +39,7 @@ import WebAppMappersDatatable from "./web-app-mappers-datatable";
 import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
 import Empty from "../foundations/empty";
+import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 
 const WebAppMappersList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -80,8 +80,8 @@ const WebAppMappersList = () => {
   });
 
   const { data: productListResponse } = useQuery<ProductsResponseTypes | null>({
-    queryKey: ["products-list"],
-    queryFn: fetchProductsList,
+    queryKey: ["all-products-list"],
+    queryFn: fetchAllProductsList,
   });
 
   const { data: productOptionsListResponse } =

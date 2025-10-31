@@ -1,12 +1,22 @@
 import { AgentResponseTypes } from "@/types/agentTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
-export const fetchAgentList = async (): Promise<AgentResponseTypes | null> => {
+interface fetchAgentListProps {
+  startDate: string;
+  endDate: string;
+}
+
+export const fetchAgentList = async ({
+  startDate,
+  endDate,
+}: fetchAgentListProps): Promise<AgentResponseTypes | null> => {
+const payload = { date: `${startDate} to ${endDate}` };
+
   try {
     const response = await axiosFunction({
       method: "POST",
       urlPath: "/agents/all",
-      data:{}
+      data: payload,
     });
 
     return response;
@@ -15,6 +25,21 @@ export const fetchAgentList = async (): Promise<AgentResponseTypes | null> => {
     return null;
   }
 };
+
+export const fetchAllAgentList =
+  async (): Promise<AgentResponseTypes | null> => {
+    try {
+      const response = await axiosFunction({
+        method: "POST",
+        urlPath: "/agents/all",
+      });
+
+      return response;
+    } catch (err) {
+      console.error("Error fetching agents list:", err);
+      return null;
+    }
+  };
 
 export const fetchSingleAgent = async (
   agentId: number

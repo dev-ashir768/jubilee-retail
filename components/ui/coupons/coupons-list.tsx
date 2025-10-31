@@ -6,7 +6,7 @@ import { getRights } from "@/utils/getRights";
 import { useQuery } from "@tanstack/react-query";
 import { MoreHorizontal, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,12 +22,23 @@ import Error from "../foundations/error";
 import Empty from "../foundations/empty";
 import SubNav from "../foundations/sub-nav";
 import CouponsDatatable from "./coupons-datatable";
+import { format, subDays } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 const CouponsList = () => {
   // ======== CONSTANTS & HOOKS ========
   const ADD_ROUTE = "/coupons-management/add-coupons";
   const LISTING_ROUTE = "/coupons-management/coupons";
   const router = useRouter();
+  const defaultDaysBack = 366;
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), defaultDaysBack),
+    to: new Date(),
+  });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -41,8 +52,11 @@ const CouponsList = () => {
     isError: couponsListIsError,
     error: couponsListError,
   } = useQuery<CouponsResponseType | null>({
-    queryKey: ["coupons-list"],
-    queryFn: fetchCouponsList,
+    queryKey: [
+      "coupons-list",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () => fetchCouponsList({ startDate, endDate }),
   });
 
   // ======== PAYLOADS DATA ========
@@ -167,8 +181,6 @@ const CouponsList = () => {
     }
   }, [rights, router]);
 
-  if (isLoading) return <LoadingState />;
-  if (isError) return <Error err={onError} />;
   if (rights && rights?.can_view === "0")
     return (
       <Empty
@@ -176,6 +188,21 @@ const CouponsList = () => {
         description="You do not have permission."
       />
     );
+  const renderPageContent = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
+
+    if (isError) {
+      return <Error err={onError} />;
+    }
+
+    if (!couponsList || couponsList.length === 0) {
+      return <Empty title="Not Found" description="Not Found" />;
+    }
+
+    return <CouponsDatatable columns={columns} payload={couponsList} />;
+  };
 
   return (
     <>
@@ -183,9 +210,13 @@ const CouponsList = () => {
         title="Coupons List"
         addBtnTitle="Add Coupon"
         urlPath={ADD_ROUTE}
+        datePicker={true}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        defaultDaysBack={defaultDaysBack}
       />
 
-      <CouponsDatatable columns={columns} payload={couponsList} />
+      {renderPageContent()}
     </>
   );
 };

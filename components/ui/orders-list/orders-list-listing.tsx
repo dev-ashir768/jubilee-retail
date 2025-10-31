@@ -24,7 +24,6 @@ import { subDays, format } from "date-fns";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ProductsResponseTypes } from "@/types/productsTypes";
-import { fetchProductsList } from "@/helperFunctions/productsFunction";
 import { fetchAllBranchList } from "@/helperFunctions/branchFunction";
 import { BranchResponseType } from "@/types/branchTypes";
 import { PaymentModesResponseType } from "@/types/paymentModesTypes";
@@ -46,6 +45,7 @@ import {
   DropdownMenuTrigger,
 } from "../shadcn/dropdown-menu";
 import { OrderVerifyManuallyResponseTypes } from "@/types/orderVerifyManuallyTypes";
+import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 
 const OrdersListListing = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -88,8 +88,8 @@ queryFn: fetchAllApiUserList,
     isError: productListIsError,
     error: productListError,
   } = useQuery<ProductsResponseTypes | null>({
-    queryKey: ["products-list"],
-    queryFn: fetchProductsList,
+    queryKey: ["all-products-list"],
+    queryFn: fetchAllProductsList,
   });
 
   const {

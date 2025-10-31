@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation'
 import { getRights } from '@/utils/getRights'
 import Empty from '../foundations/empty'
 import { DevelopmentOfficerResponseTypes } from '@/types/developmentOfficerTypes'
-import { fetchDevelopmentOfficerList } from '@/helperFunctions/developmentOfficerFunction'
+import { fetchAllDevelopmentOfficerList } from '@/helperFunctions/developmentOfficerFunction'
 import { useQuery } from '@tanstack/react-query'
 import { BranchResponseType } from '@/types/branchTypes'
 import { fetchAllBranchList } from '@/helperFunctions/branchFunction'
@@ -36,8 +36,8 @@ const AddAgent = () => {
 
   // Fetch development officer list data using react-query
   const { data: developmentOfficerListResponse, isLoading: developmentOfficerListLoading, isError: developmentOfficerListIsError, error: developmentOfficerListError } = useQuery<DevelopmentOfficerResponseTypes | null>({
-    queryKey: ['get-development-officers-list'],
-    queryFn: fetchDevelopmentOfficerList,
+    queryKey: ['add-development-officers-list'],
+    queryFn: fetchAllDevelopmentOfficerList,
   });
 
   // Rights Redirection

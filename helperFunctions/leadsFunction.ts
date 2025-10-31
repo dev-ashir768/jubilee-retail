@@ -1,11 +1,43 @@
-import { LeadInfoPayloadTypes, LeadInfoResponseTypes } from "@/types/leadInfoTypes";
+import {
+  LeadInfoPayloadTypes,
+  LeadInfoResponseTypes,
+} from "@/types/leadInfoTypes";
 import {
   LeadMotorInfoPayloadTypes,
   LeadMotorInfoResponseTypes,
 } from "@/types/leadMotorInfoTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
-export const fetchLeadsMotorInfoList =
+interface fetchLeadInfoListProps {
+  startDate: string;
+  endDate: string;
+}
+
+interface fetchLeadsMotorInfoListProps {
+  startDate: string;
+  endDate: string;
+}
+
+export const fetchLeadsMotorInfoList = async ({
+  startDate,
+  endDate,
+}: fetchLeadInfoListProps): Promise<LeadMotorInfoResponseTypes | null> => {
+  const payload = { date: `${startDate} to ${endDate}` };
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/lead-motor-infos/all",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching leads motor info list:", err);
+    return null;
+  }
+};
+
+export const fetchAllLeadsMotorInfoList =
   async (): Promise<LeadMotorInfoResponseTypes | null> => {
     try {
       const response = await axiosFunction({
@@ -20,12 +52,31 @@ export const fetchLeadsMotorInfoList =
     }
   };
 
-export const fetchLeadInfoList =
+export const fetchLeadInfoList = async ({
+  startDate,
+  endDate,
+}: fetchLeadInfoListProps): Promise<LeadInfoResponseTypes | null> => {
+  const payload = { date: `${startDate} to ${endDate}` };
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/lead-infos/all",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching lead info list:", err);
+    return null;
+  }
+};
+
+export const fetchAllLeadInfoList =
   async (): Promise<LeadInfoResponseTypes | null> => {
     try {
       const response = await axiosFunction({
-        method: "GET",
-        urlPath: "/lead-infos",
+        method: "POST",
+        urlPath: "/lead-infos/all",
       });
 
       return response;
@@ -48,7 +99,6 @@ export const createFilterOptions = (
     value: String(value ?? "N/A"),
   }));
 };
-
 
 export const createFilterOptionsForLeadInfo = (
   data: LeadInfoPayloadTypes[],

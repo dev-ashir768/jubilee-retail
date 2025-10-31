@@ -63,7 +63,7 @@ const UserList = () => {
   } = useQuery<UsersListResponseType | null>({
     queryKey: [
       "users-list",
-      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : [])
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
     ],
     queryFn: () =>
       fetchUserList<UsersListResponseType>({

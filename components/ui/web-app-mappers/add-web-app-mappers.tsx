@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../shadcn/card';
 import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { fetchProductsList } from '@/helperFunctions/productsFunction';
+import { fetchAllProductsList } from '@/helperFunctions/productsFunction';
 import { ProductsResponseTypes } from '@/types/productsTypes';
 import { useQuery } from '@tanstack/react-query';
 import LoadingState from '../foundations/loading-state';
@@ -40,8 +40,8 @@ const AddWebAppMappers = () => {
 
   // ======== DATA FETCHING ========
   const { data: productListResponse, isLoading: productListLoading, isError: productListIsError, error: productListError } = useQuery<ProductsResponseTypes | null>({
-    queryKey: ['products-list'],
-    queryFn: fetchProductsList
+    queryKey: ['all-products-list'],
+    queryFn: fetchAllProductsList
   })
 
   const { data: planListResponse, isLoading: planListLoading, isError: planListIsError, error: planListError } = useQuery<PlanResponseTypes | null>({

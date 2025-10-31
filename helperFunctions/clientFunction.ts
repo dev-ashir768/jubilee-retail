@@ -2,18 +2,15 @@ import { ClientResponseType } from "@/types/clientTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
 interface fetchClientListProps {
-  startDate?: string;
-  endDate?: string;
+  startDate: string;
+  endDate: string;
 }
 
 export const fetchClientList = async <T>({
   startDate,
   endDate,
 }: fetchClientListProps): Promise<ClientResponseType | null> => {
-  const payload: { date?: string } = {};
-  if (startDate && endDate) {
-    payload.date = `${startDate} to ${endDate}`;
-  }
+  const payload = { date: `${startDate} to ${endDate}` };
 
   try {
     const response = await axiosFunction({

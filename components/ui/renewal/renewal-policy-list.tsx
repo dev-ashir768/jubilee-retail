@@ -24,7 +24,6 @@ import { subDays, format } from "date-fns";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ProductsResponseTypes } from "@/types/productsTypes";
-import { fetchProductsList } from "@/helperFunctions/productsFunction";
 import { BranchResponseType } from "@/types/branchTypes";
 import { fetchAllBranchList } from "@/helperFunctions/branchFunction";
 import { PaymentModesResponseType } from "@/types/paymentModesTypes";
@@ -45,6 +44,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../shadcn/dropdown-menu";
+import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 
 const RenewalPolicyList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -86,8 +86,8 @@ queryFn: fetchAllApiUserList,
     isError: productListIsError,
     error: productListError,
   } = useQuery<ProductsResponseTypes | null>({
-    queryKey: ["products-list"],
-    queryFn: fetchProductsList,
+    queryKey: ["all-products-list"],
+    queryFn: fetchAllProductsList,
   });
 
   const {

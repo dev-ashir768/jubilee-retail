@@ -33,17 +33,22 @@ import { toast } from "sonner";
 import { axiosFunction } from "@/utils/axiosFunction";
 import { AxiosError } from "axios";
 import { DateRange } from "react-day-picker";
-import { subDays } from "date-fns";
+import { format, subDays } from "date-fns";
 
 const LeadInfoList = () => {
   // ======== CONSTANTS & HOOKS ========
   const queryClient = useQueryClient();
   const LISTING_ROUTE = "/leads/lead-info";
   const router = useRouter();
+  const defaultDaysBack = 366;
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 364),
+    from: subDays(new Date(), defaultDaysBack),
     to: new Date(),
   });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -138,8 +143,12 @@ const LeadInfoList = () => {
     error: LeadInfoListError,
     isError: LeadInfoListIsError,
   } = useQuery<LeadInfoResponseTypes | null>({
-    queryKey: ["lead-info-list"],
-    queryFn: fetchLeadInfoList,
+    queryKey: ["lead-info-list", ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),],
+    queryFn: () =>
+      fetchLeadInfoList({
+        startDate,
+        endDate,
+      }),
   });
 
   // ======== MUTATION ========
@@ -438,17 +447,33 @@ const LeadInfoList = () => {
       />
     );
 
+  const renderPageContent = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
+
+    if (isError) {
+      return <Error err={onError} />;
+    }
+
+    if (!leadInfoList || leadInfoList.length === 0) {
+      return <Empty title="Not Found" description="Not Found" />;
+    }
+
+    return <LeadInfoDatatable columns={columns} payload={leadInfoList} />;
+  };
+
   return (
     <>
-      <SubNav title="Lead Info List" datePicker={true} dateRange={dateRange} setDateRange={setDateRange} />
+      <SubNav
+        title="Lead Info List"
+        datePicker={true}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        defaultDaysBack={defaultDaysBack}
+      />
 
-      {isLoading ? (
-        <LoadingState />
-      ) : isError ? (
-        <Error err={onError} />
-      ) : (
-        <LeadInfoDatatable columns={columns} payload={leadInfoList} />
-      )}
+      {renderPageContent()}
     </>
   );
 };

@@ -32,7 +32,7 @@ const IgisSubMakeList = () => {
 
   // Fetch IGIS make list data for make_id to make_name mapping
   const { data: igisMakeListResponse, isLoading: igisMakeListLoading, isError: igisMakeListIsError, error: igisMakeListError } = useQuery<IgisMakeResponseType | null>({
-    queryKey: ['get-igis-make-list'],
+    queryKey: ['igis-make-list'],
     queryFn: fetchIgisMakeList,
   });
 

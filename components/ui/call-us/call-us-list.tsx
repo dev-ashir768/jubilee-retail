@@ -1,34 +1,51 @@
 "use client";
 
-import { fetchCallUsList } from '@/helperFunctions/callUsFunction';
-import { useQuery } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
-import React, { useMemo } from 'react';
-import Error from '../foundations/error';
-import Empty from '../foundations/empty';
-import DatatableColumnHeader from '../datatable/datatable-column-header';
-import { ColumnDef } from '@tanstack/react-table';
-import { ColumnMeta } from '@/types/dataTableTypes';
-import { Badge } from '../shadcn/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../shadcn/dropdown-menu';
-import { MoreHorizontal, Edit, Trash } from 'lucide-react';
-import { Button } from '../shadcn/button';
-import Link from 'next/link';
-import SubNav from '../foundations/sub-nav';
-import { CallUsResponseType, CallUsPayloadType } from '@/types/callUsTypes';
-import { getRights } from '@/utils/getRights';
-import CallUsDatatable from './call-us-datatable';
-import useCallUsIdStore from '@/hooks/useCallUsIdStore';
-import LoadingState from '../foundations/loading-state';
+import { fetchCallUsList } from "@/helperFunctions/callUsFunction";
+import { useQuery } from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import Error from "../foundations/error";
+import Empty from "../foundations/empty";
+import DatatableColumnHeader from "../datatable/datatable-column-header";
+import { ColumnDef } from "@tanstack/react-table";
+import { ColumnMeta } from "@/types/dataTableTypes";
+import { Badge } from "../shadcn/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../shadcn/dropdown-menu";
+import { MoreHorizontal, Edit, Trash } from "lucide-react";
+import { Button } from "../shadcn/button";
+import Link from "next/link";
+import SubNav from "../foundations/sub-nav";
+import { CallUsResponseType, CallUsPayloadType } from "@/types/callUsTypes";
+import { getRights } from "@/utils/getRights";
+import CallUsDatatable from "./call-us-datatable";
+import useCallUsIdStore from "@/hooks/useCallUsIdStore";
+import LoadingState from "../foundations/loading-state";
+import { format, subDays } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 const CallUsList = () => {
   // Constants
-  const ADD_URL = '/customer-service/add-call-us'
-  const EDIT_URL = '/customer-service/edit-call-us'
-
+  const ADD_URL = "/customer-service/add-call-us";
+  const EDIT_URL = "/customer-service/edit-call-us";
   const router = useRouter();
   const pathname = usePathname();
   const { setCallUsId } = useCallUsIdStore();
+  const defaultDaysBack = 366;
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), defaultDaysBack),
+    to: new Date(),
+  });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   // Rights
   const rights = useMemo(() => {
@@ -36,15 +53,30 @@ const CallUsList = () => {
   }, [pathname]);
 
   // Fetch call us list data using react-query
-  const { data: callUsListResponse, isLoading: callUsListLoading, isError: callUsListIsError, error: callUsListError } = useQuery<CallUsResponseType | null>({
-    queryKey: ['call-us-list'],
-    queryFn: fetchCallUsList,
+  const {
+    data: callUsListResponse,
+    isLoading: callUsListLoading,
+    isError: callUsListIsError,
+    error: callUsListError,
+  } = useQuery<CallUsResponseType | null>({
+    queryKey: [
+      "call-us-list",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchCallUsList({
+        startDate,
+        endDate,
+      }),
   });
 
   // Column filter options with sanitization
   const nameFilterOptions = useMemo(() => {
-    const allNames = callUsListResponse?.payload?.map((item) => item.name) || [];
-    const uniqueNames = Array.from(new Set(allNames.filter((name) => name != null)));
+    const allNames =
+      callUsListResponse?.payload?.map((item) => item.name) || [];
+    const uniqueNames = Array.from(
+      new Set(allNames.filter((name) => name != null))
+    );
     return uniqueNames.map((name) => ({
       label: name || "N/A",
       value: name || "N/A",
@@ -52,8 +84,11 @@ const CallUsList = () => {
   }, [callUsListResponse]);
 
   const contactFilterOptions = useMemo(() => {
-    const allContacts = callUsListResponse?.payload?.map((item) => item.contact) || [];
-    const uniqueContacts = Array.from(new Set(allContacts.filter((contact) => contact != null)));
+    const allContacts =
+      callUsListResponse?.payload?.map((item) => item.contact) || [];
+    const uniqueContacts = Array.from(
+      new Set(allContacts.filter((contact) => contact != null))
+    );
     return uniqueContacts.map((contact) => ({
       label: contact || "N/A",
       value: contact || "N/A",
@@ -61,8 +96,11 @@ const CallUsList = () => {
   }, [callUsListResponse]);
 
   const emailFilterOptions = useMemo(() => {
-    const allEmails = callUsListResponse?.payload?.map((item) => item.email) || [];
-    const uniqueEmails = Array.from(new Set(allEmails.filter((email) => email != null)));
+    const allEmails =
+      callUsListResponse?.payload?.map((item) => item.email) || [];
+    const uniqueEmails = Array.from(
+      new Set(allEmails.filter((email) => email != null))
+    );
     return uniqueEmails.map((email) => ({
       label: email || "N/A",
       value: email || "N/A",
@@ -72,8 +110,10 @@ const CallUsList = () => {
   // Define columns for the data table
   const columns: ColumnDef<CallUsPayloadType>[] = [
     {
-      accessorKey: 'name',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Name" />,
+      accessorKey: "name",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Name" />
+      ),
       cell: ({ row }) => <div>{row.getValue("name") || "N/A"}</div>,
       filterFn: "multiSelect",
       meta: {
@@ -83,8 +123,10 @@ const CallUsList = () => {
       } as ColumnMeta,
     },
     {
-      accessorKey: 'contact',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Contact" />,
+      accessorKey: "contact",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Contact" />
+      ),
       cell: ({ row }) => <div>{row.getValue("contact") || "N/A"}</div>,
       filterFn: "multiSelect",
       meta: {
@@ -94,8 +136,10 @@ const CallUsList = () => {
       } as ColumnMeta,
     },
     {
-      accessorKey: 'email',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Email" />,
+      accessorKey: "email",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Email" />
+      ),
       cell: ({ row }) => <div>{row.getValue("email") || "N/A"}</div>,
       filterFn: "multiSelect",
       meta: {
@@ -105,13 +149,18 @@ const CallUsList = () => {
       } as ColumnMeta,
     },
     {
-      accessorKey: 'is_active',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Status" />,
+      accessorKey: "is_active",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Status" />
+      ),
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
         return (
-          <Badge className="justify-center py-1 min-w-[50px] w-[70px]" variant={status === "active" ? "success" : "danger"}>
+          <Badge
+            className="justify-center py-1 min-w-[50px] w-[70px]"
+            variant={status === "active" ? "success" : "danger"}
+          >
             {status}
           </Badge>
         );
@@ -121,13 +170,13 @@ const CallUsList = () => {
         filterType: "multiselect",
         filterOptions: [
           { label: "Active", value: "active" },
-          { label: "Inactive", value: "inactive" }
+          { label: "Inactive", value: "inactive" },
         ],
         filterPlaceholder: "Filter status...",
       } as ColumnMeta,
     },
     {
-      id: 'actions',
+      id: "actions",
       header: "Actions",
       cell: ({ row }) => {
         const record = row.original;
@@ -163,33 +212,65 @@ const CallUsList = () => {
     },
   ];
 
-  // Rights Redirection
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view call us listing." />;
-  }
+  // ======== RENDER LOGIC ========
+  const isLoading = callUsListLoading;
+  const isError = callUsListIsError;
+  const onError = callUsListError?.message;
 
-  // Loading state
-  if (callUsListLoading) {
-    return <LoadingState />;
-  }
+  useEffect(() => {
+    if (rights && rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
 
-  // Error state
-  if (callUsListIsError) {
-    return <Error err={callUsListError?.message} />;
-  }
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
 
-  // Empty state
-  if (!callUsListResponse?.payload || callUsListResponse.payload.length === 0) {
-    return <Empty title="Not Found" description="No call us records found" />;
-  }
+  if (rights && rights?.can_view === "0")
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have permission."
+      />
+    );
+
+  const renderPageContent = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
+
+    if (isError) {
+      return <Error err={onError} />;
+    }
+
+    if (
+      !callUsListResponse?.payload ||
+      callUsListResponse?.payload.length === 0
+    ) {
+      return <Empty title="Not Found" description="Not Found" />;
+    }
+
+    return (
+      <CallUsDatatable
+        columns={columns}
+        payload={callUsListResponse?.payload || []}
+      />
+    );
+  };
 
   return (
     <>
-      <SubNav title="Call Us List" addBtnTitle="Add Call Us" urlPath={ADD_URL} />
-      <CallUsDatatable columns={columns} payload={callUsListResponse?.payload || []} />
+      <SubNav
+        title="Call Us List"
+        addBtnTitle="Add Call Us"
+        urlPath={ADD_URL}
+        datePicker={true}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        defaultDaysBack={defaultDaysBack}
+      />
+      {renderPageContent()}
     </>
   );
 };

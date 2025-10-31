@@ -24,7 +24,7 @@ import { subDays, format } from "date-fns";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ProductsResponseTypes } from "@/types/productsTypes";
-import { fetchProductsList } from "@/helperFunctions/productsFunction";
+import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 import { BranchResponseType } from "@/types/branchTypes";
 import { fetchAllBranchList } from "@/helperFunctions/branchFunction";
 import { PaymentModesResponseType } from "@/types/paymentModesTypes";
@@ -47,9 +47,9 @@ import {
 } from "../shadcn/dropdown-menu";
 import ChangeStatusDialog from "./change-stataus-dialog";
 import { AgentResponseTypes } from "@/types/agentTypes";
-import { fetchAgentList } from "@/helperFunctions/agentFunction";
 import { ClientResponseType } from "@/types/clientTypes";
 import { fetchAllClientList } from "@/helperFunctions/clientFunction";
+import { fetchAllAgentList } from "@/helperFunctions/agentFunction";
 
 const PoliciesList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -93,8 +93,8 @@ queryFn: fetchAllApiUserList,
     isError: productListIsError,
     error: productListError,
   } = useQuery<ProductsResponseTypes | null>({
-    queryKey: ["products-list"],
-    queryFn: fetchProductsList,
+    queryKey: ["all-products-list"],
+    queryFn: fetchAllProductsList,
   });
 
   const {
@@ -191,8 +191,8 @@ queryFn: fetchAllApiUserList,
     isError: agentListIsError,
     error: agentListError,
   } = useQuery<AgentResponseTypes | null>({
-    queryKey: ["agent-list"],
-    queryFn: fetchAgentList,
+    queryKey: ["all-agent-list"],
+    queryFn: fetchAllAgentList,
   });
 
   const {

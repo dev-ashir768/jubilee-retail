@@ -90,6 +90,8 @@ export function DateRangePicker({
             selected={localDate}
             onSelect={setLocalDate}
             numberOfMonths={2}
+            animate
+            captionLayout="dropdown"
           />
           <div className="flex justify-end gap-2 p-4 border-t">
             <Button

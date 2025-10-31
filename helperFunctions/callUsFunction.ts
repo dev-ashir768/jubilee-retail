@@ -1,11 +1,23 @@
 import { CallUsResponseType } from "@/types/callUsTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
-export const fetchCallUsList = async (): Promise<CallUsResponseType | null> => {
+interface fetchCallUsListProps {
+  startDate: string;
+  endDate: string;
+}
+
+export const fetchCallUsList = async ({
+  startDate,
+  endDate,
+}: fetchCallUsListProps): Promise<CallUsResponseType | null> => {
+
+  const payload = { date: `${startDate} to ${endDate}` };
+
   try {
     const response = await axiosFunction({
       method: "POST",
       urlPath: "/call-us-data/all",
+      data: payload,
     });
 
     return response;
@@ -14,6 +26,21 @@ export const fetchCallUsList = async (): Promise<CallUsResponseType | null> => {
     return null;
   }
 };
+
+export const fetchAllCallUsList =
+  async (): Promise<CallUsResponseType | null> => {
+    try {
+      const response = await axiosFunction({
+        method: "POST",
+        urlPath: "/call-us-data/all",
+      });
+
+      return response;
+    } catch (err) {
+      console.error("Error fetching call us list:", err);
+      return null;
+    }
+  };
 
 export const fetchSingleCallUs = async (
   callUsId: number

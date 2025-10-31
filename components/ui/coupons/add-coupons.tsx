@@ -12,8 +12,8 @@ import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
 import { useQuery } from "@tanstack/react-query";
 import { getRights } from "@/utils/getRights";
-import { fetchProductsList } from "@/helperFunctions/productsFunction";
 import { ProductsResponseTypes } from "@/types/productsTypes";
+import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 
 const AddCoupons = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -31,8 +31,8 @@ const AddCoupons = () => {
     isError: productListIsError,
     error: productListError,
   } = useQuery<ProductsResponseTypes | null>({
-    queryKey: ["products-list"],
-    queryFn: fetchProductsList,
+    queryKey: ["all-products-list"],
+    queryFn: fetchAllProductsList,
   });
 
   // ======== PAYLOADS DATA ========

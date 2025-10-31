@@ -16,7 +16,7 @@ import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import useProductsIdStore from '@/hooks/useProductsIdStore';
 import { ProductsResponseTypes } from '@/types/productsTypes';
-import { fetchProductsList } from '@/helperFunctions/productsFunction';
+import { fetchSingleProducts } from '@/helperFunctions/productsFunction';
 
 const EditProduct = () => {
 
@@ -35,7 +35,7 @@ const EditProduct = () => {
 
   const { data: singleProductResponse, isLoading: singleProductLoading, isError: singleProductIsError, error: singleProductError } = useQuery<ProductsResponseTypes | null>({
     queryKey: ['single-product', productsId],
-    queryFn: fetchProductsList,
+    queryFn: ()=> fetchSingleProducts(productsId!),
   });
 
   // ======== PAYLOADS DATA ========

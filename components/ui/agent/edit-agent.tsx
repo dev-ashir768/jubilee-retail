@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchSingleAgent } from "@/helperFunctions/agentFunction";
-import { fetchDevelopmentOfficerList } from "@/helperFunctions/developmentOfficerFunction";
+import { fetchAllDevelopmentOfficerList } from "@/helperFunctions/developmentOfficerFunction";
 import useAgentIdStore from "@/hooks/useAgentIdStore";
 import { AgentResponseTypes } from "@/types/agentTypes";
 import { BranchResponseType } from "@/types/branchTypes";
@@ -62,8 +62,8 @@ const EditAgent = () => {
     isError: developmentOfficerListIsError,
     error: developmentOfficerListError,
   } = useQuery<DevelopmentOfficerResponseTypes | null>({
-    queryKey: ["get-development-officers-list"],
-    queryFn: fetchDevelopmentOfficerList,
+    queryKey: ["all-development-officers-list"],
+        queryFn: fetchAllDevelopmentOfficerList,
   });
 
   // Rights Redirection
