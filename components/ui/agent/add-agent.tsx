@@ -13,7 +13,7 @@ import { DevelopmentOfficerResponseTypes } from '@/types/developmentOfficerTypes
 import { fetchDevelopmentOfficerList } from '@/helperFunctions/developmentOfficerFunction'
 import { useQuery } from '@tanstack/react-query'
 import { BranchResponseType } from '@/types/branchTypes'
-import { fetchBranchList } from '@/helperFunctions/branchFunction'
+import { fetchAllBranchList } from '@/helperFunctions/branchFunction'
 import LoadingState from '../foundations/loading-state'
 import Error from '../foundations/error'
 
@@ -30,8 +30,8 @@ const AddAgent = () => {
 
   // Fetch branch list data using react-query
   const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseType | null>({
-    queryKey: ['get-branch-list'],
-    queryFn: fetchBranchList
+    queryKey: ['all-branch-list'],
+    queryFn: fetchAllBranchList
   })
 
   // Fetch development officer list data using react-query

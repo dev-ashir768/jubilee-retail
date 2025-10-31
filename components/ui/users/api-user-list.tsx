@@ -1,39 +1,73 @@
 "use client";
 
-import { getRights } from '@/utils/getRights';
-import { usePathname, useRouter } from 'next/navigation';
-import React, { useMemo } from 'react'
-import SubNav from '../foundations/sub-nav';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchApiUserList } from '@/helperFunctions/userFunction';
-import Error from '../foundations/error';
-import { ApiUsersPayloadType, ApiUsersResponseType } from '@/types/usersTypes';
-import { ColumnDef } from '@tanstack/react-table';
-import DatatableColumnHeader from '../datatable/datatable-column-header';
-import { ColumnMeta } from '@/types/dataTableTypes';
-import { Badge } from '../shadcn/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../shadcn/dropdown-menu';
-import { Button } from '../shadcn/button';
-import { MoreHorizontal, RefreshCcw } from 'lucide-react';
-import Empty from '../foundations/empty';
-import { AxiosError } from 'axios';
-import { axiosFunction } from '@/utils/axiosFunction';
-import { toast } from 'sonner';
-import ApiUserDatatable from './api-user-datatable';
-import LoadingState from '../foundations/loading-state';
+import { getRights } from "@/utils/getRights";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import SubNav from "../foundations/sub-nav";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchApiUserList } from "@/helperFunctions/userFunction";
+import Error from "../foundations/error";
+import { ApiUsersPayloadType, ApiUsersResponseType } from "@/types/usersTypes";
+import { ColumnDef } from "@tanstack/react-table";
+import DatatableColumnHeader from "../datatable/datatable-column-header";
+import { ColumnMeta } from "@/types/dataTableTypes";
+import { Badge } from "../shadcn/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../shadcn/dropdown-menu";
+import { Button } from "../shadcn/button";
+import { MoreHorizontal, RefreshCcw } from "lucide-react";
+import Empty from "../foundations/empty";
+import { AxiosError } from "axios";
+import { axiosFunction } from "@/utils/axiosFunction";
+import { toast } from "sonner";
+import ApiUserDatatable from "./api-user-datatable";
+import LoadingState from "../foundations/loading-state";
+import { DateRange } from "react-day-picker";
+import { format, subDays } from "date-fns";
 
 const ApiUserList = () => {
-
+  // ======== CONSTANTS AND HOOKS ========
+  const defaultDaysBack = 366;
   const router = useRouter();
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const pathname = usePathname();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), defaultDaysBack ?? 366),
+    to: new Date(),
+  });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
-  // Fetch api user list data using react-query
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => {
+    return getRights(pathname);
+  }, [pathname]);
 
-  const { data: apiUserResponse, isLoading: apiUserLoading, isError: apiUserIsError, error } = useQuery<ApiUsersResponseType | null>({
-    queryKey: ['api-user-list'],
-    queryFn: fetchApiUserList
-  })
+  // ======== DATA FETCHING ========
+  const {
+    data: apiUserResponse,
+    isLoading: apiUserLoading,
+    isError: apiUserIsError,
+    error: apiUserError,
+  } = useQuery<ApiUsersResponseType | null>({
+    queryKey: [
+      "api-user-list",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchApiUserList<ApiUsersResponseType>({
+        startDate,
+        endDate,
+      }),
+  });
 
   // update api user mutation
 
@@ -45,32 +79,31 @@ const ApiUserList = () => {
     mutationFn: (data) => {
       return axiosFunction({
         method: "POST",
-        urlPath: `/api-users/${data.id}`
-      })
+        urlPath: `/api-users/${data.id}`,
+      });
     },
     onMutate: () => {
-      toast.info('Please wait...')
+      toast.info("Please wait...");
     },
     onError: (err) => {
-      const message = err.response?.data?.message
-      toast.error(message)
-      console.log("Update Api User Mutation Error:", err)
+      const message = err.response?.data?.message;
+      toast.error(message);
+      console.log("Update Api User Mutation Error:", err);
     },
     onSuccess: (data) => {
-      const message = data.message
-      toast.success(message)
-      queryClient.invalidateQueries({ queryKey: ['api-user-list'] })
-    }
-  })
+      const message = data.message;
+      toast.success(message);
+      queryClient.invalidateQueries({ queryKey: ["api-user-list"] });
+    },
+  });
 
   // update api user
 
   const updateApiUser = (id: number) => {
-    apiUserMutation.mutate({ id })
-  }
+    apiUserMutation.mutate({ id });
+  };
 
-  // Column filter options
-
+  // ======== FILTER OPTIONS ========
   const nameFilterOptions = useMemo(() => {
     const allName = apiUserResponse?.payload?.map((item) => item.name) || [];
     const uniqueName = Array.from(new Set(allName));
@@ -98,15 +131,14 @@ const ApiUserList = () => {
     }));
   }, [apiUserResponse]);
 
-  // Define columns for the data table
-
+  // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<ApiUsersPayloadType>[] = [
     {
-      accessorKey: 'name',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Name" />,
-      cell: ({ row }) => (
-        <div>{row.getValue("name")}</div>
+      accessorKey: "name",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Name" />
       ),
+      cell: ({ row }) => <div>{row.getValue("name")}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
@@ -115,73 +147,77 @@ const ApiUserList = () => {
       } as ColumnMeta,
     },
     {
-      accessorKey: 'email',
-      header: ({ column }) => <DatatableColumnHeader column={column} title='Email' />,
-      cell: ({ row }) => (
-        <div>{row.getValue("email")}</div>
+      accessorKey: "email",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Email" />
       ),
+      cell: ({ row }) => <div>{row.getValue("email")}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
         filterOptions: emailFilterOptions,
         filterPlaceholder: "Filter email...",
-      }
+      },
     },
     {
-      accessorKey: 'phone',
-      header: ({ column }) => <DatatableColumnHeader column={column} title='Phone' />,
-      cell: ({ row }) => (
-        <div>{row.getValue("phone")}</div>
+      accessorKey: "phone",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Phone" />
       ),
+      cell: ({ row }) => <div>{row.getValue("phone")}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
         filterOptions: phoneFilterOptions,
         filterPlaceholder: "Filter phone...",
-      }
+      },
     },
     {
-      accessorKey: 'api_key',
-      header: ({ column }) => <DatatableColumnHeader column={column} title='Api Key' />,
-      cell: ({ row }) => (
-        <div>{row.getValue("api_key")}</div>
+      accessorKey: "api_key",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Api Key" />
       ),
+      cell: ({ row }) => <div>{row.getValue("api_key")}</div>,
     },
     {
-      accessorKey: 'api_password',
-      header: ({ column }) => <DatatableColumnHeader column={column} title='Api Password' />,
-      cell: ({ row }) => (
-        <div>{row.getValue("api_password")}</div>
+      accessorKey: "api_password",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Api Password" />
       ),
+      cell: ({ row }) => <div>{row.getValue("api_password")}</div>,
     },
     {
-      accessorKey: 'is_active',
-      header: ({ column }) => <DatatableColumnHeader column={column} title='Status' />,
+      accessorKey: "is_active",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Status" />
+      ),
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`} variant={status === "active" ? "success" : "danger"}>
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
+            variant={status === "active" ? "success" : "danger"}
+          >
             {status}
           </Badge>
-        )
+        );
       },
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
         filterOptions: [
           { label: "Active", value: "active" },
-          { label: "Inactive", value: "inactive" }
+          { label: "Inactive", value: "inactive" },
         ],
         filterPlaceholder: "Filter status...",
       } as ColumnMeta,
     },
     {
-      id: 'id',
+      id: "id",
       header: "Actions",
       cell: ({ row }) => {
-        const record = row.original
+        const record = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -194,54 +230,67 @@ const ApiUserList = () => {
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => updateApiUser(record.id)}>
-                <RefreshCcw className='mr-2 h-4 w-4' />
+                <RefreshCcw className="mr-2 h-4 w-4" />
                 Update
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        )
-      }
+        );
+      },
+    },
+  ];
+
+  // ======== RENDER LOGIC ========
+  const isLoading = apiUserLoading;
+  const isError = apiUserIsError;
+  const onError = apiUserError?.message;
+
+  useEffect(() => {
+    if (rights && rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
     }
-  ]
+  }, [rights, router]);
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
-
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view api user listing." />;
-  }
-
-
-  // loading, error or empty state while fetching user list data
-
-  if (apiUserLoading) {
-    return <LoadingState />
-  }
-
-  if (apiUserIsError) {
-    return <Error err={error?.message} />
-  }
-
-  if (!apiUserResponse?.payload || apiUserResponse.payload.length === 0) {
-    return <Empty title="Not found" description='Not found' />
-  }
-
-  return (
-    <>
-      <SubNav
-        title='Api User List'
+  if (rights && rights?.can_view === "0")
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have permission."
       />
+    );
+
+  const renderPageContent = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
+
+    if (isError) {
+      return <Error err={onError} />;
+    }
+
+    if (!apiUserResponse?.payload || apiUserResponse.payload.length === 0) {
+      return <Empty title="Not found" description="Not found" />;
+    }
+
+    return (
       <ApiUserDatatable
         columns={columns}
         payload={apiUserResponse?.payload || []}
       />
-    </>
-  )
-}
+    );
+  };
 
-export default ApiUserList
+  return (
+    <>
+      <SubNav title="Api User List" datePicker={true} defaultDaysBack={defaultDaysBack} setDateRange={setDateRange} dateRange={dateRange}  />
+
+      {renderPageContent()}
+    </>
+  );
+};
+
+export default ApiUserList;

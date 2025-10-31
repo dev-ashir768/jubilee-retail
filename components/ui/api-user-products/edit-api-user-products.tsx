@@ -11,7 +11,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import EditApiAserProductsForm from "./edit-api-user-products-form";
 import { useQuery } from "@tanstack/react-query";
-import { fetchApiUserList } from "@/helperFunctions/userFunction";
+import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
@@ -39,8 +39,8 @@ const EditApiUserProducts = () => {
     isError: apiUserListIsError,
     error: apiUserListError,
   } = useQuery<ApiUsersResponseType | null>({
-    queryKey: ["api-user-list"],
-    queryFn: fetchApiUserList,
+    queryKey: ["all-api-user-list"],
+queryFn: fetchAllApiUserList,
   });
 
   const {

@@ -19,11 +19,11 @@ import CboDatatable from "./cbo-datatable";
 import { DateRange } from "react-day-picker";
 import { subDays, format } from "date-fns";
 import { ApiUsersResponseType } from "@/types/usersTypes";
-import { fetchApiUserList } from "@/helperFunctions/userFunction";
+import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ProductsResponseTypes } from "@/types/productsTypes";
 import { fetchProductsList } from "@/helperFunctions/productsFunction";
 import { BranchResponseType } from "@/types/branchTypes";
-import { fetchBranchList } from "@/helperFunctions/branchFunction";
+import { fetchAllBranchList } from "@/helperFunctions/branchFunction";
 import { PaymentModesResponseType } from "@/types/paymentModesTypes";
 import { fetchPaymentModesList } from "@/helperFunctions/paymentModesFunction";
 import OrdersFilters from "../filters/orders-filters";
@@ -79,7 +79,7 @@ const CboList = () => {
     error: apiUserListError,
   } = useQuery<ApiUsersResponseType | null>({
     queryKey: ["api-user-list"],
-    queryFn: fetchApiUserList,
+    queryFn: fetchAllApiUserList,
   });
 
   const {
@@ -98,8 +98,8 @@ const CboList = () => {
     isError: branchListIsError,
     error: branchListError,
   } = useQuery<BranchResponseType | null>({
-    queryKey: ["branch-list"],
-    queryFn: fetchBranchList,
+   queryKey: ['all-branch-list'],
+       queryFn: fetchAllBranchList
   });
 
   const {

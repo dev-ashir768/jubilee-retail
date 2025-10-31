@@ -22,10 +22,10 @@ import { fetchOrdersListing } from "@/helperFunctions/ordersFunctions";
 import { DateRange } from "react-day-picker";
 import { subDays, format } from "date-fns";
 import { ApiUsersResponseType } from "@/types/usersTypes";
-import { fetchApiUserList } from "@/helperFunctions/userFunction";
+import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ProductsResponseTypes } from "@/types/productsTypes";
 import { fetchProductsList } from "@/helperFunctions/productsFunction";
-import { fetchBranchList } from "@/helperFunctions/branchFunction";
+import { fetchAllBranchList } from "@/helperFunctions/branchFunction";
 import { BranchResponseType } from "@/types/branchTypes";
 import { PaymentModesResponseType } from "@/types/paymentModesTypes";
 import { fetchPaymentModesList } from "@/helperFunctions/paymentModesFunction";
@@ -78,8 +78,8 @@ const OrdersListListing = () => {
     isError: apiUserListIsError,
     error: apiUserListError,
   } = useQuery<ApiUsersResponseType | null>({
-    queryKey: ["api-user-list"],
-    queryFn: fetchApiUserList,
+    queryKey: ["all-api-user-list"],
+queryFn: fetchAllApiUserList,
   });
 
   const {
@@ -98,8 +98,8 @@ const OrdersListListing = () => {
     isError: branchListIsError,
     error: branchListError,
   } = useQuery<BranchResponseType | null>({
-    queryKey: ["branch-list"],
-    queryFn: fetchBranchList,
+   queryKey: ['all-branch-list'],
+       queryFn: fetchAllBranchList
   });
 
   const {

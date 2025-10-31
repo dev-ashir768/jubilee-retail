@@ -16,7 +16,7 @@ import { useQuery } from '@tanstack/react-query'
 import LoadingState from '../foundations/loading-state'
 import Error from '../foundations/error'
 import Empty from '../foundations/empty'
-import { fetchBranchList } from '@/helperFunctions/branchFunction'
+import { fetchAllBranchList } from '@/helperFunctions/branchFunction'
 
 const EditClient = () => {
 
@@ -40,8 +40,8 @@ const EditClient = () => {
 
   // Fetch branch list data using react-query
   const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseType | null>({
-    queryKey: ['edit-client-branch-list'],
-    queryFn: fetchBranchList
+   queryKey: ['all-branch-list'],
+       queryFn: fetchAllBranchList
   })
 
 

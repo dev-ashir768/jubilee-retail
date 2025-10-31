@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchRelationMappingsList } from '@/helperFunctions/relationMappingsFunction';
-import { fetchUserList } from '@/helperFunctions/userFunction';
+import { fetchAllUserList } from '@/helperFunctions/userFunction';
 import useRelationMappingsIdStore from '@/hooks/useRelationMappingsIdStore';
 import { RelationMappingsPayloadTypes, RelationMappingsResponseTypes } from '@/types/relationMappingsTypes';
 import { UserResponseType } from '@/types/usersTypes';
@@ -40,8 +40,8 @@ const RelationMappingsList = () => {
   });
 
   const { data: usersListResponse, isLoading: usersListLoading, isError: usersListIsError, error: usersListError } = useQuery<UserResponseType | null>({
-    queryKey: ['users-list'],
-    queryFn: fetchUserList
+queryKey: ['all-users-list'],
+    queryFn: fetchAllUserList
   });
 
   // ======== PAYLOADS DATA ========

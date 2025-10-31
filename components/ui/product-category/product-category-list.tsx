@@ -18,7 +18,7 @@ import Link from 'next/link';
 import { ColumnMeta } from '@/types/dataTableTypes';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnDef } from '@tanstack/react-table';
-import { fetchUserList } from '@/helperFunctions/userFunction';
+import { fetchAllUserList } from '@/helperFunctions/userFunction';
 import { UserResponseType } from '@/types/usersTypes';
 import { Badge } from '../shadcn/badge';
 
@@ -40,8 +40,8 @@ const ProductCategoryList = () => {
   })
 
   const { data: usersListResponse, isLoading: usersListLoading, isError: usersListIsError, error: usersListError } = useQuery<UserResponseType | null>({
-    queryKey: ['users-list'],
-    queryFn: fetchUserList
+   queryKey: ['all-users-list'],
+       queryFn: fetchAllUserList
   })
 
   // ======== PAYLOADS DATA ========

@@ -1,15 +1,40 @@
-import {
-  ApiUserProductsResponseType,
-} from "@/types/apiUserProductsTypes";
+import { ApiUserProductsResponseType } from "@/types/apiUserProductsTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
-export const fetchApiUserProductsList =
+interface fetchApiUserProductsListProps {
+  startDate?: string;
+  endDate?: string;
+}
+
+export const fetchApiUserProductsList = async <T>({
+  startDate,
+  endDate,
+}: fetchApiUserProductsListProps): Promise<ApiUserProductsResponseType | null> => {
+  const payload: { date?: string } = {};
+  if (startDate && endDate) {
+    payload.date = `${startDate} to ${endDate}`;
+  }
+
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/api-user-products/all",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching api user products list:", err);
+    return null;
+  }
+};
+
+export const fetchAllApiUserProductsList =
   async (): Promise<ApiUserProductsResponseType | null> => {
     try {
       const response = await axiosFunction({
         method: "POST",
         urlPath: "/api-user-products/all",
-        data: {}
       });
 
       return response;

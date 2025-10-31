@@ -2,8 +2,8 @@
 
 import { getRights } from "@/utils/getRights";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { usePathname } from "next/navigation";
-import React, { useMemo } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
 import LoadingState from "../../foundations/loading-state";
 import Error from "../../foundations/error";
 import Empty from "../../foundations/empty";
@@ -32,21 +32,23 @@ import { createFilterOptions } from "@/utils/filterOptions";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { axiosFunction } from "@/utils/axiosFunction";
-// import {
-//   Dialog,
-//   DialogClose,
-//   DialogContent,
-//   DialogDescription,
-//   DialogFooter,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-// } from "@/components/ui/shadcn/dialog";
+import { format, subDays } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 const MotorQuoteList = () => {
   // ======== CONSTANTS & HOOKS ========
   const pathname = usePathname();
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const defaultDaysBack = 600;
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), defaultDaysBack),
+    to: new Date(),
+  });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -90,45 +92,22 @@ const MotorQuoteList = () => {
     isError: motorQuoteListIsError,
     error: motorQuoteListError,
   } = useQuery<MotorQuoteResponseTypes | null>({
-    queryKey: ["motor-quote-list"],
-    queryFn: fetchMotorQuoteList,
+    queryKey: [
+      "motor-quote-list",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchMotorQuoteList({
+        startDate,
+        endDate,
+      }),
   });
-
-  // const {
-  //   data: agentListResponse,
-  //   isLoading: agentListLoading,
-  //   isError: agentListIsError,
-  //   error: agentListError,
-  // } = useQuery<AgentResponseTypes | null>({
-  //   queryKey: ["agents-list"],
-  //   queryFn: fetchAgentList,
-  // });
-
-  // const {
-  //   data: branchListResponse,
-  //   isLoading: branchListLoading,
-  //   isError: branchListIsError,
-  //   error: branchListError,
-  // } = useQuery<BranchResponseType | null>({
-  //   queryKey: ["branch-list"],
-  //   queryFn: fetchBranchList,
-  // });
 
   // ======== PAYLOADS DATA ========
   const motorQuoteList = useMemo(
     () => motorQuoteListResponse?.payload || [],
     [motorQuoteListResponse]
   );
-
-  // const agentList = useMemo(
-  //   () => agentListResponse?.payload || [],
-  //   [agentListResponse]
-  // );
-
-  // const branchList = useMemo(
-  //   () => branchListResponse?.payload || [],
-  //   [branchListResponse]
-  // );
 
   // ======== MUTATION ========
   const updateQuoteStatusMutation = useMutation<
@@ -501,14 +480,20 @@ const MotorQuoteList = () => {
 
   // ======== RENDER LOGIC ========
   const isLoading = motorQuoteListLoading;
-
   const isError = motorQuoteListIsError;
-
   const onError = motorQuoteListError?.message;
 
-  if (isLoading) return <LoadingState />;
-  if (isError) return <Error err={onError} />;
-  if (rights?.can_view === "0")
+  useEffect(() => {
+    if (rights && rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights && rights?.can_view === "0")
     return (
       <Empty
         title="Permission Denied"
@@ -516,11 +501,33 @@ const MotorQuoteList = () => {
       />
     );
 
+  const renderPageContent = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
+
+    if (isError) {
+      return <Error err={onError} />;
+    }
+
+    if (!motorQuoteList || motorQuoteList.length === 0) {
+      return <Empty title="Not Found" description="Not Found" />;
+    }
+
+    return <ManageDatatable columns={columns} payload={motorQuoteList} />;
+  };
+
   return (
     <>
-      <SubNav title="Manage Motor Quote List" />
+      <SubNav
+        title="Manage Motor Quote List"
+        datePicker={true}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        defaultDaysBack={defaultDaysBack}
+      />
 
-      <ManageDatatable columns={columns} payload={motorQuoteList} />
+      {renderPageContent()}
     </>
   );
 };

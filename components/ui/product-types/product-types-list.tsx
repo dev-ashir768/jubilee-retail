@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchProductTypesList } from '@/helperFunctions/productTypesFunction';
-import { fetchUserList } from '@/helperFunctions/userFunction';
+import { fetchAllUserList } from '@/helperFunctions/userFunction';
 import useProductTypesIdStore from '@/hooks/useProductTypesIdStore';
 import { ProductTypePayloadTypes, ProductTypeResponseTypes } from '@/types/productTypeTypes';
 import { UserResponseType } from '@/types/usersTypes';
@@ -40,8 +40,8 @@ const ProductTypesList = () => {
   })
 
   const { data: usersListResponse, isLoading: usersListLoading, isError: usersListIsError, error: usersListError } = useQuery<UserResponseType | null>({
-    queryKey: ['users-list'],
-    queryFn: fetchUserList
+  queryKey: ['all-users-list'],
+      queryFn: fetchAllUserList
   })
 
   // ======== PAYLOADS DATA ========

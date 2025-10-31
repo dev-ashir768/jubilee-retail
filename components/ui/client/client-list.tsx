@@ -1,48 +1,79 @@
 "use client";
 
-import { useMemo } from 'react';
-import { fetchClientList } from '@/helperFunctions/clientFunction';
-import useClientIdStore from '@/hooks/useClientIdStore';
-import { ClientPayloadType, ClientResponseType } from '@/types/clientTypes';
-import { getRights } from '@/utils/getRights';
-import { useQuery } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
-import Error from '../foundations/error';
-import Empty from '../foundations/empty';
-import DatatableColumnHeader from '../datatable/datatable-column-header';
-import { ColumnDef } from '@tanstack/react-table';
-import { ColumnMeta } from '@/types/dataTableTypes';
-import { Badge } from '../shadcn/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../shadcn/dropdown-menu';
-import { Edit, MoreHorizontal, Trash } from 'lucide-react';
-import { Button } from '../shadcn/button';
-import Link from 'next/link';
-import SubNav from '../foundations/sub-nav';
-import ClientDatatable from './client-datatable';
-import LoadingState from '../foundations/loading-state';
+import { useEffect, useMemo, useState } from "react";
+import { fetchClientList } from "@/helperFunctions/clientFunction";
+import useClientIdStore from "@/hooks/useClientIdStore";
+import { ClientPayloadType, ClientResponseType } from "@/types/clientTypes";
+import { getRights } from "@/utils/getRights";
+import { useQuery } from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
+import Error from "../foundations/error";
+import Empty from "../foundations/empty";
+import DatatableColumnHeader from "../datatable/datatable-column-header";
+import { ColumnDef } from "@tanstack/react-table";
+import { ColumnMeta } from "@/types/dataTableTypes";
+import { Badge } from "../shadcn/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../shadcn/dropdown-menu";
+import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Button } from "../shadcn/button";
+import Link from "next/link";
+import SubNav from "../foundations/sub-nav";
+import ClientDatatable from "./client-datatable";
+import LoadingState from "../foundations/loading-state";
+import { DateRange } from "react-day-picker";
+import { format, subDays } from "date-fns";
 
 const ClientList = () => {
   // Constants
-  const ADD_URL = '/branches-clients/add-clients'
-  const EDIT_URL = '/branches-clients/edit-clients'
-
+  const ADD_URL = "/branches-clients/add-clients";
+  const EDIT_URL = "/branches-clients/edit-clients";
   const router = useRouter();
   const pathname = usePathname();
+  const defaultDaysBack = 366;
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), defaultDaysBack),
+    to: new Date(),
+  });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   // Zustand
   const { setClientId } = useClientIdStore();
 
-
   // Fetch client list data using react-query
-  const { data: clientListResponse, isLoading: clientListLoading, isError: clientListIsError, error } = useQuery<ClientResponseType | null>({
-    queryKey: ['clients-list'],
-    queryFn: fetchClientList,
+  const {
+    data: clientListResponse,
+    isLoading: clientListLoading,
+    isError: clientListIsError,
+    error: clientListError,
+  } = useQuery<ClientResponseType | null>({
+    queryKey: [
+      "clients-list",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchClientList({
+        startDate,
+        endDate,
+      }),
   });
 
   // Column filter options
   const nameFilterOptions = useMemo(() => {
-    const allNames = clientListResponse?.payload?.map((item) => item.name) || [];
-    const uniqueNames = Array.from(new Set(allNames.filter((name) => name !== null)));
+    const allNames =
+      clientListResponse?.payload?.map((item) => item.name) || [];
+    const uniqueNames = Array.from(
+      new Set(allNames.filter((name) => name !== null))
+    );
     return uniqueNames.map((name) => ({
       label: name,
       value: name,
@@ -50,7 +81,8 @@ const ClientList = () => {
   }, [clientListResponse]);
 
   const igisClientCodeFilterOptions = useMemo(() => {
-    const allIgisClientCodes = clientListResponse?.payload?.map((item) => item.igis_client_code) || [];
+    const allIgisClientCodes =
+      clientListResponse?.payload?.map((item) => item.igis_client_code) || [];
     const uniqueIgisClientCodes = Array.from(new Set(allIgisClientCodes));
     return uniqueIgisClientCodes.map((igis_client_code) => ({
       label: igis_client_code,
@@ -59,7 +91,8 @@ const ClientList = () => {
   }, [clientListResponse]);
 
   const addressFilterOptions = useMemo(() => {
-    const allAddresses = clientListResponse?.payload?.map((item) => item.address) || [];
+    const allAddresses =
+      clientListResponse?.payload?.map((item) => item.address) || [];
     const uniqueAddresses = Array.from(new Set(allAddresses));
     return uniqueAddresses.map((address) => ({
       label: address,
@@ -68,7 +101,8 @@ const ClientList = () => {
   }, [clientListResponse]);
 
   const telephoneFilterOptions = useMemo(() => {
-    const allTelephones = clientListResponse?.payload?.map((item) => item.telephone) || [];
+    const allTelephones =
+      clientListResponse?.payload?.map((item) => item.telephone) || [];
     const uniqueTelephones = Array.from(new Set(allTelephones));
     return uniqueTelephones.map((telephone) => ({
       label: telephone,
@@ -77,7 +111,8 @@ const ClientList = () => {
   }, [clientListResponse]);
 
   const contactPersonFilterOptions = useMemo(() => {
-    const allContactPersons = clientListResponse?.payload?.map((item) => item.contact_person) || [];
+    const allContactPersons =
+      clientListResponse?.payload?.map((item) => item.contact_person) || [];
     const uniqueContactPersons = Array.from(new Set(allContactPersons));
     return uniqueContactPersons.map((contact_person) => ({
       label: contact_person,
@@ -88,8 +123,10 @@ const ClientList = () => {
   // Define columns for the data table
   const columns: ColumnDef<ClientPayloadType>[] = [
     {
-      accessorKey: 'name',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Name" />,
+      accessorKey: "name",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Name" />
+      ),
       cell: ({ row }) => <div>{row.getValue("name")}</div>,
       filterFn: "multiSelect",
       meta: {
@@ -99,8 +136,10 @@ const ClientList = () => {
       } as ColumnMeta,
     },
     {
-      accessorKey: 'igis_client_code',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="IGIS Client Code" />,
+      accessorKey: "igis_client_code",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="IGIS Client Code" />
+      ),
       cell: ({ row }) => <div>{row.getValue("igis_client_code")}</div>,
       filterFn: "multiSelect",
       meta: {
@@ -110,8 +149,10 @@ const ClientList = () => {
       } as ColumnMeta,
     },
     {
-      accessorKey: 'address',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Address" />,
+      accessorKey: "address",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Address" />
+      ),
       cell: ({ row }) => <div>{row.getValue("address")}</div>,
       filterFn: "multiSelect",
       meta: {
@@ -121,8 +162,10 @@ const ClientList = () => {
       } as ColumnMeta,
     },
     {
-      accessorKey: 'telephone',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Telephone" />,
+      accessorKey: "telephone",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Telephone" />
+      ),
       cell: ({ row }) => <div>{row.getValue("telephone")}</div>,
       filterFn: "multiSelect",
       meta: {
@@ -132,8 +175,10 @@ const ClientList = () => {
       } as ColumnMeta,
     },
     {
-      accessorKey: 'contact_person',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Contact Person" />,
+      accessorKey: "contact_person",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Contact Person" />
+      ),
       cell: ({ row }) => <div>{row.getValue("contact_person")}</div>,
       filterFn: "multiSelect",
       meta: {
@@ -143,30 +188,34 @@ const ClientList = () => {
       } as ColumnMeta,
     },
     {
-      accessorKey: 'is_active',
-      header: ({ column }) => <DatatableColumnHeader column={column} title='Status' />,
+      accessorKey: "is_active",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Status" />
+      ),
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`} variant={status === "active" ? "success" : "danger"}>
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
+            variant={status === "active" ? "success" : "danger"}
+          >
             {status}
           </Badge>
-        )
+        );
       },
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
         filterOptions: [
           { label: "Active", value: "active" },
-          { label: "Inactive", value: "inactive" }
+          { label: "Inactive", value: "inactive" },
         ],
         filterPlaceholder: "Filter status...",
       } as ColumnMeta,
     },
     {
-      id: 'actions',
+      id: "actions",
       header: "Actions",
       cell: ({ row }) => {
         const record = row.original;
@@ -182,7 +231,10 @@ const ClientList = () => {
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {rights?.can_edit === "1" && (
-                <DropdownMenuItem onClick={() => setClientId(record.id)} asChild>
+                <DropdownMenuItem
+                  onClick={() => setClientId(record.id)}
+                  asChild
+                >
                   <Link href={EDIT_URL}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
@@ -202,37 +254,70 @@ const ClientList = () => {
     },
   ];
 
-   // Rights
-   const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
+  // Rights
+  const rights = useMemo(() => {
+    return getRights(pathname);
+  }, [pathname]);
 
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view client listing." />;
-  }
+  // ======== RENDER LOGIC ========
+  const isLoading = clientListLoading;
+  const isError = clientListIsError;
+  const onError = clientListError?.message;
 
-  // Loading state
-  if (clientListLoading) {
-    return <LoadingState />;
-  }
+  useEffect(() => {
+    if (rights && rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
 
-  // Error state
-  if (clientListIsError) {
-    return <Error err={error?.message} />;
-  }
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
 
-  // Empty state
-  if (!clientListResponse?.payload || clientListResponse.payload.length === 0) {
-    return <Empty title="Not Found" description="No clients found" />;
-  }
+  if (rights && rights?.can_view === "0")
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have permission."
+      />
+    );
+
+  const renderPageContent = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
+
+    if (isError) {
+      return <Error err={onError} />;
+    }
+
+    if (
+      !clientListResponse?.payload ||
+      clientListResponse.payload.length === 0
+    ) {
+      return <Empty title="Not Found" description="No clients found" />;
+    }
+    return (
+      <ClientDatatable
+        columns={columns}
+        payload={clientListResponse?.payload || []}
+      />
+    );
+  };
 
   return (
     <>
-      <SubNav title="Client List" addBtnTitle="Add Client" urlPath={ADD_URL} />
-      <ClientDatatable columns={columns} payload={clientListResponse?.payload || []} />
+      <SubNav
+        title="Client List"
+        addBtnTitle="Add Client"
+        urlPath={ADD_URL}
+        datePicker={true}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        defaultDaysBack={defaultDaysBack}
+      />
+
+      {renderPageContent()}
     </>
   );
 };

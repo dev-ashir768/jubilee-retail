@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import SubNav from "../foundations/sub-nav";
 import { useRouter } from "next/navigation";
 import { getRights } from "@/utils/getRights";
@@ -29,8 +29,10 @@ import {
 } from "@/types/apiUserProductsTypes";
 import ApiUserProductsDatatable from "./api-user-products-datatable";
 import { createFilterOptions } from "@/utils/filterOptions";
-import { fetchApiUserList } from "@/helperFunctions/userFunction";
+import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ApiUsersResponseType } from "@/types/usersTypes";
+import { DateRange } from "react-day-picker";
+import { format, subDays } from "date-fns";
 
 const ApiUserProductsList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -39,6 +41,15 @@ const ApiUserProductsList = () => {
   const LISTING_ROUTE = "/users/api-user-products";
   const { setApiUserProductsId } = useApiUserProductsIdStore();
   const router = useRouter();
+  const defaultDaysBack = 366;
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), defaultDaysBack),
+    to: new Date(),
+  });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -52,8 +63,15 @@ const ApiUserProductsList = () => {
     isError: apiUserProductsListIsError,
     error: apiUserProductsListError,
   } = useQuery<ApiUserProductsResponseType | null>({
-    queryKey: ["api-user-products-list"],
-    queryFn: fetchApiUserProductsList,
+    queryKey: [
+      "api-user-products-list",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchApiUserProductsList({
+        startDate,
+        endDate,
+      }),
   });
 
   const {
@@ -62,8 +80,8 @@ const ApiUserProductsList = () => {
     isError: apiUserIsError,
     error: apiUserError,
   } = useQuery<ApiUsersResponseType | null>({
-    queryKey: ["api-user-list"],
-    queryFn: fetchApiUserList,
+    queryKey: ["all-api-user-list"],
+    queryFn: fetchAllApiUserList,
   });
 
   // ======== PAYLOADS DATA ========
@@ -225,8 +243,6 @@ const ApiUserProductsList = () => {
     }
   }, [rights, router]);
 
-  if (isLoading) return <LoadingState />;
-  if (isError) return <Error err={onError} />;
   if (rights && rights?.can_view === "0")
     return (
       <Empty
@@ -235,18 +251,36 @@ const ApiUserProductsList = () => {
       />
     );
 
+  const renderPageContent = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
+
+    if (isError) {
+      return <Error err={onError} />;
+    }
+
+    return (
+      <ApiUserProductsDatatable
+        columns={columns}
+        payload={apiUserProductsList}
+      />
+    );
+  };
+
   return (
     <>
       <SubNav
         title="Api User Products List"
         addBtnTitle="Add User Product"
         urlPath={ADD_ROUTE}
+        datePicker={true}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        defaultDaysBack={defaultDaysBack}
       />
 
-      <ApiUserProductsDatatable
-        columns={columns}
-        payload={apiUserProductsList}
-      />
+      {renderPageContent()}
     </>
   );
 };

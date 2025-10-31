@@ -6,7 +6,7 @@ import ProductDatatable from './product-datatable';
 import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
-import { fetchUserList } from '@/helperFunctions/userFunction';
+import { fetchAllUserList } from '@/helperFunctions/userFunction';
 import { getRights } from '@/utils/getRights';
 import useProductsIdStore from '@/hooks/useProductsIdStore';
 import { useQuery } from '@tanstack/react-query';
@@ -41,8 +41,8 @@ const ProductList = () => {
   })
 
   const { data: usersListResponse, isLoading: usersListLoading, isError: usersListIsError, error: usersListError } = useQuery<UserResponseType | null>({
-    queryKey: ['users-list'],
-    queryFn: fetchUserList
+    queryKey: ['all-users-list'],
+    queryFn: fetchAllUserList
   })
 
   const { data: productCategoriesListResponse, isLoading: productCategoriesListLoading, isError: productCategoriesListIsError, error: productCategoriesListError } = useQuery<ProductCategoriesResponseTypes | null>({

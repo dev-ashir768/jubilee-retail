@@ -12,7 +12,7 @@ import Empty from "../foundations/empty";
 import EditPremiumRangeProtectionForm from "./edit-premium-range-protection-form";
 import { useQuery } from "@tanstack/react-query";
 import { ApiUsersResponseType } from "@/types/usersTypes";
-import { fetchApiUserList } from "@/helperFunctions/userFunction";
+import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
 import usePremiumRangeProtectionIdStore from "@/hooks/premiumRangeProtectionIdStore";
@@ -37,8 +37,8 @@ const EditPremiumRangeProtection = () => {
     isError: apiUserListIsError,
     error: apiUserListError,
   } = useQuery<ApiUsersResponseType | null>({
-    queryKey: ["api-user-list"],
-    queryFn: fetchApiUserList,
+    queryKey: ["all-api-user-list"],
+queryFn: fetchAllApiUserList,
   });
 
   const {

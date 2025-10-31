@@ -1,12 +1,31 @@
 import { SingleUserResponseType } from "@/types/usersTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
-export const fetchUserList = async () => {
+interface fetchUserListProps {
+  startDate?: string;
+  endDate?: string;
+}
+
+interface fetchApiUserListProps {
+  startDate?: string;
+  endDate?: string;
+}
+
+// ======== USER ========
+export const fetchUserList = async <T>({
+  startDate,
+  endDate,
+}: fetchUserListProps): Promise<T | null> => {
+  const payload: { date?: string } = {};
+  if (startDate && endDate) {
+    payload.date = `${startDate} to ${endDate}`;
+  }
+
   try {
     const response = await axiosFunction({
       method: "POST",
-      urlPath: "/users/all",
-      data: {},
+      urlPath: "/users",
+      data: payload,
     });
 
     return response;
@@ -16,7 +35,23 @@ export const fetchUserList = async () => {
   }
 };
 
-export const fetchApiUserList = async () => {
+export const fetchAllUserList = async () => {
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/users",
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching users list:", err);
+    return null;
+  }
+};
+// ======== USER ========
+
+// ======== API USER ========
+export const fetchAllApiUserList = async () => {
   try {
     const response = axiosFunction({
       method: "POST",
@@ -28,6 +63,29 @@ export const fetchApiUserList = async () => {
     return null;
   }
 };
+
+export const fetchApiUserList = async <T>({
+  startDate,
+  endDate,
+}: fetchApiUserListProps): Promise<T | null> => {
+  const payload: { date?: string } = {};
+  if (startDate && endDate) {
+    payload.date = `${startDate} to ${endDate}`;
+  }
+
+  try {
+    const response = axiosFunction({
+      method: "POST",
+      urlPath: "/api-users",
+      data: payload,
+    });
+    return response;
+  } catch (err) {
+    console.error("Error fetching api users list:", err);
+    return null;
+  }
+};
+// ======== API USER ========
 
 export const fetchUserProfile = () => {
   try {

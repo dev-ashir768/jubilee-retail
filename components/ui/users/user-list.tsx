@@ -1,45 +1,87 @@
 "use client";
 
-import React, { useMemo } from 'react'
-import SubNav from '../foundations/sub-nav'
-import { useQuery } from '@tanstack/react-query'
-import { fetchUserList } from '@/helperFunctions/userFunction'
-import { Edit, MoreHorizontal, Trash } from 'lucide-react'
-import { UsersListPayloadType, UsersListResponseType } from '@/types/usersTypes';
-import { ColumnDef } from '@tanstack/react-table';
-import DatatableColumnHeader from '../datatable/datatable-column-header';
-import { ColumnMeta } from '@/types/dataTableTypes';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../shadcn/dropdown-menu';
-import { Button } from '../shadcn/button';
-import { Badge } from '../shadcn/badge';
-import Error from '../foundations/error';
-import { getRights } from '@/utils/getRights';
-import { usePathname, useRouter } from 'next/navigation';
-import Empty from '../foundations/empty';
-import Link from 'next/link';
-import useUserIdStore from '@/hooks/useAddUserIdStore';
-import UserDatatable from './user-datatable';
-import LoadingState from '../foundations/loading-state';
+import React, { useEffect, useMemo, useState } from "react";
+import SubNav from "../foundations/sub-nav";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUserList } from "@/helperFunctions/userFunction";
+import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import {
+  UsersListPayloadType,
+  UsersListResponseType,
+} from "@/types/usersTypes";
+import { ColumnDef } from "@tanstack/react-table";
+import DatatableColumnHeader from "../datatable/datatable-column-header";
+import { ColumnMeta } from "@/types/dataTableTypes";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../shadcn/dropdown-menu";
+import { Button } from "../shadcn/button";
+import { Badge } from "../shadcn/badge";
+import Error from "../foundations/error";
+import { getRights } from "@/utils/getRights";
+import { usePathname, useRouter } from "next/navigation";
+import Empty from "../foundations/empty";
+import Link from "next/link";
+import useUserIdStore from "@/hooks/useAddUserIdStore";
+import UserDatatable from "./user-datatable";
+import LoadingState from "../foundations/loading-state";
+import { DateRange } from "react-day-picker";
+import { format, subDays } from "date-fns";
 
 const UserList = () => {
-
+  // ======== CONSTANTS AND HOOKS ========
+  const ADD_ROUTE = "/users/add-user";
   const router = useRouter();
   const pathname = usePathname();
-  // Constants
-  const ADD_ROUTE = '/users/add-user'
+  const { setUserId } = useUserIdStore();
+  const defaultDaysBack = 366;
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), defaultDaysBack),
+    to: new Date(),
+  });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
-  // zustand
-  const { setUserId } = useUserIdStore()
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => {
+    return getRights(pathname);
+  }, [pathname]);
 
-  // Fetch user list data using react-query
-  const { data: userListResponse, isLoading: userListLoading, isError: userListIsError, error } = useQuery<UsersListResponseType | null>({
-    queryKey: ['users-list'],
-    queryFn: fetchUserList
-  })
+  // ======== DATA FETCHING ========
+  const {
+    data: userListResponse,
+    isLoading: userListLoading,
+    isError: userListIsError,
+    error: userListError,
+  } = useQuery<UsersListResponseType | null>({
+    queryKey: [
+      "users-list",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : [])
+    ],
+    queryFn: () =>
+      fetchUserList<UsersListResponseType>({
+        startDate,
+        endDate,
+      }),
+  });
 
-  // Column filter options
+  // ======== PAYLOADS DATA ========
+  const userList = useMemo(
+    () => userListResponse?.payload || [],
+    [userListResponse]
+  );
+
+  // ======== FILTER OPTIONS ========
   const fullnameFilterOptions = useMemo(() => {
-    const allFullname = userListResponse?.payload?.map((item) => item.fullname) || [];
+    const allFullname =
+      userListResponse?.payload?.map((item) => item.fullname) || [];
     const uniqueFullname = Array.from(new Set(allFullname));
     return uniqueFullname.map((fullname) => ({
       label: fullname,
@@ -48,7 +90,8 @@ const UserList = () => {
   }, [userListResponse]);
 
   const usernameFilterOptions = useMemo(() => {
-    const allUsername = userListResponse?.payload?.map((item) => item.username) || [];
+    const allUsername =
+      userListResponse?.payload?.map((item) => item.username) || [];
     const uniqueUsername = Array.from(new Set(allUsername));
     return uniqueUsername.map((username) => ({
       label: username,
@@ -74,14 +117,14 @@ const UserList = () => {
     }));
   }, [userListResponse]);
 
-  // Define columns for the data table
+  // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<UsersListPayloadType>[] = [
     {
-      accessorKey: 'fullname',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Fullname" />,
-      cell: ({ row }) => (
-        <div>{row.getValue("fullname")}</div>
+      accessorKey: "fullname",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Fullname" />
       ),
+      cell: ({ row }) => <div>{row.getValue("fullname")}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
@@ -90,50 +133,50 @@ const UserList = () => {
       } as ColumnMeta,
     },
     {
-      accessorKey: 'username',
-      header: ({ column }) => <DatatableColumnHeader column={column} title='Username' />,
-      cell: ({ row }) => (
-        <div>{row.getValue("username")}</div>
+      accessorKey: "username",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Username" />
       ),
+      cell: ({ row }) => <div>{row.getValue("username")}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
         filterOptions: usernameFilterOptions,
         filterPlaceholder: "Filter username...",
-      }
+      },
     },
     {
-      accessorKey: 'email',
-      header: ({ column }) => <DatatableColumnHeader column={column} title='Email' />,
-      cell: ({ row }) => (
-        <div>{row.getValue("email")}</div>
+      accessorKey: "email",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Email" />
       ),
+      cell: ({ row }) => <div>{row.getValue("email")}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
         filterOptions: emailFilterOptions,
         filterPlaceholder: "Filter email...",
-      }
+      },
     },
     {
-      accessorKey: 'phone',
-      header: ({ column }) => <DatatableColumnHeader column={column} title='Phone' />,
-      cell: ({ row }) => (
-        <div>{row.getValue("phone")}</div>
+      accessorKey: "phone",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Phone" />
       ),
+      cell: ({ row }) => <div>{row.getValue("phone")}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
         filterOptions: phoneFilterOptions,
         filterPlaceholder: "Filter phone...",
-      }
+      },
     },
     {
-      accessorKey: 'user_type',
-      header: ({ column }) => <DatatableColumnHeader column={column} title='User Type' />,
-      cell: ({ row }) => (
-        <div>{row.getValue("user_type")}</div>
+      accessorKey: "user_type",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="User Type" />
       ),
+      cell: ({ row }) => <div>{row.getValue("user_type")}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
@@ -142,36 +185,40 @@ const UserList = () => {
           { label: "API User", value: "api_user" },
         ],
         filterPlaceholder: "Filter user type...",
-      }
+      },
     },
     {
-      accessorKey: 'is_active',
-      header: ({ column }) => <DatatableColumnHeader column={column} title='Status' />,
+      accessorKey: "is_active",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Status" />
+      ),
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`} variant={status === "active" ? "success" : "danger"}>
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
+            variant={status === "active" ? "success" : "danger"}
+          >
             {status}
           </Badge>
-        )
+        );
       },
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
         filterOptions: [
           { label: "Active", value: "active" },
-          { label: "Inactive", value: "inactive" }
+          { label: "Inactive", value: "inactive" },
         ],
         filterPlaceholder: "Filter status...",
       } as ColumnMeta,
     },
     {
-      id: 'actions',
+      id: "actions",
       header: "Actions",
       cell: ({ row }) => {
-        const record = row.original
+        const record = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -183,53 +230,70 @@ const UserList = () => {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {rights?.can_edit === "1" &&
+              {rights?.can_edit === "1" && (
                 <DropdownMenuItem onClick={() => setUserId(record.id)} asChild>
                   <Link href={`/users/edit-user`}>
-                    <Edit className='mr-2 h-4 w-4' />
+                    <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Link>
                 </DropdownMenuItem>
-              }
-              {
-                rights?.can_edit === "1" &&
+              )}
+              {rights?.can_edit === "1" && (
                 <DropdownMenuItem>
-                  <Trash className='mr-2 h-4 w-4' />
+                  <Trash className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>
-              }
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
-        )
-      }
+        );
+      },
+    },
+  ];
+
+  // ======== RENDER LOGIC ========
+  const isLoading = userListLoading;
+  const isError = userListIsError;
+  const onError = userListError?.message;
+
+  useEffect(() => {
+    if (rights && rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
     }
-  ]
+  }, [rights, router]);
 
-  // Rights
-  const rights = useMemo(() => {
-    return getRights(pathname)
-  }, [pathname])
+  if (rights && rights?.can_view === "0")
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have permission."
+      />
+    );
 
-  if (rights?.can_view !== "1") {
-    setTimeout(() => {
-      router.back();
-    }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view user listing." />;
-  }
+  const renderPageContent = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
 
-  // loading state while fetching user list data
-  if (userListLoading) {
-    return <LoadingState />
-  }
+    if (isError) {
+      return <Error err={onError} />;
+    }
 
-  if (userListIsError) {
-    return <Error err={error?.message} />
-  }
+    if (!userList || userList.length === 0) {
+      return <Empty title="Not Found" description="Not Found" />;
+    }
 
-  // Empty state
-  if (!userListResponse?.payload || userListResponse.payload.length === 0) {
-    return <Empty title='Not Found' description='Not Found' />;
-  }
+    return (
+      <UserDatatable
+        columns={columns}
+        payload={userListResponse?.payload || []}
+      />
+    );
+  };
 
   return (
     <>
@@ -237,14 +301,15 @@ const UserList = () => {
         title="User Management"
         addBtnTitle="Add User"
         urlPath={ADD_ROUTE}
+        datePicker={true}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        defaultDaysBack={defaultDaysBack}
       />
 
-      <UserDatatable
-        columns={columns}
-        payload={userListResponse?.payload || []}
-      />
+      {renderPageContent()}
     </>
-  )
-}
+  );
+};
 
-export default UserList
+export default UserList;

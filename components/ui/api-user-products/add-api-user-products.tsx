@@ -11,7 +11,9 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import AddApiAserProductsForm from "./add-api-user-products-form";
 import { useQuery } from "@tanstack/react-query";
-import { fetchApiUserList } from "@/helperFunctions/userFunction";
+import {
+  fetchAllApiUserList,
+} from "@/helperFunctions/userFunction";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
@@ -35,8 +37,8 @@ const AddApiUserProducts = () => {
     isError: apiUserListIsError,
     error: apiUserListError,
   } = useQuery<ApiUsersResponseType | null>({
-    queryKey: ["api-user-list"],
-    queryFn: fetchApiUserList,
+    queryKey: ["all-api-user-list"],
+    queryFn: fetchAllApiUserList,
   });
 
   const {
@@ -55,7 +57,7 @@ const AddApiUserProducts = () => {
     [apiUserListData]
   );
 
-   const productList = useMemo(
+  const productList = useMemo(
     () => productListData?.payload || [],
     [productListData]
   );
@@ -111,7 +113,10 @@ const AddApiUserProducts = () => {
         </CardHeader>
         <CardContent>
           <div className="w-full">
-            <AddApiAserProductsForm apiUserList={apiUserList} productList={productList} />
+            <AddApiAserProductsForm
+              apiUserList={apiUserList}
+              productList={productList}
+            />
           </div>
         </CardContent>
       </Card>

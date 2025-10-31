@@ -17,13 +17,15 @@ import { useEffect, useState } from "react";
 interface DateRangePickerProps extends React.HTMLAttributes<HTMLDivElement> {
   date: DateRange | undefined;
   setDate: (date: DateRange | undefined) => void;
-  align?: "end" | "center" | "start"
+  align?: "end" | "center" | "start",
+  defaultDaysBack: number
 }
 
 export function DateRangePicker({
   className,
   date,
   setDate,
+  defaultDaysBack,
   align= "end"
 }: DateRangePickerProps) {
   // Local state to hold the date selection before applying
@@ -48,7 +50,7 @@ export function DateRangePicker({
 
   const handleReset = () => {
     const defaultDateRange = {
-      from: subDays(new Date(), 6),
+      from: subDays(new Date(), defaultDaysBack),
       to: new Date(),
     };
     setDate(defaultDateRange);

@@ -24,6 +24,7 @@ const SubNav: React.FC<subNavTypes> = ({
   setDateRange,
   isExportZipOpen,
   setIsExportZipOpen,
+  defaultDaysBack = 366,
   filter = false,
   exportZip = false,
 }) => {
@@ -101,7 +102,7 @@ const SubNav: React.FC<subNavTypes> = ({
         ) : null}
 
         {datePicker && setDateRange && (
-          <DateRangePicker date={dateRange} setDate={setDateRange} />
+          <DateRangePicker date={dateRange} setDate={setDateRange} defaultDaysBack={defaultDaysBack} />
         )}
       </div>
     </div>

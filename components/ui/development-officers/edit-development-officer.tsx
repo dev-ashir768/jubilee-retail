@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchBranchList } from '@/helperFunctions/branchFunction';
+import { fetchAllBranchList } from '@/helperFunctions/branchFunction';
 import { fetchSingleDevelopmentOfficer } from '@/helperFunctions/developmentOfficerFunction';
 import useDevelopmentOfficerIdStore from '@/hooks/useDevelopmentOfficerStore';
 import { BranchResponseType } from '@/types/branchTypes';
@@ -39,8 +39,8 @@ const EditDevelopmentOfficer = () => {
 
   // Fetch branch list data using react-query
   const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseType | null>({
-    queryKey: ['get-branch-list'],
-    queryFn: fetchBranchList
+   queryKey: ['all-branch-list'],
+       queryFn: fetchAllBranchList
   })
 
   // Rights Redirection

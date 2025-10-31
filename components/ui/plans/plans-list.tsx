@@ -26,7 +26,7 @@ import DatatableColumnHeader from "../datatable/datatable-column-header";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "../shadcn/badge";
 import { UserResponseType } from "@/types/usersTypes";
-import { fetchUserList } from "@/helperFunctions/userFunction";
+import { fetchAllUserList } from "@/helperFunctions/userFunction";
 
 const PlansList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -59,7 +59,7 @@ const PlansList = () => {
     error: usersListError,
   } = useQuery<UserResponseType | null>({
     queryKey: ["users-list"],
-    queryFn: fetchUserList,
+    queryFn: fetchAllUserList,
   });
 
   // ======== PAYLOADS DATA ========

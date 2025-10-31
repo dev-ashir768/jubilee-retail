@@ -11,7 +11,7 @@ import { getRights } from '@/utils/getRights'
 import Empty from '../foundations/empty'
 import LoadingState from '../foundations/loading-state'
 import Error from '../foundations/error'
-import { fetchBranchList } from '@/helperFunctions/branchFunction'
+import { fetchAllBranchList } from '@/helperFunctions/branchFunction'
 import { BranchResponseType } from '@/types/branchTypes'
 import { useQuery } from '@tanstack/react-query'
 
@@ -28,8 +28,8 @@ const AddDevelopmentOfficer = () => {
 
   // Fetch branch list data using react-query
   const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseType | null>({
-    queryKey: ['get-branch-list'],
-    queryFn: fetchBranchList
+  queryKey: ['all-branch-list'],
+      queryFn: fetchAllBranchList
   })
 
 

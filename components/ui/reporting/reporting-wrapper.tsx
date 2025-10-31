@@ -9,16 +9,16 @@ import ReportingForm from "./reporting-form";
 import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
 import { BranchResponseType } from "@/types/branchTypes";
-import { fetchBranchList } from "@/helperFunctions/branchFunction";
+import { fetchAllBranchList } from "@/helperFunctions/branchFunction";
 import { ClientResponseType } from "@/types/clientTypes";
-import { fetchClientList } from "@/helperFunctions/clientFunction";
+import { fetchAllClientList } from "@/helperFunctions/clientFunction";
 import { DevelopmentOfficerResponseTypes } from "@/types/developmentOfficerTypes";
 import { fetchDevelopmentOfficerList } from "@/helperFunctions/developmentOfficerFunction";
 import { fetchProductsList } from "@/helperFunctions/productsFunction";
 import { ProductsResponseTypes } from "@/types/productsTypes";
 import { PlanResponseTypes } from "@/types/planTypes";
 import { fetchPlansList } from "@/helperFunctions/plansFunction";
-import { fetchApiUserList } from "@/helperFunctions/userFunction";
+import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import { Card, CardContent, CardHeader, CardTitle } from "../shadcn/card";
 import { CityResponseType } from "@/types/cityTypes";
@@ -44,8 +44,8 @@ const ReportingWrapper = () => {
     isError: branchListIsError,
     error: branchListError,
   } = useQuery<BranchResponseType | null>({
-    queryKey: ["branches-list"],
-    queryFn: fetchBranchList,
+    queryKey: ["all-branch-list"],
+    queryFn: fetchAllBranchList,
   });
 
   const {
@@ -54,8 +54,8 @@ const ReportingWrapper = () => {
     isError: clientListIsError,
     error: clientListError,
   } = useQuery<ClientResponseType | null>({
-    queryKey: ["client-list"],
-    queryFn: fetchClientList,
+    queryKey: ["all-client-list"],
+    queryFn: fetchAllClientList,
   });
 
   const {
@@ -114,8 +114,8 @@ const ReportingWrapper = () => {
     isError: apiUsersListIsError,
     error: apiUsersListError,
   } = useQuery<ApiUsersResponseType | null>({
-    queryKey: ["api-user-list"],
-    queryFn: fetchApiUserList,
+    queryKey: ["all-api-user-list"],
+    queryFn: fetchAllApiUserList,
   });
 
   // ======== PAYLOADS DATA ========
@@ -168,14 +168,16 @@ const ReportingWrapper = () => {
     apiUsersListLoading ||
     productListLoading ||
     doListLoading ||
-    clientListLoading || couponListLoading ||
+    clientListLoading ||
+    couponListLoading ||
     cityListLoading ||
     branchListLoading;
   const isError =
     agentListIsError ||
     apiUsersListIsError ||
     planListIsError ||
-    productListIsError || couponListIsError ||
+    productListIsError ||
+    couponListIsError ||
     doListIsError ||
     clientListIsError ||
     cityListIsError ||
@@ -188,7 +190,8 @@ const ReportingWrapper = () => {
     clientListError?.message ||
     branchListError?.message ||
     cityListError?.message ||
-    doListError?.message || couponListError?.message;
+    doListError?.message ||
+    couponListError?.message;
 
   return (
     <>

@@ -1,29 +1,29 @@
 "use client";
 
-import React from 'react';
-import { Button } from '../shadcn/button';
-import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { Label } from '../shadcn/label';
-import { Input } from '../shadcn/input';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import BranchSchema, { BranchSchemaType } from '@/schemas/branchSchema';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { Textarea } from '../shadcn/textarea';
-import { axiosFunction } from '@/utils/axiosFunction';
-import { toast } from 'sonner';
-import { AxiosError } from 'axios';
-import { BranchPayloadType, BranchResponseType } from '@/types/branchTypes';
-import useBranchIdStore from '@/hooks/useBranchIdStore';
+import React from "react";
+import { Button } from "../shadcn/button";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Label } from "../shadcn/label";
+import { Input } from "../shadcn/input";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import BranchSchema, { BranchSchemaType } from "@/schemas/branchSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Textarea } from "../shadcn/textarea";
+import { axiosFunction } from "@/utils/axiosFunction";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { BranchPayloadType, BranchResponseType } from "@/types/branchTypes";
+import useBranchIdStore from "@/hooks/useBranchIdStore";
 
 interface EditBranchFormProps {
-  singleBranch: BranchPayloadType | undefined
+  singleBranch: BranchPayloadType | undefined;
 }
 
 const EditBranchForm: React.FC<EditBranchFormProps> = ({ singleBranch }) => {
   // Constants
-  const LISTING_ROUTE = '/branches-clients/branch-list';
+  const LISTING_ROUTE = "/branches-clients/branch-list";
 
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -34,7 +34,7 @@ const EditBranchForm: React.FC<EditBranchFormProps> = ({ singleBranch }) => {
     handleSubmit,
     register,
     formState: { errors },
-    reset
+    reset,
   } = useForm({
     resolver: zodResolver(BranchSchema),
     defaultValues: {
@@ -65,31 +65,41 @@ const EditBranchForm: React.FC<EditBranchFormProps> = ({ singleBranch }) => {
         method: "PUT",
         urlPath: "/branches",
         data: record,
-        isServer: true
-      })
+        isServer: true,
+      });
     },
     onError: (err) => {
-      const message = err?.response?.data?.message
-      console.log('Edit branch mutation error', err)
-      toast.error(message)
+      const message = err?.response?.data?.message;
+      console.log("Edit branch mutation error", err);
+      toast.error(message);
     },
     onSuccess: (data) => {
-      const message = data?.message
-      toast.success(message)
-      reset()
-      queryClient.invalidateQueries({ queryKey: ['single-branch', branchId] })
-      queryClient.invalidateQueries({ queryKey: ['branch-list'] })
-      router.push(LISTING_ROUTE)
-    }
-  })
+      const message = data?.message;
+      toast.success(message);
+      reset();
+      queryClient.invalidateQueries({ queryKey: ["single-branch", branchId] });
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+
+          return (
+            typeof queryKey[0] === "string" &&
+            (queryKey[0].startsWith("branch-list") ||
+              queryKey[0] === "all-branch-list")
+          );
+        },
+      });
+      router.push(LISTING_ROUTE);
+    },
+  });
 
   // Submit handler to trigger mutation
   const onSubmit = (data: BranchSchemaType) => {
     const finalDate = {
       ...data,
-      branch_id: branchId!
-    }
-    editBranchMutation.mutate(finalDate)
+      branch_id: branchId!,
+    };
+    editBranchMutation.mutate(finalDate);
   };
 
   return (
@@ -125,7 +135,9 @@ const EditBranchForm: React.FC<EditBranchFormProps> = ({ singleBranch }) => {
               maxLength={8}
             />
             {errors.igis_branch_code && (
-              <p className="text-red-500 text-sm">{errors.igis_branch_code.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.igis_branch_code.message}
+              </p>
             )}
           </div>
 
@@ -142,7 +154,9 @@ const EditBranchForm: React.FC<EditBranchFormProps> = ({ singleBranch }) => {
               maxLength={8}
             />
             {errors.igis_takaful_code && (
-              <p className="text-red-500 text-sm">{errors.igis_takaful_code.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.igis_takaful_code.message}
+              </p>
             )}
           </div>
 
@@ -155,7 +169,7 @@ const EditBranchForm: React.FC<EditBranchFormProps> = ({ singleBranch }) => {
               id="address"
               {...register("address")}
               placeholder="Enter address"
-              className='resize-none'
+              className="resize-none"
               rows={6}
             />
             {errors.address && (
@@ -242,7 +256,9 @@ const EditBranchForm: React.FC<EditBranchFormProps> = ({ singleBranch }) => {
               maxLength={10}
             />
             {errors.his_code_takaful && (
-              <p className="text-red-500 text-sm">{errors.his_code_takaful.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.his_code_takaful.message}
+              </p>
             )}
           </div>
 
@@ -258,7 +274,9 @@ const EditBranchForm: React.FC<EditBranchFormProps> = ({ singleBranch }) => {
               placeholder="Enter sales tax percentage"
             />
             {errors.sales_tax_perc && (
-              <p className="text-red-500 text-sm">{errors.sales_tax_perc.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.sales_tax_perc.message}
+              </p>
             )}
           </div>
 
@@ -274,7 +292,9 @@ const EditBranchForm: React.FC<EditBranchFormProps> = ({ singleBranch }) => {
               placeholder="Enter federal insurance fee"
             />
             {errors.fed_insurance_fee && (
-              <p className="text-red-500 text-sm">{errors.fed_insurance_fee.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.fed_insurance_fee.message}
+              </p>
             )}
           </div>
 
@@ -291,7 +311,9 @@ const EditBranchForm: React.FC<EditBranchFormProps> = ({ singleBranch }) => {
               step="1"
             />
             {errors.stamp_duty && (
-              <p className="text-red-500 text-sm">{errors.stamp_duty.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.stamp_duty.message}
+              </p>
             )}
           </div>
 
@@ -307,15 +329,26 @@ const EditBranchForm: React.FC<EditBranchFormProps> = ({ singleBranch }) => {
               placeholder="Enter admin rate"
             />
             {errors.admin_rate && (
-              <p className="text-red-500 text-sm">{errors.admin_rate.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.admin_rate.message}
+              </p>
             )}
           </div>
 
           {/* Form Action */}
           <div>
-            <Button type="submit" className='min-w-[150px] cursor-pointer' size='lg' disabled={editBranchMutation.isPending}>
-              {editBranchMutation.isPending ? 'Updating' : 'Update'}
-              {editBranchMutation.isPending && <span className="animate-spin"><Loader2 /></span>}
+            <Button
+              type="submit"
+              className="min-w-[150px] cursor-pointer"
+              size="lg"
+              disabled={editBranchMutation.isPending}
+            >
+              {editBranchMutation.isPending ? "Updating" : "Update"}
+              {editBranchMutation.isPending && (
+                <span className="animate-spin">
+                  <Loader2 />
+                </span>
+              )}
             </Button>
           </div>
         </div>

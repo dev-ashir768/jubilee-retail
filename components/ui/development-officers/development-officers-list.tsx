@@ -18,7 +18,7 @@ import { Button } from '../shadcn/button';
 import Link from 'next/link';
 import SubNav from '../foundations/sub-nav';
 import useDevelopmentOfficerIdStore from '@/hooks/useDevelopmentOfficerStore';
-import { fetchBranchList } from '@/helperFunctions/branchFunction';
+import { fetchAllBranchList } from '@/helperFunctions/branchFunction';
 import { BranchResponseType } from '@/types/branchTypes';
 import DevelopmentOfficerDatatable from './development-officer-datatable';
 import LoadingState from '../foundations/loading-state';
@@ -32,8 +32,8 @@ const DevelopmentOfficersList = () => {
 
   // Fetch branch list data using react-query
   const { data: branchListResponse, isLoading: branchListLoading, isError: branchListIsError, error: branchListError } = useQuery<BranchResponseType | null>({
-    queryKey: ['get-branch-list'],
-    queryFn: fetchBranchList
+    queryKey: ['all-branch-list'],
+        queryFn: fetchAllBranchList
   })
 
   // Fetch development officer list data using react-query

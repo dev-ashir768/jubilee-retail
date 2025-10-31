@@ -2,7 +2,7 @@
 
 import { fetchProductOptionsList } from '@/helperFunctions/productOptionsFunction';
 import { fetchProductsList } from '@/helperFunctions/productsFunction';
-import { fetchUserList } from '@/helperFunctions/userFunction';
+import { fetchAllUserList } from '@/helperFunctions/userFunction';
 import useProductOptionsIdStore from '@/hooks/useProductOptionsIdStore';
 import { ProductOptionsPayloadTypes, ProductOptionsResponseTypes } from '@/types/productOptionsTypes';
 import { ProductsResponseTypes } from '@/types/productsTypes';
@@ -43,8 +43,8 @@ const ProductOptionsList = () => {
   })
 
   const { data: usersListResponse, isLoading: usersListLoading, isError: usersListIsError, error: usersListError } = useQuery<UserResponseType | null>({
-    queryKey: ['users-list'],
-    queryFn: fetchUserList
+    queryKey: ['all-users-list'],
+        queryFn: fetchAllUserList
   })
 
   const { data: productListResponse, isLoading: productListLoading, isError: productListIsError, error: productListError } = useQuery<ProductsResponseTypes | null>({

@@ -1,11 +1,24 @@
 import { MotorQuoteResponseTypes } from "@/types/motorQuote";
 import { axiosFunction } from "@/utils/axiosFunction";
 
-export const fetchMotorQuoteList = async (): Promise<MotorQuoteResponseTypes | null> => {
+interface fetchMotorQuoteListProps {
+  startDate?: string;
+  endDate?: string;
+}
+
+export const fetchMotorQuoteList = async <T>({
+  startDate,
+  endDate,
+}: fetchMotorQuoteListProps): Promise<MotorQuoteResponseTypes | null> => {
+  const payload: { date?: string } = {};
+  if (startDate && endDate) {
+    payload.date = `${startDate} to ${endDate}`;
+  }
   try {
     const response = await axiosFunction({
       method: "POST",
       urlPath: "/motor-quotes/all",
+      data: payload,
     });
 
     return response;
@@ -14,6 +27,21 @@ export const fetchMotorQuoteList = async (): Promise<MotorQuoteResponseTypes | n
     return null;
   }
 };
+
+export const fetchAllMotorQuoteList =
+  async (): Promise<MotorQuoteResponseTypes | null> => {
+    try {
+      const response = await axiosFunction({
+        method: "POST",
+        urlPath: "/motor-quotes/all",
+      });
+
+      return response;
+    } catch (err) {
+      console.error("Error fetching motor quotes list:", err);
+      return null;
+    }
+  };
 
 export const fetchSingleMotorQuote = async (
   motorQuoteId: number
