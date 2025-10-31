@@ -143,7 +143,10 @@ const LeadInfoList = () => {
     error: LeadInfoListError,
     isError: LeadInfoListIsError,
   } = useQuery<LeadInfoResponseTypes | null>({
-    queryKey: ["lead-info-list", ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),],
+    queryKey: [
+      "lead-info-list",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
     queryFn: () =>
       fetchLeadInfoList({
         startDate,
@@ -176,7 +179,15 @@ const LeadInfoList = () => {
     onSuccess: (data) => {
       const message = data?.message;
       toast.success(message);
-      queryClient.invalidateQueries({ queryKey: ["lead-info-list"] });
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          return (
+            typeof queryKey[0] === "string" &&
+            queryKey[0].startsWith("lead-info-list")
+          );
+        },
+      });
     },
   });
 

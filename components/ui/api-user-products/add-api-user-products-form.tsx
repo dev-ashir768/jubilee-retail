@@ -77,7 +77,16 @@ const AddApiAserProductsForm: React.FC<AddApiAserProductsFormProps> = ({
     onSuccess: (data) => {
       const message = data?.message;
       toast.success(message);
-      queryClient.invalidateQueries({ queryKey: ["api-user-products-list"] });
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          return (
+            typeof queryKey[0] === "string" &&
+            (queryKey[0].startsWith("api-user-products-list") ||
+              queryKey[0] === "all-api-user-products-list")
+          );
+        },
+      });
       router.push(LISTING_ROUTE);
     },
   });

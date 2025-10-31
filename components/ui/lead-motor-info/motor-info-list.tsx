@@ -179,7 +179,15 @@ const MotorInfoList = () => {
     onSuccess: (data) => {
       const message = data?.message;
       toast.success(message);
-      queryClient.invalidateQueries({ queryKey: ["lead-motor-info-list"] });
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          return (
+            typeof queryKey[0] === "string" &&
+            queryKey[0].startsWith("lead-motor-info-list")
+          );
+        },
+      });
       router.push(LISTING_ROUTE);
     },
   });

@@ -321,7 +321,7 @@ const CboList = () => {
                   row?.original.policy_status.toLocaleLowerCase() ===
                     "pendingcbo" && (
                     <DropdownMenuItem
-                      onClick={() => handlePolicyStatusDialog(row.original?.id)}
+                      onClick={() => handlePolicyStatusDialog(row.original?.policy_id)}
                     >
                       <span>Change Status</span>
                     </DropdownMenuItem>

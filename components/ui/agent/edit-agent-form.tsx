@@ -1,40 +1,43 @@
 "use client";
 
-import useAgentIdStore from '@/hooks/useAgentIdStore'
-import AgentSchema, { AgentSchemaType } from '@/schemas/agentSchema'
-import { AgentPayloadTypes, AgentResponseTypes } from '@/types/agentTypes'
-import { BranchPayloadType } from '@/types/branchTypes'
-import { DevelopmentOfficerPayloadTypes } from '@/types/developmentOfficerTypes'
-import { axiosFunction } from '@/utils/axiosFunction'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AxiosError } from 'axios'
-import { useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
-import { useController, useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { Label } from '../shadcn/label'
-import { Input } from '../shadcn/input'
-import Select from 'react-select'
-import { Checkbox } from '../shadcn/checkbox'
-import { Button } from '../shadcn/button'
-import { Loader2 } from 'lucide-react'
+import useAgentIdStore from "@/hooks/useAgentIdStore";
+import AgentSchema, { AgentSchemaType } from "@/schemas/agentSchema";
+import { AgentPayloadTypes, AgentResponseTypes } from "@/types/agentTypes";
+import { BranchPayloadType } from "@/types/branchTypes";
+import { DevelopmentOfficerPayloadTypes } from "@/types/developmentOfficerTypes";
+import { axiosFunction } from "@/utils/axiosFunction";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useController, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { Label } from "../shadcn/label";
+import { Input } from "../shadcn/input";
+import Select from "react-select";
+import { Checkbox } from "../shadcn/checkbox";
+import { Button } from "../shadcn/button";
+import { Loader2 } from "lucide-react";
 
 interface EditAgentFormProps {
-  branchList: BranchPayloadType[] | undefined
-  developmentOfficerList: DevelopmentOfficerPayloadTypes[] | undefined
-  singleAgent: AgentPayloadTypes | undefined
+  branchList: BranchPayloadType[] | undefined;
+  developmentOfficerList: DevelopmentOfficerPayloadTypes[] | undefined;
+  singleAgent: AgentPayloadTypes | undefined;
 }
 
-const EditAgentForm: React.FC<EditAgentFormProps> = ({ branchList, developmentOfficerList, singleAgent }) => {
-
+const EditAgentForm: React.FC<EditAgentFormProps> = ({
+  branchList,
+  developmentOfficerList,
+  singleAgent,
+}) => {
   // Constants
-  const LISTING_ROUTE = '/agents-dos/agents'
+  const LISTING_ROUTE = "/agents-dos/agents";
 
   const queryClient = useQueryClient();
   const router = useRouter();
   const [isChecked, setIsChecked] = useState(false);
-  const { agentId } = useAgentIdStore()
+  const { agentId } = useAgentIdStore();
 
   const branchOptions = branchList?.map((item) => ({
     value: item.id,
@@ -47,25 +50,34 @@ const EditAgentForm: React.FC<EditAgentFormProps> = ({ branchList, developmentOf
   }));
 
   // Initialize form with React Hook Form and Zod validation
-  const { handleSubmit, formState: { errors }, control, reset, register, setValue } = useForm({
+  const {
+    handleSubmit,
+    formState: { errors },
+    control,
+    reset,
+    register,
+    setValue,
+  } = useForm({
     resolver: zodResolver(AgentSchema),
     defaultValues: {
       name: singleAgent ? singleAgent?.name : "",
       igis_code: singleAgent ? singleAgent?.igis_code : "",
       igis_agent_code: singleAgent ? singleAgent?.igis_agent_code : "",
       branch_id: singleAgent ? singleAgent?.branch_id : undefined,
-      development_officer_id: singleAgent ? singleAgent?.development_officer_id : undefined,
+      development_officer_id: singleAgent
+        ? singleAgent?.development_officer_id
+        : undefined,
       idev_affiliate: singleAgent ? singleAgent?.idev_affiliate : undefined,
       idev_id: singleAgent ? singleAgent?.idev_id : null,
-    }
-  })
+    },
+  });
 
   useEffect(() => {
     if (singleAgent) {
       const affiliateValue = singleAgent.idev_affiliate || false;
       setIsChecked(affiliateValue);
     }
-  }, [singleAgent])
+  }, [singleAgent]);
 
   // Mutation to handle agent update via PUT request
   const editAgentMutation = useMutation<
@@ -73,33 +85,42 @@ const EditAgentForm: React.FC<EditAgentFormProps> = ({ branchList, developmentOf
     AxiosError<AgentResponseTypes>,
     AgentSchemaType
   >({
-    mutationKey: ['edit-agent', agentId],
+    mutationKey: ["edit-agent", agentId],
     mutationFn: (record) => {
       return axiosFunction({
         method: "PUT",
         urlPath: "/agents",
         data: record,
-        isServer: true
-      })
+        isServer: true,
+      });
     },
     onError: (err) => {
-      const message = err?.response?.data?.message
-      console.log('Edit agent mutation error', err)
-      toast.error(message)
+      const message = err?.response?.data?.message;
+      console.log("Edit agent mutation error", err);
+      toast.error(message);
     },
     onSuccess: (data) => {
-      const message = data?.message
-      toast.success(message)
+      const message = data?.message;
+      toast.success(message);
       reset();
-      queryClient.invalidateQueries({ queryKey: ['single-agent', agentId] });
-      queryClient.invalidateQueries({ queryKey: ['agents-list'] })
-      router.push(LISTING_ROUTE)
-    }
-  })
+      queryClient.invalidateQueries({ queryKey: ["single-agent", agentId] });
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          return (
+            typeof queryKey[0] === "string" &&
+            (queryKey[0].startsWith("agents-list") ||
+              queryKey[0] === "all-agents-list")
+          );
+        },
+      });
+      router.push(LISTING_ROUTE);
+    },
+  });
 
   // Submit handler to trigger mutation
   const onSubmit = (data: AgentSchemaType) => {
-    editAgentMutation.mutate({ ...data, agent_id: agentId! })
+    editAgentMutation.mutate({ ...data, agent_id: agentId! });
   };
 
   // Controller for React Select (Branch ID)
@@ -121,7 +142,6 @@ const EditAgentForm: React.FC<EditAgentFormProps> = ({ branchList, developmentOf
     defaultValue: undefined,
     rules: { required: true },
   });
-
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-1/2">
@@ -170,7 +190,9 @@ const EditAgentForm: React.FC<EditAgentFormProps> = ({ branchList, developmentOf
             placeholder="Enter IGIS agent code"
           />
           {errors.igis_agent_code && (
-            <p className="text-red-500 text-sm">{errors.igis_agent_code.message}</p>
+            <p className="text-red-500 text-sm">
+              {errors.igis_agent_code.message}
+            </p>
           )}
         </div>
 
@@ -182,17 +204,22 @@ const EditAgentForm: React.FC<EditAgentFormProps> = ({ branchList, developmentOf
           <Select
             id="branch_id"
             options={branchOptions}
-            value={branchOptions?.find(option => option.value === branchValue) || null}
-            onChange={(selectedOption) => onChangeBranch(selectedOption ? selectedOption.value : null)}
+            value={
+              branchOptions?.find((option) => option.value === branchValue) ||
+              null
+            }
+            onChange={(selectedOption) =>
+              onChangeBranch(selectedOption ? selectedOption.value : null)
+            }
             placeholder="Select Branch"
             className="w-full"
             styles={{
               control: (provided) => ({
                 ...provided,
-                border: '1px solid #e5e5e5',
-                borderRadius: '8px',
-                padding: '2px',
-                height: '40px'
+                border: "1px solid #e5e5e5",
+                borderRadius: "8px",
+                padding: "2px",
+                height: "40px",
               }),
             }}
           />
@@ -203,28 +230,40 @@ const EditAgentForm: React.FC<EditAgentFormProps> = ({ branchList, developmentOf
 
         {/* Development Officer ID */}
         <div className="space-y-2">
-          <Label htmlFor="development_officer_id" className="gap-1 text-gray-600">
-            Development Officer ID<span className="text-red-500 text-md">*</span>
+          <Label
+            htmlFor="development_officer_id"
+            className="gap-1 text-gray-600"
+          >
+            Development Officer ID
+            <span className="text-red-500 text-md">*</span>
           </Label>
           <Select
             id="development_officer_id"
             options={developmentOfficerOptions}
-            value={developmentOfficerOptions?.find(option => option.value === developmentOfficerValue) || null}
-            onChange={(selectedOption) => onChangeOfficer(selectedOption ? selectedOption.value : null)}
+            value={
+              developmentOfficerOptions?.find(
+                (option) => option.value === developmentOfficerValue
+              ) || null
+            }
+            onChange={(selectedOption) =>
+              onChangeOfficer(selectedOption ? selectedOption.value : null)
+            }
             placeholder="Select Officer"
             className="w-full"
             styles={{
               control: (provided) => ({
                 ...provided,
-                border: '1px solid #e5e5e5',
-                borderRadius: '8px',
-                padding: '2px',
-                height: '40px'
+                border: "1px solid #e5e5e5",
+                borderRadius: "8px",
+                padding: "2px",
+                height: "40px",
               }),
             }}
           />
           {errors.development_officer_id && (
-            <p className="text-red-500 text-sm">{errors.development_officer_id.message}</p>
+            <p className="text-red-500 text-sm">
+              {errors.development_officer_id.message}
+            </p>
           )}
         </div>
 
@@ -235,14 +274,16 @@ const EditAgentForm: React.FC<EditAgentFormProps> = ({ branchList, developmentOf
             checked={isChecked}
             onCheckedChange={(checked) => {
               setValue("idev_affiliate", checked as boolean);
-              setIsChecked(checked as boolean)
+              setIsChecked(checked as boolean);
             }}
           />
           <Label htmlFor="idev_affiliate" className="gap-1 text-gray-600">
             IDEV Affiliate
           </Label>
           {errors.idev_affiliate && (
-            <p className="text-red-500 text-sm">{errors.idev_affiliate.message}</p>
+            <p className="text-red-500 text-sm">
+              {errors.idev_affiliate.message}
+            </p>
           )}
         </div>
 
@@ -262,7 +303,6 @@ const EditAgentForm: React.FC<EditAgentFormProps> = ({ branchList, developmentOf
               <p className="text-red-500 text-sm">{errors.idev_id.message}</p>
             )}
           </div>
-
         )}
 
         {/* Form Action */}
@@ -273,13 +313,17 @@ const EditAgentForm: React.FC<EditAgentFormProps> = ({ branchList, developmentOf
             size="lg"
             disabled={editAgentMutation.isPending}
           >
-            {editAgentMutation.isPending ? 'Submitting' : 'Submit'}
-            {editAgentMutation.isPending && <span className="animate-spin"><Loader2 /></span>}
+            {editAgentMutation.isPending ? "Submitting" : "Submit"}
+            {editAgentMutation.isPending && (
+              <span className="animate-spin">
+                <Loader2 />
+              </span>
+            )}
           </Button>
         </div>
       </div>
     </form>
-  )
-}
+  );
+};
 
-export default EditAgentForm
+export default EditAgentForm;

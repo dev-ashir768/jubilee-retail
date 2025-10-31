@@ -87,7 +87,16 @@ const AddCouponsForm: React.FC<AddCouponsForm> = ({ productList }) => {
     onSuccess: (data) => {
       const message = data?.message;
       toast.success(message);
-      queryClient.invalidateQueries({ queryKey: ["coupons-list"] });
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          return (
+            typeof queryKey[0] === "string" &&
+            (queryKey[0].startsWith("coupons-list") ||
+              queryKey[0] === "all-coupons-list")
+          );
+        },
+      });
       router.push(LISTING_ROUTE);
     },
   });

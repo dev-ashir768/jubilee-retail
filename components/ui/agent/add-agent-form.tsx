@@ -1,33 +1,36 @@
 "use client";
 
-import React, { useState } from 'react'
-import { Button } from '../shadcn/button'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
-import { useForm, useController } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import AgentSchema, { AgentSchemaType } from '@/schemas/agentSchema'
-import { Loader2 } from 'lucide-react'
-import { AgentResponseTypes } from '@/types/agentTypes';
-import { AxiosError } from 'axios';
-import { axiosFunction } from '@/utils/axiosFunction';
-import { toast } from 'sonner';
-import { Label } from '../shadcn/label';
-import { Input } from '../shadcn/input';
-import Select from 'react-select';
-import { BranchPayloadType } from '@/types/branchTypes';
-import { DevelopmentOfficerPayloadTypes } from '@/types/developmentOfficerTypes';
-import { Checkbox } from '../shadcn/checkbox';
-import { singleSelectStyle } from '@/utils/selectStyles';
+import React, { useState } from "react";
+import { Button } from "../shadcn/button";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useForm, useController } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import AgentSchema, { AgentSchemaType } from "@/schemas/agentSchema";
+import { Loader2 } from "lucide-react";
+import { AgentResponseTypes } from "@/types/agentTypes";
+import { AxiosError } from "axios";
+import { axiosFunction } from "@/utils/axiosFunction";
+import { toast } from "sonner";
+import { Label } from "../shadcn/label";
+import { Input } from "../shadcn/input";
+import Select from "react-select";
+import { BranchPayloadType } from "@/types/branchTypes";
+import { DevelopmentOfficerPayloadTypes } from "@/types/developmentOfficerTypes";
+import { Checkbox } from "../shadcn/checkbox";
+import { singleSelectStyle } from "@/utils/selectStyles";
 
 interface AddAgentFormProps {
-  branchList: BranchPayloadType[] | undefined
-  developmentOfficerList: DevelopmentOfficerPayloadTypes[] | undefined
+  branchList: BranchPayloadType[] | undefined;
+  developmentOfficerList: DevelopmentOfficerPayloadTypes[] | undefined;
 }
 
-const AddAgentForm: React.FC<AddAgentFormProps> = ({ branchList, developmentOfficerList }) => {
+const AddAgentForm: React.FC<AddAgentFormProps> = ({
+  branchList,
+  developmentOfficerList,
+}) => {
   // Constants
-  const LISTING_ROUTE = '/agents-dos/agents'
+  const LISTING_ROUTE = "/agents-dos/agents";
 
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -78,26 +81,35 @@ const AddAgentForm: React.FC<AddAgentFormProps> = ({ branchList, developmentOffi
         method: "POST",
         urlPath: "/agents",
         data: record,
-        isServer: true
-      })
+        isServer: true,
+      });
     },
     onError: (err) => {
-      const message = err?.response?.data?.message
-      console.log('Add agent mutation error', err)
-      toast.error(message)
+      const message = err?.response?.data?.message;
+      console.log("Add agent mutation error", err);
+      toast.error(message);
     },
     onSuccess: (data) => {
-      const message = data?.message
-      toast.success(message)
-      reset()
-      queryClient.invalidateQueries({ queryKey: ['agent-list'] })
-      router.push(LISTING_ROUTE)
-    }
-  })
+      const message = data?.message;
+      toast.success(message);
+      reset();
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          return (
+            typeof queryKey[0] === "string" &&
+            (queryKey[0].startsWith("agents-list") ||
+              queryKey[0] === "all-agents-list")
+          );
+        },
+      });
+      router.push(LISTING_ROUTE);
+    },
+  });
 
   // Submit handler
   const onSubmit = (data: AgentSchemaType) => {
-    addAgentMutation.mutate(data)
+    addAgentMutation.mutate(data);
   };
 
   // Controller for React Select (Branch ID)
@@ -168,7 +180,9 @@ const AddAgentForm: React.FC<AddAgentFormProps> = ({ branchList, developmentOffi
               placeholder="Enter IGIS agent code"
             />
             {errors.igis_agent_code && (
-              <p className="text-red-500 text-sm">{errors.igis_agent_code.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.igis_agent_code.message}
+              </p>
             )}
           </div>
 
@@ -180,8 +194,13 @@ const AddAgentForm: React.FC<AddAgentFormProps> = ({ branchList, developmentOffi
             <Select
               id="branch_id"
               options={branchOptions}
-              value={branchOptions?.find(option => option.value === branchValue) || null}
-              onChange={(selectedOption) => onChangeBranch(selectedOption ? selectedOption.value : null)}
+              value={
+                branchOptions?.find((option) => option.value === branchValue) ||
+                null
+              }
+              onChange={(selectedOption) =>
+                onChangeBranch(selectedOption ? selectedOption.value : null)
+              }
               placeholder="Select Branch"
               className="w-full"
               styles={singleSelectStyle}
@@ -193,20 +212,32 @@ const AddAgentForm: React.FC<AddAgentFormProps> = ({ branchList, developmentOffi
 
           {/* Development Officer ID */}
           <div className="space-y-2">
-            <Label htmlFor="development_officer_id" className="gap-1 text-gray-600">
-              Development Officer ID<span className="text-red-500 text-md">*</span>
+            <Label
+              htmlFor="development_officer_id"
+              className="gap-1 text-gray-600"
+            >
+              Development Officer ID
+              <span className="text-red-500 text-md">*</span>
             </Label>
             <Select
               id="development_officer_id"
               options={developmentOfficerOptions}
-              value={developmentOfficerOptions?.find(option => option.value === developmentOfficerValue) || null}
-              onChange={(selectedOption) => onChangeOfficer(selectedOption ? selectedOption.value : null)}
+              value={
+                developmentOfficerOptions?.find(
+                  (option) => option.value === developmentOfficerValue
+                ) || null
+              }
+              onChange={(selectedOption) =>
+                onChangeOfficer(selectedOption ? selectedOption.value : null)
+              }
               placeholder="Select Officer"
               className="w-full"
               styles={singleSelectStyle}
             />
             {errors.development_officer_id && (
-              <p className="text-red-500 text-sm">{errors.development_officer_id.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.development_officer_id.message}
+              </p>
             )}
           </div>
 
@@ -216,14 +247,16 @@ const AddAgentForm: React.FC<AddAgentFormProps> = ({ branchList, developmentOffi
               id="idev_affiliate"
               onCheckedChange={(checked) => {
                 setValue("idev_affiliate", checked as boolean);
-                setIsChecked(checked as boolean)
+                setIsChecked(checked as boolean);
               }}
             />
             <Label htmlFor="idev_affiliate" className="gap-1 text-gray-600">
               IDEV Affiliate
             </Label>
             {errors.idev_affiliate && (
-              <p className="text-red-500 text-sm">{errors.idev_affiliate.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.idev_affiliate.message}
+              </p>
             )}
           </div>
 
@@ -243,7 +276,6 @@ const AddAgentForm: React.FC<AddAgentFormProps> = ({ branchList, developmentOffi
                 <p className="text-red-500 text-sm">{errors.idev_id.message}</p>
               )}
             </div>
-
           )}
 
           {/* Form Action */}
@@ -254,15 +286,18 @@ const AddAgentForm: React.FC<AddAgentFormProps> = ({ branchList, developmentOffi
               size="lg"
               disabled={addAgentMutation.isPending}
             >
-              {addAgentMutation.isPending ? 'Submitting' : 'Submit'}
-              {addAgentMutation.isPending && <span className="animate-spin"><Loader2 /></span>}
+              {addAgentMutation.isPending ? "Submitting" : "Submit"}
+              {addAgentMutation.isPending && (
+                <span className="animate-spin">
+                  <Loader2 />
+                </span>
+              )}
             </Button>
           </div>
         </div>
       </form>
-
     </>
-  )
-}
+  );
+};
 
-export default AddAgentForm
+export default AddAgentForm;

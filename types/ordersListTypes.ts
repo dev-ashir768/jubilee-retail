@@ -23,6 +23,7 @@ export type OrdersListPayloadType = {
   renewal_number: string | null;
   payment_code: string;
   is_takaful: number;
+  policy_id: number;
 };
 
 export type OrdersListResponseType = {

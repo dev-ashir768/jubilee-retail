@@ -375,7 +375,7 @@ queryFn: fetchAllApiUserList,
                     "pendingigis" && (
                     <DropdownMenuItem
                       onClick={() =>
-                        handlePolicyStatusDialog(row.original?.id)
+                        handlePolicyStatusDialog(row.original?.policy_id)
                       }
                     >
                       <span>Change Status</span>

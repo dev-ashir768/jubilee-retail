@@ -26,7 +26,7 @@ const EditCallUs = () => {
   const { data: singleCallUsResponse, isLoading: singleCallUsLoading, isError: singleCallUsIsError, error } = useQuery<CallUsResponseType | null>({
     queryKey: ["single-call-us", callUsId],
     queryFn: () => fetchSingleCallUs(callUsId!),
-    enabled: !!callUsId // Only fetch if callUsId is available
+    enabled: !!callUsId 
   })
 
   // Loading state

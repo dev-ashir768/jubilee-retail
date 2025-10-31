@@ -1,32 +1,31 @@
 "use client";
 
-import React from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import { Button } from '../shadcn/button';
-import { Loader2 } from 'lucide-react';
-import { Label } from '../shadcn/label';
-import { Input } from '../shadcn/input';
-import { BranchPayloadType } from '@/types/branchTypes';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { ClientSchema, ClientSchemaType } from '@/schemas/clientSchema';
-import { toast } from 'sonner';
-import { ClientResponseType } from '@/types/clientTypes';
-import { AxiosError } from 'axios';
-import { axiosFunction } from '@/utils/axiosFunction';
-import { Textarea } from '../shadcn/textarea';
-import Select from 'react-select'
-import { singleSelectStyle } from '@/utils/selectStyles';
+import React from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { Button } from "../shadcn/button";
+import { Loader2 } from "lucide-react";
+import { Label } from "../shadcn/label";
+import { Input } from "../shadcn/input";
+import { BranchPayloadType } from "@/types/branchTypes";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ClientSchema, ClientSchemaType } from "@/schemas/clientSchema";
+import { toast } from "sonner";
+import { ClientResponseType } from "@/types/clientTypes";
+import { AxiosError } from "axios";
+import { axiosFunction } from "@/utils/axiosFunction";
+import { Textarea } from "../shadcn/textarea";
+import Select from "react-select";
+import { singleSelectStyle } from "@/utils/selectStyles";
 
 interface AddClientFormProps {
-  branchList: BranchPayloadType[]
+  branchList: BranchPayloadType[];
 }
 
 const AddClientForm: React.FC<AddClientFormProps> = ({ branchList }) => {
-
   // Constants
-  const LISTING_ROUTE = '/branches-clients/Clients-list'
+  const LISTING_ROUTE = "/branches-clients/Clients-list";
 
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -62,32 +61,41 @@ const AddClientForm: React.FC<AddClientFormProps> = ({ branchList }) => {
     AxiosError<ClientResponseType>,
     ClientSchemaType
   >({
-    mutationKey: ['add-client'],
+    mutationKey: ["add-client"],
     mutationFn: (record) => {
       return axiosFunction({
         method: "POST",
         urlPath: "/clients",
         data: record,
-        isServer: true
-      })
+        isServer: true,
+      });
     },
     onError: (err) => {
-      const message = err?.response?.data?.message
-      console.log('Add client mutation error', err)
-      toast.error(message)
+      const message = err?.response?.data?.message;
+      console.log("Add client mutation error", err);
+      toast.error(message);
     },
     onSuccess: (data) => {
-      const message = data?.message
-      toast.success(message)
-      reset()
-      queryClient.invalidateQueries({ queryKey: ['client-list'] })
-      router.push(LISTING_ROUTE)
-    }
-  })
+      const message = data?.message;
+      toast.success(message);
+      reset();
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          return (
+            typeof queryKey[0] === "string" &&
+            (queryKey[0].startsWith("clients-list") ||
+              queryKey[0] === "all-clients-list")
+          );
+        },
+      });
+      router.push(LISTING_ROUTE);
+    },
+  });
 
   // Submit handler
   const onSubmit = (data: ClientSchemaType) => {
-    addClientMutation.mutate(data)
+    addClientMutation.mutate(data);
   };
 
   return (
@@ -122,7 +130,9 @@ const AddClientForm: React.FC<AddClientFormProps> = ({ branchList }) => {
               placeholder="Enter IGIS client code"
             />
             {errors.igis_client_code && (
-              <p className="text-red-500 text-sm">{errors.igis_client_code.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.igis_client_code.message}
+              </p>
             )}
           </div>
 
@@ -133,14 +143,20 @@ const AddClientForm: React.FC<AddClientFormProps> = ({ branchList }) => {
             </Label>
             <Controller
               control={control}
-              name='branch_id'
+              name="branch_id"
               rules={{ required: true }}
               render={({ field }) => (
                 <Select
                   id="branch_id"
                   options={branchOptions}
-                  value={branchOptions?.find(option => option.value === field.value) || null}
-                  onChange={(selectedOption) => field.onChange(selectedOption ? selectedOption.value : null)}
+                  value={
+                    branchOptions?.find(
+                      (option) => option.value === field.value
+                    ) || null
+                  }
+                  onChange={(selectedOption) =>
+                    field.onChange(selectedOption ? selectedOption.value : null)
+                  }
                   placeholder="Select Branch"
                   className="w-full"
                   styles={singleSelectStyle}
@@ -161,7 +177,7 @@ const AddClientForm: React.FC<AddClientFormProps> = ({ branchList }) => {
               id="address"
               {...register("address")}
               placeholder="Enter address"
-              className='resize-none'
+              className="resize-none"
               rows={6}
             />
             {errors.address && (
@@ -198,7 +214,9 @@ const AddClientForm: React.FC<AddClientFormProps> = ({ branchList }) => {
               placeholder="Enter contact person"
             />
             {errors.contact_person && (
-              <p className="text-red-500 text-sm">{errors.contact_person.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.contact_person.message}
+              </p>
             )}
           </div>
 
@@ -210,14 +228,18 @@ const AddClientForm: React.FC<AddClientFormProps> = ({ branchList }) => {
               size="lg"
               disabled={addClientMutation.isPending}
             >
-              {addClientMutation.isPending ? 'Submitting' : 'Submit'}
-              {addClientMutation.isPending && <span className="animate-spin"><Loader2 /></span>}
+              {addClientMutation.isPending ? "Submitting" : "Submit"}
+              {addClientMutation.isPending && (
+                <span className="animate-spin">
+                  <Loader2 />
+                </span>
+              )}
             </Button>
           </div>
         </div>
       </form>
     </>
-  )
-}
+  );
+};
 
-export default AddClientForm
+export default AddClientForm;
