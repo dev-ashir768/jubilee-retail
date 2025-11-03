@@ -81,3 +81,9 @@ const CouponsSchema = z
 
 export default CouponsSchema;
 export type CouponsSchemaType = z.infer<typeof CouponsSchema>;
+
+export const CouponFilterSchema = z.object({
+  product_id: z.array(z.coerce.number()).nullable(),
+});
+
+export type CouponFilterSchemaType = z.infer<typeof CouponFilterSchema>;

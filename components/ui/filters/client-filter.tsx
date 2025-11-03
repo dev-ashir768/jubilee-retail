@@ -26,7 +26,7 @@ import { BranchPayloadType } from "@/types/branchTypes";
 interface ClientFiltersProps {
   isFilterOpen: boolean;
   setIsFilterOpen: (isFilterOpen: boolean) => void;
-  branchList: BranchPayloadType[] | undefined;
+  branchList: BranchPayloadType[];
 }
 
 const ClientFilters: React.FC<ClientFiltersProps> = ({

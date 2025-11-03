@@ -15,6 +15,7 @@ import { policyListFilterState } from "@/hooks/policyListFilterState";
 import { apiUserProductsFilterState } from "@/hooks/apiUserProductsFilterState";
 import { motorQuotesFilterState } from "@/hooks/motorQuotesFilterState";
 import { clientFilterState } from "@/hooks/clientFilterState";
+import { couponFilterState } from "@/hooks/couponFilterState";
 
 const SubNav: React.FC<subNavTypes> = ({
   title,
@@ -68,6 +69,11 @@ const SubNav: React.FC<subNavTypes> = ({
 
     case "/branches-clients/Clients-list": {
       ({ filterCount } = clientFilterState());
+      break;
+    }
+
+    case "/coupons-management/coupons": {
+      ({ filterCount } = couponFilterState());
       break;
     }
 

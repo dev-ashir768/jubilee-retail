@@ -278,7 +278,10 @@ const ClientList = () => {
   }, [pathname]);
 
   // ======== FETCH PAYLOAD ========
-  const branchList = branchListResponse?.payload;
+  const branchList = useMemo(
+    () => branchListResponse?.payload || [],
+    [branchListResponse]
+  );
 
   // ======== RENDER LOGIC ========
   const isLoading = clientListLoading || branchListLoading;

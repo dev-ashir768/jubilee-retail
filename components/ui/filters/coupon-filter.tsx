@@ -15,36 +15,27 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Select from "react-select";
 import { multiSelectStyle } from "@/utils/selectStyles";
-import { motorQuotesFilterState } from "@/hooks/motorQuotesFilterState";
-import {
-  MotorQuoteFilterSchema,
-  MotorQuoteFilterSchemaType,
-} from "@/schemas/motorQuoteSchema";
 import { toast } from "sonner";
+import { ProductsPayloadTypes } from "@/types/productsTypes";
+import { couponFilterState } from "@/hooks/couponFilterState";
+import {
+  CouponFilterSchema,
+  CouponFilterSchemaType,
+} from "@/schemas/couponsSchema";
 
-interface MotorQuotesFiltersProps {
+interface CouponFiltersProps {
   isFilterOpen: boolean;
   setIsFilterOpen: (isFilterOpen: boolean) => void;
+  productList: ProductsPayloadTypes[];
 }
 
-type statusListType = {
-  value: "pending" | "cancelled" | "approved";
-  label: string;
-};
-
-const statusList: statusListType[] = [
-  { value: "pending", label: "Pending" },
-  { value: "cancelled", label: "Cancelled" },
-  { value: "approved", label: "Approved" },
-];
-
-const MotorQuotesFilters: React.FC<MotorQuotesFiltersProps> = ({
+const CouponFilters: React.FC<CouponFiltersProps> = ({
   isFilterOpen,
   setIsFilterOpen,
+  productList,
 }) => {
   // ======== CONSTANT AND HOOKS ========
-  const { filterValue, resetFilterValue, setFilterValue } =
-    motorQuotesFilterState();
+  const { filterValue, setFilterValue, resetFilterValue } = couponFilterState();
 
   // ======== HOOK FORM ========
   const {
@@ -53,34 +44,34 @@ const MotorQuotesFilters: React.FC<MotorQuotesFiltersProps> = ({
     handleSubmit,
     reset,
   } = useForm({
-    resolver: zodResolver(MotorQuoteFilterSchema),
+    resolver: zodResolver(CouponFilterSchema),
     defaultValues: {
-      status: filterValue,
+      product_id: filterValue?.product_id || null,
     },
   });
 
   useEffect(() => {
     if (isFilterOpen) {
       reset({
-        status: filterValue,
+        product_id: filterValue?.product_id || null,
       });
     }
   }, [isFilterOpen, filterValue, reset]);
 
   // ======== SELECT OPTIONS ========
-  const statusOptions: statusListType[] = statusList.map((item) => ({
-    value: item.value,
-    label: item.label,
+  const productOptions = productList?.map((item) => ({
+    value: item.id,
+    label: item.product_name,
   }));
 
   // ======== HANDLER ========
-  const handleOnSubmit = (data: MotorQuoteFilterSchemaType) => {
-    if (!data.status) {
-      toast.error("Select atleast one status option");
+  const handleOnSubmit = (data: CouponFilterSchemaType) => {
+    if (!data.product_id) {
+      toast.error("Select atleast one option");
       return;
     }
 
-    setFilterValue(data.status!);
+    setFilterValue(data);
 
     const appliedFiltersCount = Object.values(data).filter(
       (value) => value
@@ -95,7 +86,7 @@ const MotorQuotesFilters: React.FC<MotorQuotesFiltersProps> = ({
 
   const handleOnReset = () => {
     reset({
-      status: null,
+      product_id: null,
     });
     resetFilterValue();
     setIsFilterOpen(!isFilterOpen);
@@ -111,22 +102,19 @@ const MotorQuotesFilters: React.FC<MotorQuotesFiltersProps> = ({
               Select a your desired filter from below.
             </DialogDescription>
           </DialogHeader>
-          <form
-            id="api-user-products-filter"
-            onSubmit={handleSubmit(handleOnSubmit)}
-          >
+          <form id="coupon-filter" onSubmit={handleSubmit(handleOnSubmit)}>
             <div className="grid grid-cols-1 gap-6">
-              {/* Status */}
+              {/* Product Name */}
               <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
+                <Label htmlFor="product_id">Product Name</Label>
                 <Controller
-                  name="status"
+                  name="product_id"
                   control={control}
                   render={({ field }) => (
                     <Select
-                      id="status"
-                      options={statusOptions}
-                      value={statusOptions.filter(
+                      id="branch"
+                      options={productOptions}
+                      value={productOptions?.filter(
                         (opt) => (field.value || []).includes(opt.value) ?? null
                       )}
                       onChange={(opt) => {
@@ -137,15 +125,15 @@ const MotorQuotesFilters: React.FC<MotorQuotesFiltersProps> = ({
                       }}
                       isClearable
                       isMulti
-                      placeholder="Select Status"
+                      placeholder="Select Product Name"
                       styles={multiSelectStyle}
                       className="w-full"
                     />
                   )}
                 />
-                {errors.status && (
+                {errors.product_id && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.status.message}
+                    {errors.product_id.message}
                   </p>
                 )}
               </div>
@@ -156,7 +144,7 @@ const MotorQuotesFilters: React.FC<MotorQuotesFiltersProps> = ({
               size="lg"
               type="submit"
               className="min-w-[150px] cursor-pointer"
-              form="api-user-products-filter"
+              form="coupon-filter"
             >
               Apply
             </Button>
@@ -175,4 +163,4 @@ const MotorQuotesFilters: React.FC<MotorQuotesFiltersProps> = ({
   );
 };
 
-export default MotorQuotesFilters;
+export default CouponFilters;

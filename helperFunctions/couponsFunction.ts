@@ -4,13 +4,15 @@ import { axiosFunction } from "@/utils/axiosFunction";
 interface fetchCouponsListProps {
   startDate: string;
   endDate: string;
+  product_id: number[] | null;
 }
 
 export const fetchCouponsList = async ({
   startDate,
   endDate,
+  product_id,
 }: fetchCouponsListProps): Promise<CouponsResponseType | null> => {
-  const payload = { date: `${startDate} to ${endDate}` };
+  const payload = { date: `${startDate} to ${endDate}`, product_id };
 
   try {
     const response = await axiosFunction({

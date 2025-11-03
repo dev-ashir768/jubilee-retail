@@ -17,3 +17,8 @@ export type ProductsResponseTypes = {
   message: string;
   payload: ProductsPayloadTypes[];
 };
+
+
+export type ProductFilterType = {
+  product_id: number[] | null
+}

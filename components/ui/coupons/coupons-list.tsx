@@ -24,13 +24,19 @@ import SubNav from "../foundations/sub-nav";
 import CouponsDatatable from "./coupons-datatable";
 import { format, subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
+import { couponFilterState } from "@/hooks/couponFilterState";
+import { ProductsResponseTypes } from "@/types/productsTypes";
+import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
+import CouponFilters from "../filters/coupon-filter";
 
 const CouponsList = () => {
   // ======== CONSTANTS & HOOKS ========
   const ADD_ROUTE = "/coupons-management/add-coupons";
   const LISTING_ROUTE = "/coupons-management/coupons";
   const router = useRouter();
+  const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const defaultDaysBack = 366;
+  const { filterValue } = couponFilterState();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), defaultDaysBack),
     to: new Date(),
@@ -55,14 +61,35 @@ const CouponsList = () => {
     queryKey: [
       "coupons-list",
       ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+      ...(filterValue?.product_id ? [filterValue?.product_id] : []),
     ],
-    queryFn: () => fetchCouponsList({ startDate, endDate }),
+    queryFn: () =>
+      fetchCouponsList({
+        startDate,
+        endDate,
+        product_id: filterValue?.product_id || null,
+      }),
+  });
+
+  const {
+    data: productListResponse,
+    isLoading: productListLoading,
+    isError: productListIsError,
+    error: productListError,
+  } = useQuery<ProductsResponseTypes | null>({
+    queryKey: ["all-products-list"],
+    queryFn: fetchAllProductsList,
   });
 
   // ======== PAYLOADS DATA ========
   const couponsList = useMemo(
     () => couponsListResponse?.payload || [],
     [couponsListResponse]
+  );
+
+  const productList = useMemo(
+    () => productListResponse?.payload || [],
+    [productListResponse]
   );
 
   // ======== COLUMN DEFINITIONS ========
@@ -167,9 +194,9 @@ const CouponsList = () => {
   );
 
   // ======== RENDER LOGIC ========
-  const isLoading = couponsListLoading;
-  const isError = couponsListIsError;
-  const onError = couponsListError?.message;
+  const isLoading = couponsListLoading || productListLoading;
+  const isError = couponsListIsError || productListIsError;
+  const onError = couponsListError?.message || productListError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -214,9 +241,18 @@ const CouponsList = () => {
         dateRange={dateRange}
         setDateRange={setDateRange}
         defaultDaysBack={defaultDaysBack}
+        filter={true}
+        isFilterOpen={isFilterOpen}
+        setIsFilterOpen={setIsFilterOpen}
       />
 
       {renderPageContent()}
+
+      <CouponFilters
+        isFilterOpen={isFilterOpen}
+        productList={productList}
+        setIsFilterOpen={setIsFilterOpen}
+      />
     </>
   );
 };
