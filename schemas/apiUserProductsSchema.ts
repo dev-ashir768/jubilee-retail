@@ -1,5 +1,8 @@
 import z from "zod";
 
+const forbiddenCodeRegex =
+  /(<\?php|<script|function\s*\(|SELECT\s+|INSERT\s+|UPDATE\s+|DELETE\s+|DROP\s+|CREATE\s+|EXEC\s+|system\(|eval\(|require\(|import\s+|export\s+)/i;
+
 export const ApiUserProductsSchema = z.object({
   api_user_id: z
     .number({
@@ -23,6 +26,17 @@ export const ApiUserProductsSchema = z.object({
     }),
 });
 
-export type ApiUserProductsSchemaType = z.infer<
-  typeof ApiUserProductsSchema
+export type ApiUserProductsSchemaType = z.infer<typeof ApiUserProductsSchema>;
+
+export const ApiUserProductsFilterSchema = z.object({
+  api_user_id: z
+    .array(z.coerce.number())
+    .nullable()
+    .refine((val) => !forbiddenCodeRegex.test(String(val)), {
+      message: "Api User contains forbidden code patterns",
+    }),
+});
+
+export type ApiUserProductsFilterSchemaType = z.infer<
+  typeof ApiUserProductsFilterSchema
 >;

@@ -12,6 +12,8 @@ import { ordersListFilterState } from "@/hooks/ordersListFilterState";
 import { renewalPolicyFilterState } from "@/hooks/renewalPolicyFilterState";
 import { cboListFilterState } from "@/hooks/cboListFilterState";
 import { policyListFilterState } from "@/hooks/policyListFilterState";
+import { apiUserProductsFilterState } from "@/hooks/apiUserProductsFilterState";
+import { motorQuotesFilterState } from "@/hooks/motorQuotesFilterState";
 
 const SubNav: React.FC<subNavTypes> = ({
   title,
@@ -50,6 +52,16 @@ const SubNav: React.FC<subNavTypes> = ({
 
     case "/orders/cbo": {
       ({ filterCount } = cboListFilterState());
+      break;
+    }
+
+    case "/users/api-user-products": {
+      ({ filterCount } = apiUserProductsFilterState());
+      break;
+    }
+
+    case "/motor-quote/manage": {
+      ({ filterCount } = motorQuotesFilterState());
       break;
     }
 
@@ -102,7 +114,11 @@ const SubNav: React.FC<subNavTypes> = ({
         ) : null}
 
         {datePicker && setDateRange && (
-          <DateRangePicker date={dateRange} setDate={setDateRange} defaultDaysBack={defaultDaysBack} />
+          <DateRangePicker
+            date={dateRange}
+            setDate={setDateRange}
+            defaultDaysBack={defaultDaysBack}
+          />
         )}
       </div>
     </div>

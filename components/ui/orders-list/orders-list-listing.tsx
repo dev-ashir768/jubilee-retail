@@ -79,7 +79,7 @@ const OrdersListListing = () => {
     error: apiUserListError,
   } = useQuery<ApiUsersResponseType | null>({
     queryKey: ["all-api-user-list"],
-queryFn: fetchAllApiUserList,
+    queryFn: fetchAllApiUserList,
   });
 
   const {
@@ -98,8 +98,8 @@ queryFn: fetchAllApiUserList,
     isError: branchListIsError,
     error: branchListError,
   } = useQuery<BranchResponseType | null>({
-   queryKey: ['all-branch-list'],
-       queryFn: fetchAllBranchList
+    queryKey: ["all-branch-list"],
+    queryFn: fetchAllBranchList,
   });
 
   const {
@@ -463,7 +463,13 @@ queryFn: fetchAllApiUserList,
         },
       },
     ],
-    [rights, handleSingleOrderFetch, singleOrderMutation, handleOrderRepush, handleOrderVerifyManually]
+    [
+      rights,
+      handleSingleOrderFetch,
+      singleOrderMutation,
+      handleOrderRepush,
+      handleOrderVerifyManually,
+    ]
   );
 
   // ======== RENDER LOGIC ========

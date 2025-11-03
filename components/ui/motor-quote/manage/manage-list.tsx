@@ -34,6 +34,8 @@ import { AxiosError } from "axios";
 import { axiosFunction } from "@/utils/axiosFunction";
 import { format, subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
+import MotorQuotesFilters from "../../filters/motor-quotes";
+import { motorQuotesFilterState } from "@/hooks/motorQuotesFilterState";
 
 const MotorQuoteList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -41,6 +43,9 @@ const MotorQuoteList = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const defaultDaysBack = 600;
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { filterValue } =
+    motorQuotesFilterState();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), defaultDaysBack),
     to: new Date(),
@@ -95,11 +100,13 @@ const MotorQuoteList = () => {
     queryKey: [
       "motor-quote-list",
       ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+      ...(filterValue ? [filterValue] : [])
     ],
     queryFn: () =>
       fetchMotorQuoteList({
         startDate,
         endDate,
+        status: filterValue!
       }),
   });
 
@@ -525,9 +532,17 @@ const MotorQuoteList = () => {
         dateRange={dateRange}
         setDateRange={setDateRange}
         defaultDaysBack={defaultDaysBack}
+        filter={true}
+        isFilterOpen={isFilterOpen}
+        setIsFilterOpen={setIsFilterOpen}
       />
 
       {renderPageContent()}
+
+      <MotorQuotesFilters
+        isFilterOpen={isFilterOpen}
+        setIsFilterOpen={setIsFilterOpen}
+      />
     </>
   );
 };

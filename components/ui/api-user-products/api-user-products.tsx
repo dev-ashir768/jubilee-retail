@@ -33,12 +33,16 @@ import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import { DateRange } from "react-day-picker";
 import { format, subDays } from "date-fns";
+import ApiUserProductsFilters from "../filters/api-user-products";
+import { apiUserProductsFilterState } from "@/hooks/apiUserProductsFilterState";
 
 const ApiUserProductsList = () => {
   // ======== CONSTANTS & HOOKS ========
   const ADD_ROUTE = "/users/add-api-user-products";
   const EDIT_ROUTE = "/users/edit-api-user-products";
   const LISTING_ROUTE = "/users/api-user-products";
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { filterValue } = apiUserProductsFilterState();
   const { setApiUserProductsId } = useApiUserProductsIdStore();
   const router = useRouter();
   const defaultDaysBack = 366;
@@ -66,11 +70,13 @@ const ApiUserProductsList = () => {
     queryKey: [
       "api-user-products-list",
       ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+      ...(filterValue ? [filterValue] : []),
     ],
     queryFn: () =>
       fetchApiUserProductsList({
         startDate,
         endDate,
+        api_user_id: filterValue!
       }),
   });
 
@@ -278,9 +284,18 @@ const ApiUserProductsList = () => {
         dateRange={dateRange}
         setDateRange={setDateRange}
         defaultDaysBack={defaultDaysBack}
+        filter={true}
+        isFilterOpen={isFilterOpen}
+        setIsFilterOpen={setIsFilterOpen}
       />
 
       {renderPageContent()}
+
+      <ApiUserProductsFilters
+        apiUserList={apiUserList}
+        isFilterOpen={isFilterOpen}
+        setIsFilterOpen={setIsFilterOpen}
+      />
     </>
   );
 };

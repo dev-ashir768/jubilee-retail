@@ -1,16 +1,22 @@
+import { MotorQuoteFilterSchemaType } from "@/schemas/motorQuoteSchema";
 import { MotorQuoteResponseTypes } from "@/types/motorQuote";
 import { axiosFunction } from "@/utils/axiosFunction";
 
 interface fetchMotorQuoteListProps {
   startDate: string;
   endDate: string;
+  status: string[];
 }
 
 export const fetchMotorQuoteList = async <T>({
   startDate,
   endDate,
+  status,
 }: fetchMotorQuoteListProps): Promise<MotorQuoteResponseTypes | null> => {
-  const payload = { date: `${startDate} to ${endDate}` };
+  const payload = {
+    date: `${startDate} to ${endDate}`,
+    status: status || null,
+  };
   try {
     const response = await axiosFunction({
       method: "POST",
