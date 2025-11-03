@@ -14,8 +14,13 @@ export type ClientPayloadType = {
   updated_at: string;
   deleted_at: string;
 };
+
 export type ClientResponseType = {
   status: 1 | 0;
   message: string;
   payload: ClientPayloadType[];
+};
+
+export type ClientFilterValue = {
+  branch: number[] | null;
 };

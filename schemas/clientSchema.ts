@@ -56,3 +56,9 @@ export const ClientSchema = z.object({
 });
 
 export type ClientSchemaType = z.infer<typeof ClientSchema>;
+
+export const ClientFilterSchema = z.object({
+  branch: z.array(z.coerce.number()).nullable(),
+});
+
+export type ClientFilterSchemaType = z.infer<typeof ClientFilterSchema>;

@@ -14,6 +14,7 @@ import { cboListFilterState } from "@/hooks/cboListFilterState";
 import { policyListFilterState } from "@/hooks/policyListFilterState";
 import { apiUserProductsFilterState } from "@/hooks/apiUserProductsFilterState";
 import { motorQuotesFilterState } from "@/hooks/motorQuotesFilterState";
+import { clientFilterState } from "@/hooks/clientFilterState";
 
 const SubNav: React.FC<subNavTypes> = ({
   title,
@@ -62,6 +63,11 @@ const SubNav: React.FC<subNavTypes> = ({
 
     case "/motor-quote/manage": {
       ({ filterCount } = motorQuotesFilterState());
+      break;
+    }
+
+    case "/branches-clients/Clients-list": {
+      ({ filterCount } = clientFilterState());
       break;
     }
 

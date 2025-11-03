@@ -44,8 +44,7 @@ const MotorQuoteList = () => {
   const router = useRouter();
   const defaultDaysBack = 600;
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const { filterValue } =
-    motorQuotesFilterState();
+  const { filterValue } = motorQuotesFilterState();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), defaultDaysBack),
     to: new Date(),
@@ -100,13 +99,13 @@ const MotorQuoteList = () => {
     queryKey: [
       "motor-quote-list",
       ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-      ...(filterValue ? [filterValue] : [])
+      ...(filterValue ? [filterValue] : []),
     ],
     queryFn: () =>
       fetchMotorQuoteList({
         startDate,
         endDate,
-        status: filterValue!
+        status: filterValue!,
       }),
   });
 
@@ -521,7 +520,11 @@ const MotorQuoteList = () => {
       return <Empty title="Not Found" description="Not Found" />;
     }
 
-    return <ManageDatatable columns={columns} payload={motorQuoteList} />;
+    return (
+      <>
+        <ManageDatatable columns={columns} payload={motorQuoteList} />
+      </>
+    );
   };
 
   return (

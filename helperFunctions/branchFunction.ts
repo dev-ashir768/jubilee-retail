@@ -32,6 +32,7 @@ export const fetchAllBranchList =
       const response = await axiosFunction({
         method: "POST",
         urlPath: "/branches/all",
+        data: {}
       });
 
       return response;

@@ -29,13 +29,19 @@ import ClientDatatable from "./client-datatable";
 import LoadingState from "../foundations/loading-state";
 import { DateRange } from "react-day-picker";
 import { format, subDays } from "date-fns";
+import ClientFilters from "../filters/client-filter";
+import { BranchResponseType } from "@/types/branchTypes";
+import { fetchAllBranchList } from "@/helperFunctions/branchFunction";
+import { clientFilterState } from "@/hooks/clientFilterState";
 
 const ClientList = () => {
   // Constants
   const ADD_URL = "/branches-clients/add-clients";
   const EDIT_URL = "/branches-clients/edit-clients";
+  const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const router = useRouter();
   const pathname = usePathname();
+  const { filterValue } = clientFilterState();
   const defaultDaysBack = 366;
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), defaultDaysBack),
@@ -59,12 +65,24 @@ const ClientList = () => {
     queryKey: [
       "clients-list",
       ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+      ...(filterValue?.branch ? [filterValue?.branch] : []),
     ],
     queryFn: () =>
       fetchClientList({
         startDate,
         endDate,
+        branch: filterValue?.branch ?? null,
       }),
+  });
+
+  const {
+    data: branchListResponse,
+    isLoading: branchListLoading,
+    isError: branchListIsError,
+    error: branchListError,
+  } = useQuery<BranchResponseType | null>({
+    queryKey: ["all-branch-list"],
+    queryFn: fetchAllBranchList,
   });
 
   // Column filter options
@@ -259,10 +277,13 @@ const ClientList = () => {
     return getRights(pathname);
   }, [pathname]);
 
+  // ======== FETCH PAYLOAD ========
+  const branchList = branchListResponse?.payload;
+
   // ======== RENDER LOGIC ========
-  const isLoading = clientListLoading;
-  const isError = clientListIsError;
-  const onError = clientListError?.message;
+  const isLoading = clientListLoading || branchListLoading;
+  const isError = clientListIsError || branchListIsError;
+  const onError = clientListError?.message || branchListError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -274,13 +295,14 @@ const ClientList = () => {
     }
   }, [rights, router]);
 
-  if (rights && rights?.can_view === "0")
+  if (rights && rights?.can_view === "0") {
     return (
       <Empty
         title="Permission Denied"
         description="You do not have permission."
       />
     );
+  }
 
   const renderPageContent = () => {
     if (isLoading) {
@@ -298,10 +320,12 @@ const ClientList = () => {
       return <Empty title="Not Found" description="No clients found" />;
     }
     return (
-      <ClientDatatable
-        columns={columns}
-        payload={clientListResponse?.payload || []}
-      />
+      <>
+        <ClientDatatable
+          columns={columns}
+          payload={clientListResponse?.payload || []}
+        />
+      </>
     );
   };
 
@@ -315,9 +339,18 @@ const ClientList = () => {
         dateRange={dateRange}
         setDateRange={setDateRange}
         defaultDaysBack={defaultDaysBack}
+        filter={true}
+        isFilterOpen={isFilterOpen}
+        setIsFilterOpen={setIsFilterOpen}
       />
 
       {renderPageContent()}
+
+      <ClientFilters
+        branchList={branchList}
+        isFilterOpen={isFilterOpen}
+        setIsFilterOpen={setIsFilterOpen}
+      />
     </>
   );
 };

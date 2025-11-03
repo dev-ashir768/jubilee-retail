@@ -4,13 +4,15 @@ import { axiosFunction } from "@/utils/axiosFunction";
 interface fetchClientListProps {
   startDate: string;
   endDate: string;
+  branch: number[] | null
 }
 
 export const fetchClientList = async <T>({
   startDate,
   endDate,
+  branch
 }: fetchClientListProps): Promise<ClientResponseType | null> => {
-  const payload = { date: `${startDate} to ${endDate}` };
+  const payload = { date: `${startDate} to ${endDate}`, branch };
 
   try {
     const response = await axiosFunction({
