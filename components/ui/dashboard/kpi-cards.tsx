@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/shadcn/card";
 import { PolicyStatsPayloadType } from "@/types/dashboardTypes";
+import { NumberFormaterFunction } from "@/utils/numberFormaterFunction";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 
 const sparklineMockData = [
@@ -33,7 +34,7 @@ const KPICards: React.FC<KPICardsProps> = ({ policyStats }) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-gray-800 mb-2">
-            {policyStats[0].total_orders}
+            {NumberFormaterFunction(policyStats[0].total_orders) || "0"}
           </div>
           <div className="h-10 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -60,7 +61,7 @@ const KPICards: React.FC<KPICardsProps> = ({ policyStats }) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-gray-800 mb-2">
-            {policyStats[0].total_valid_policies}
+            {NumberFormaterFunction(policyStats[0].total_valid_policies) || "0"}
           </div>
           <div className="h-10 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -87,7 +88,7 @@ const KPICards: React.FC<KPICardsProps> = ({ policyStats }) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-gray-800 mb-2">
-            {policyStats[0].order_received_premium}
+            {NumberFormaterFunction(policyStats[0].order_received_premium)|| "0"}
           </div>
           <div className="h-10 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -114,7 +115,7 @@ const KPICards: React.FC<KPICardsProps> = ({ policyStats }) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-gray-800 mb-2">
-            {policyStats[0].policy_received_premium}
+            {NumberFormaterFunction(policyStats[0].policy_received_premium) || "0"}
           </div>
           <div className="h-10 w-full">
             <ResponsiveContainer width="100%" height="100%">

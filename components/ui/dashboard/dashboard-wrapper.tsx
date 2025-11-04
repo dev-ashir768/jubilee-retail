@@ -1,15 +1,25 @@
 "use client";
 
-import { PoliciesClaimsChart } from "./policies-claims-chart";
-import { ClaimsDistributionChart } from "./claims-distribution-chart";
-import { RevenueByRegionChart } from "./revenue-by-region-chart";
-import { PerformanceMetricsChart } from "./performance-metrics-chart";
 import { RevenueTrendChart } from "./revenue-trend-chart";
 import { PerformanceSparklineChart } from "./performance-sparkline-chart";
 import SubNav from "../foundations/sub-nav";
 import KPICards from "./kpi-cards";
-import { fetchPolicyStats } from "@/helperFunctions/dashboardFunctions";
-import { PolicyStatsResponse } from "@/types/dashboardTypes";
+import {
+  fetchApiUsersByPolicyAmount,
+  fetchMonthlyPolicyNOrders,
+  fetchPolicyStats,
+  fetchPolicyStatusBreakdown,
+  fetchProductsByProductAmount,
+  fetchProductsDetailWise,
+} from "@/helperFunctions/dashboardFunctions";
+import {
+  ApiUsersByPolicyAmountResponse,
+  MonthlyPolicyNOrdersResponse,
+  PolicyStatsResponse,
+  PolicyStatusBreakdownResponse,
+  ProductsByProductAmountResponse,
+  ProductsDetailWiseResponse,
+} from "@/types/dashboardTypes";
 import { getRights } from "@/utils/getRights";
 import { useQuery } from "@tanstack/react-query";
 import { format, subDays } from "date-fns";
@@ -17,6 +27,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import LoadingState from "../foundations/loading-state";
+import ProductsDetailWise from "./products-detail-wise";
+import ApiUsersByPolicyAmount from "./api-users-by-policy-amount";
+import ProductsByProductAmount from "./products-by-product-amount";
+import PolicyStatusBreakdown from "./policy-status-breakdown";
+import MonthlyOrdersAndPolicies from "./monthly-orders-and-policies";
 
 export function DashboardWrapper() {
   // ======== CONSTANTS & HOOKS ========
@@ -55,16 +70,129 @@ export function DashboardWrapper() {
       }),
   });
 
+  const {
+    data: monthlyPolicyNOrdersResponse,
+    isLoading: monthlyPolicyNOrdersLoading,
+    // isError: monthlyPolicyNOrdersIsError,
+    // error: monthlyPolicyNOrdersError,
+  } = useQuery<MonthlyPolicyNOrdersResponse | null>({
+    queryKey: [
+      "policy-monthly-orders-and-policies",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchMonthlyPolicyNOrders({
+        startDate,
+        endDate,
+      }),
+  });
+
+  const {
+    data: productsDetailWiseResponse,
+    isLoading: productsDetailWiseLoading,
+    // isError: productsDetailWiseIsError,
+    // error: productsDetailWiseError,
+  } = useQuery<ProductsDetailWiseResponse | null>({
+    queryKey: [
+      "top-5-products-detail-wise",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchProductsDetailWise({
+        startDate,
+        endDate,
+      }),
+  });
+
+  const {
+    data: productsByProductAmountResponse,
+    isLoading: productsByProductAmountLoading,
+    // isError: productsByProductAmountIsError,
+    // error: productsByProductAmountError,
+  } = useQuery<ProductsByProductAmountResponse | null>({
+    queryKey: [
+      "top-5-products-by-product-amount",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchProductsByProductAmount({
+        startDate,
+        endDate,
+      }),
+  });
+
+  const {
+    data: apiUsersByPolicyAmountResponse,
+    isLoading: apiUsersByPolicyAmountLoading,
+    // isError: apiUsersByPolicyAmountIsError,
+    // error: apiUsersByPolicyAmountError,
+  } = useQuery<ApiUsersByPolicyAmountResponse | null>({
+    queryKey: [
+      "top-5-products-by-product-amount",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchApiUsersByPolicyAmount({
+        startDate,
+        endDate,
+      }),
+  });
+
+  const {
+    data: policyStatusBreakdownResponse,
+    isLoading: policyStatusBreakdownLoading,
+    // isError: policyStatusBreakdownIsError,
+    // error: policyStatusBreakdownError,
+  } = useQuery<PolicyStatusBreakdownResponse | null>({
+    queryKey: [
+      "policy-status-breakdown-valid-invalid",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchPolicyStatusBreakdown({
+        startDate,
+        endDate,
+      }),
+  });
+
   // ======== PAYLOADS DATA ========
   const policyStats = useMemo(
     () => policyStatsResponse?.payload || [],
     [policyStatsResponse]
   );
 
+  const monthlyPolicyNOrders = useMemo(
+    () => monthlyPolicyNOrdersResponse?.payload || [],
+    [monthlyPolicyNOrdersResponse]
+  );
+
+  const policyStatusBreakdown = useMemo(
+    () => policyStatusBreakdownResponse?.payload || [],
+    [policyStatusBreakdownResponse]
+  );
+
+  const productsDetailWise = useMemo(
+    () => productsDetailWiseResponse?.payload || [],
+    [productsDetailWiseResponse]
+  );
+
+  const productsByProductAmount = useMemo(
+    () => productsByProductAmountResponse?.payload || [],
+    [productsByProductAmountResponse]
+  );
+
+  const apiUsersByPolicyAmount = useMemo(
+    () => apiUsersByPolicyAmountResponse?.payload || [],
+    [apiUsersByPolicyAmountResponse]
+  );
+
   // ======== RENDER LOGIC ========
-  const isLoading = policyStatsLoading;
-  // const isError = policyStatsIsError;
-  // const onError = policyStatsError?.message;
+  const isLoading =
+    policyStatsLoading ||
+    monthlyPolicyNOrdersLoading ||
+    productsDetailWiseLoading;
+  // const isError = policyStatsIsError || monthlyPolicyNOrdersIsError || productsDetailWiseIsError;
+  // const onError = policyStatsError?.message || monthlyPolicyNOrdersError?.message || productsDetailWiseError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -91,36 +219,25 @@ export function DashboardWrapper() {
       />
 
       <div className="grid grid-cols-1 gap-6">
-        {/* KPI Cards with Sparklines */}
-        <KPICards
-          policyStats={policyStats}
-        />
+        <KPICards policyStats={policyStats} />
 
-        {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Line Chart - Policies Trend */}
-          <PoliciesClaimsChart />
+          {/* <PoliciesClaimsChart /> */}
+          <ProductsDetailWise payload={productsDetailWise} />
 
-          {/* Donut Chart - Claims by Type */}
-          <ClaimsDistributionChart />
+          <ProductsByProductAmount payload={productsByProductAmount} />
         </div>
 
-        {/* Second Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Bar Chart - Revenue by Region */}
-          <RevenueByRegionChart />
+          <ApiUsersByPolicyAmount payload={apiUsersByPolicyAmount} />
 
-          {/* Half Donut Chart - Performance Metrics */}
-          <PerformanceMetricsChart />
+          <PolicyStatusBreakdown payload={policyStatusBreakdown} />
         </div>
 
-        {/* Third Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Area Chart - Revenue Trend */}
-          <RevenueTrendChart />
+        <div className="grid grid-cols-1  gap-6">
+          {/* <RevenueTrendChart /> */}
 
-          {/* Sparkline Chart */}
-          <PerformanceSparklineChart />
+          <MonthlyOrdersAndPolicies payload={monthlyPolicyNOrders} />
         </div>
       </div>
     </>

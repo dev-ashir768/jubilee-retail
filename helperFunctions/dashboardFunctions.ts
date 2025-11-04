@@ -1,7 +1,14 @@
-import { PolicyStatsResponse } from "@/types/dashboardTypes";
+import {
+  ApiUsersByPolicyAmountResponse,
+  MonthlyPolicyNOrdersResponse,
+  PolicyStatsResponse,
+  PolicyStatusBreakdownResponse,
+  ProductsByProductAmountResponse,
+  ProductsDetailWiseResponse,
+} from "@/types/dashboardTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
-export interface fetchPolicyStatsProps {
+export interface dashboardFunctionProps {
   startDate: string;
   endDate: string;
 }
@@ -9,7 +16,7 @@ export interface fetchPolicyStatsProps {
 export const fetchPolicyStats = async ({
   startDate,
   endDate,
-}: fetchPolicyStatsProps): Promise<PolicyStatsResponse | null> => {
+}: dashboardFunctionProps): Promise<PolicyStatsResponse | null> => {
   const payload = {
     date: `${startDate} to ${endDate}`,
   };
@@ -24,6 +31,116 @@ export const fetchPolicyStats = async ({
     return response;
   } catch (err) {
     console.error("Error fetching policy stats:", err);
+    return null;
+  }
+};
+
+export const fetchMonthlyPolicyNOrders = async ({
+  startDate,
+  endDate,
+}: dashboardFunctionProps): Promise<MonthlyPolicyNOrdersResponse | null> => {
+  const payload = {
+    date: `${startDate} to ${endDate}`,
+  };
+
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/dashboard/monthly-orders-and-policies",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching monthly orders and policies:", err);
+    return null;
+  }
+};
+
+export const fetchProductsDetailWise = async ({
+  startDate,
+  endDate,
+}: dashboardFunctionProps): Promise<ProductsDetailWiseResponse | null> => {
+  const payload = {
+    date: `${startDate} to ${endDate}`,
+  };
+
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/dashboard/top-5-products-detail-wise",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching top 5 products detail wise:", err);
+    return null;
+  }
+};
+
+export const fetchProductsByProductAmount = async ({
+  startDate,
+  endDate,
+}: dashboardFunctionProps): Promise<ProductsByProductAmountResponse | null> => {
+  const payload = {
+    date: `${startDate} to ${endDate}`,
+  };
+
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/dashboard/top-5-products-by-product-amount",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching top 5 products by product amount:", err);
+    return null;
+  }
+};
+
+export const fetchApiUsersByPolicyAmount = async ({
+  startDate,
+  endDate,
+}: dashboardFunctionProps): Promise<ApiUsersByPolicyAmountResponse | null> => {
+  const payload = {
+    date: `${startDate} to ${endDate}`,
+  };
+
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/dashboard/top-5-api-users-by-policy-amount",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching top 5 api users by policy amount:", err);
+    return null;
+  }
+};
+
+export const fetchPolicyStatusBreakdown = async ({
+  startDate,
+  endDate,
+}: dashboardFunctionProps): Promise<PolicyStatusBreakdownResponse | null> => {
+  const payload = {
+    date: `${startDate} to ${endDate}`,
+  };
+
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/dashboard/policy-status-breakdown-valid-invalid",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching policy status breakdown valid invalid:", err);
     return null;
   }
 };
