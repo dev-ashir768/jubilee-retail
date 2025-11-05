@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/shadcn/card";
-import { MonthlyPolicyNOrdersPayloadType } from "@/types/dashboardTypes"; // Adjust if needed
+import { MonthlyPolicyNOrdersPayloadType } from "@/types/dashboardTypes";
 import {
   LineChart,
   Line,
@@ -18,6 +18,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { format, startOfMonth } from "date-fns";
+import { Skeleton } from "../shadcn/skeleton";
 
 const CHART_COLORS = {
   orders: "#3b82f6",
@@ -26,9 +27,29 @@ const CHART_COLORS = {
 
 interface MonthlyPoliciesTrendProps {
   payload: MonthlyPolicyNOrdersPayloadType[];
+  isLoading: boolean;
+  isError: boolean;
+  error: string;
 }
 
-const MonthlyPoliciesTrend: React.FC<MonthlyPoliciesTrendProps> = ({ payload }) => {
+interface TooltipPayload {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayload[];
+  label?: string | number;
+}
+
+const MonthlyPoliciesTrend: React.FC<MonthlyPoliciesTrendProps> = ({
+  payload,
+  isLoading,
+  isError,
+  error,
+}) => {
   const aggregateMonthly = (dailyData: MonthlyPolicyNOrdersPayloadType[]) => {
     const monthlyMap = new Map<string, { orders: number; policies: number }>();
 
@@ -58,12 +79,12 @@ const MonthlyPoliciesTrend: React.FC<MonthlyPoliciesTrendProps> = ({ payload }) 
 
   const monthlyData = aggregateMonthly(payload);
 
-  const customTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
+  const customTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+    if (active && payload && payload.length && label !== undefined) {
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-md min-w-[150px]">
-          <p className="font-medium text-gray-900 mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          <p className="font-medium text-gray-900 mb-2">{String(label)}</p>
+          {payload.map((entry: TooltipPayload, index: number) => (
             <p key={index} className="text-sm flex justify-between">
               <span className="font-semibold" style={{ color: entry.color }}>
                 {entry.name}:
@@ -77,6 +98,40 @@ const MonthlyPoliciesTrend: React.FC<MonthlyPoliciesTrendProps> = ({ payload }) 
     return null;
   };
 
+  const renderSkeleton = () => (
+    <Card className="w-full shadow-none border-none">
+      <CardHeader>
+        <CardTitle>
+          <Skeleton className="h-6 w-52 rounded-sm" />
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="h-80 w-full">
+          <Skeleton className="h-full w-full rounded-sm" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderError = () => (
+    <Card className="w-full shadow-none border-none">
+      <CardHeader>
+        <CardTitle>Error</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p>{error}</p>
+      </CardContent>
+    </Card>
+  );
+
+  if (isLoading) {
+    return renderSkeleton();
+  }
+
+  if (isError) {
+    return renderError();
+  }
+
   return (
     <Card className="w-full shadow-none border-none">
       <CardHeader>
@@ -85,36 +140,43 @@ const MonthlyPoliciesTrend: React.FC<MonthlyPoliciesTrendProps> = ({ payload }) 
       <CardContent>
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={monthlyData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <LineChart
+              data={monthlyData}
+              margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                opacity={0.2}
+                stroke="#f0f0f0"
+              />
               <XAxis
                 dataKey="formattedMonth"
                 tick={{ fontSize: 12 }}
                 angle={360}
-                textAnchor="end"
+                textAnchor="start"
                 height={70}
                 interval={Math.floor(monthlyData.length / 12)}
               />
-              <YAxis 
-                tickFormatter={(value) => value.toLocaleString()} 
+              <YAxis
+                tickFormatter={(value) => value.toLocaleString()}
                 tick={{ fontSize: 12 }}
               />
               <Tooltip content={customTooltip} />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="orders" 
-                name="Monthly Orders" 
-                stroke={CHART_COLORS.orders} 
+              <Legend wrapperStyle={{ paddingTop: "20px" }} />
+              <Line
+                type="monotone"
+                dataKey="orders"
+                name="Monthly Orders"
+                stroke={CHART_COLORS.orders}
                 strokeWidth={3}
                 dot={{ fill: CHART_COLORS.orders, strokeWidth: 2, r: 4 }}
                 activeDot={{ r: 6, strokeWidth: 2 }}
               />
-              <Line 
-                type="monotone" 
-                dataKey="policies" 
-                name="Monthly Policies" 
-                stroke={CHART_COLORS.policies} 
+              <Line
+                type="monotone"
+                dataKey="policies"
+                name="Monthly Policies"
+                stroke={CHART_COLORS.policies}
                 strokeWidth={3}
                 dot={{ fill: CHART_COLORS.policies, strokeWidth: 2, r: 4 }}
                 activeDot={{ r: 6, strokeWidth: 2 }}

@@ -28,7 +28,7 @@ const SubNav: React.FC<subNavTypes> = ({
   setDateRange,
   isExportZipOpen,
   setIsExportZipOpen,
-  defaultDaysBack = 366,
+  defaultDaysBack,
   filter = false,
   exportZip = false,
 }) => {

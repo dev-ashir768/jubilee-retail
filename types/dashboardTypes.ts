@@ -76,3 +76,77 @@ export type PolicyStatusBreakdownResponse = {
   message: string;
   payload: PolicyStatusBreakdownPayloadType[];
 };
+
+// product-share-of-policy-amount-by-amount
+
+export type ProductShareOfPolicyAmountByAmountPayloadType = {
+  product_name: string;
+  policy_amount: string;
+};
+
+export type ProductShareOfPolicyAmountByAmountResponse = {
+  status: 1 | 0;
+  message: string;
+  payload: ProductShareOfPolicyAmountByAmountPayloadType[];
+};
+
+// top-5-agents
+
+export type Top5AgentsPayloadType = {
+  agent_name: string;
+  policy_amount: string;
+};
+
+export type Top5AgentsResponse = {
+  status: 1 | 0;
+  message: string;
+  payload: Top5AgentsPayloadType[];
+};
+
+// recent-orders
+
+export type RecentOrdersPayloadType = {
+  order_code: string;
+  customer_name: string;
+  customer_contact: string;
+  product_name: string;
+  received_premium: string;
+  status: string;
+  created_at: string;
+};
+
+export type RecentOrdersResponse = {
+  status: 1 | 0;
+  message: string;
+  payload: RecentOrdersPayloadType[];
+};
+
+// payment-mode
+
+export type PaymentModePayloadType = {
+  payment_mode: string;
+  payment_code: string;
+  total_orders: number;
+  total_received_amount: string;
+  valid_policies_count: number;
+  total_discount_given: string;
+};
+
+export type PaymentModeResponse = {
+  status: 1 | 0;
+  message: string;
+  payload: PaymentModePayloadType[];
+};
+
+// top-5-branches
+
+export type Top5BranchesPayloadType = {
+  branch_name: string;
+  policy_amount: string;
+};
+
+export type Top5BranchesResponse = {
+  status: 1 | 0;
+  message: string;
+  payload: Top5BranchesPayloadType[];
+};

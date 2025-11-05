@@ -17,16 +17,16 @@ import { useEffect, useState } from "react";
 interface DateRangePickerProps extends React.HTMLAttributes<HTMLDivElement> {
   date: DateRange | undefined;
   setDate: (date: DateRange | undefined) => void;
-  align?: "end" | "center" | "start",
-  defaultDaysBack: number
+  align?: "end" | "center" | "start";
+  defaultDaysBack?: number;
 }
 
 export function DateRangePicker({
   className,
   date,
   setDate,
-  defaultDaysBack,
-  align= "end"
+  defaultDaysBack = 30,
+  align = "end",
 }: DateRangePickerProps) {
   // Local state to hold the date selection before applying
   const [localDate, setLocalDate] = useState<DateRange | undefined>(date);
@@ -37,22 +37,31 @@ export function DateRangePicker({
     setLocalDate(date);
   }, [date]);
 
+  const handleSelect = (range: DateRange | undefined, triggerDate?: Date) => {
+    if (range && localDate?.from && localDate?.to && triggerDate) {
+      setLocalDate({ from: triggerDate, to: undefined });
+      return;
+    }
+    // Default behavior for other cases
+    setLocalDate(range);
+  };
+
   const handleApply = () => {
     setDate(localDate);
     setIsOpen(false);
   };
 
   const handleCancel = () => {
-    // Reset local state to the parent's state
     setLocalDate(date);
     setIsOpen(false);
   };
 
   const handleReset = () => {
     const defaultDateRange = {
-      from: subDays(new Date(), defaultDaysBack),
+      from: subDays(new Date(), defaultDaysBack!),
       to: new Date(),
     };
+    setLocalDate(defaultDateRange);
     setDate(defaultDateRange);
     setIsOpen(false);
   };
@@ -88,7 +97,7 @@ export function DateRangePicker({
             mode="range"
             defaultMonth={localDate?.from}
             selected={localDate}
-            onSelect={setLocalDate}
+            onSelect={handleSelect}
             numberOfMonths={2}
             captionLayout="dropdown"
           />

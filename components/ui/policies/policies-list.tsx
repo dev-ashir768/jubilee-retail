@@ -53,6 +53,7 @@ import { fetchAllAgentList } from "@/helperFunctions/agentFunction";
 
 const PoliciesList = () => {
   // ======== CONSTANTS & HOOKS ========
+  const defaultDaysBack = 364;
   const LISTING_ROUTE = "/orders/policies";
   const router = useRouter();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -63,7 +64,7 @@ const PoliciesList = () => {
   const [orderSingleData, setSingleOrderData] =
     useState<SingleOrderPayloadTypes | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 364),
+    from: subDays(new Date(), defaultDaysBack),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -449,6 +450,7 @@ queryFn: fetchAllApiUserList,
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}
+        defaultDaysBack={defaultDaysBack}
       />
 
       {isLoading ? (

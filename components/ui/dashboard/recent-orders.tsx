@@ -1,3 +1,4 @@
+import { RecentOrdersPayloadType } from "@/types/dashboardTypes";
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../shadcn/card";
 import {
@@ -7,29 +8,28 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/shadcn/table";
-import { ProductsByProductAmountPayloadType } from "@/types/dashboardTypes";
+} from "../shadcn/table";
+import { Badge } from "../shadcn/badge";
 import { Skeleton } from "../shadcn/skeleton";
 
-interface ProductsByProductAmountProps {
-  payload: ProductsByProductAmountPayloadType[];
+interface RecentOrdersProps {
+  payload: RecentOrdersPayloadType[];
   isLoading: boolean;
   isError: boolean;
   error: string;
 }
 
-const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
+const RecentOrders: React.FC<RecentOrdersProps> = ({
   payload,
   isLoading,
   isError,
   error,
 }) => {
-  
   const renderSkeleton = () => (
     <Card className="w-full shadow-none border-none">
-      <CardHeader className="gap-0">
-        <CardTitle className="text-base sm:text-lg">
-          <Skeleton className="h-6 w-48 rounded-sm" />
+      <CardHeader>
+        <CardTitle>
+          <Skeleton className="h-6 w-32 rounded-sm" />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -38,19 +38,22 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
             <TableHeader>
               <TableRow className="bg-gray-50 sticky top-0">
                 <TableHead>
+                  <Skeleton className="h-4 w-20" />
+                </TableHead>
+                <TableHead>
                   <Skeleton className="h-4 w-24" />
                 </TableHead>
-                <TableHead className="text-right">
-                  <Skeleton className="h-4 w-20" />
+                <TableHead>
+                  <Skeleton className="h-4 w-28" />
+                </TableHead>
+                <TableHead>
+                  <Skeleton className="h-4 w-32" />
+                </TableHead>
+                <TableHead>
+                  <Skeleton className="h-4 w-16" />
                 </TableHead>
                 <TableHead className="text-right">
-                  <Skeleton className="h-4 w-20" />
-                </TableHead>
-                <TableHead className="text-right">
-                  <Skeleton className="h-4 w-20" />
-                </TableHead>
-                <TableHead className="text-right">
-                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-24" />
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -58,16 +61,19 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
               {Array.from({ length: 5 }).map((_, index) => (
                 <TableRow key={index}>
                   <TableCell>
+                    <Skeleton className="h-4 w-20" />
+                  </TableCell>
+                  <TableCell>
                     <Skeleton className="h-4 w-32" />
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Skeleton className="h-4 w-16" />
+                  <TableCell>
+                    <Skeleton className="h-4 w-24" />
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Skeleton className="h-4 w-16" />
+                  <TableCell>
+                    <Skeleton className="h-4 w-40" />
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Skeleton className="h-4 w-16" />
+                  <TableCell>
+                    <Skeleton className="h-8 w-20" />
                   </TableCell>
                   <TableCell className="text-right">
                     <Skeleton className="h-4 w-16" />
@@ -83,8 +89,8 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
 
   const renderError = () => (
     <Card className="w-full shadow-none border-none">
-      <CardHeader className="gap-0">
-        <CardTitle className="text-base sm:text-lg">Error</CardTitle>
+      <CardHeader>
+        <CardTitle>Error</CardTitle>
       </CardHeader>
       <CardContent>
         <p>{error}</p>
@@ -103,23 +109,20 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
   return (
     <>
       <Card className="w-full shadow-none border-none">
-        <CardHeader className="gap-0">
-          <CardTitle className="text-base sm:text-lg">
-            Top 5 Products by Product Amount
-          </CardTitle>
+        <CardHeader>
+          <CardTitle>Recent Orders</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="w-full">
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50 sticky top-0">
+                  <TableHead>Order Code</TableHead>
+                  <TableHead>Customer Name</TableHead>
+                  <TableHead>Customer Contact</TableHead>
                   <TableHead>Product Name</TableHead>
-                  <TableHead className="text-right">Order Amount</TableHead>
-                  <TableHead className="text-right">Policy Amount</TableHead>
-                  <TableHead className="text-right">
-                    Total Valid Policies
-                  </TableHead>
-                  <TableHead className="text-right">Total Orders</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Received Premium</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -127,21 +130,28 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
                   payload.map((item, index) => (
                     <TableRow key={index}>
                       <TableCell className="font-medium">
-                        <div className="max-w-[200px] whitespace-normal">
-                          {item.product_name?.replace("_", " ") || "N/A"}
-                        </div>
+                        {item.order_code || "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        {item.customer_name?.replace("-", " ") || "N/A"}
+                      </TableCell>
+                      <TableCell>{item.customer_contact || "N/A"}</TableCell>
+                      <TableCell>
+                        {item.product_name.replace(/-/g, " ") || "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            item.status
+                              .toLocaleLowerCase()
+                              .replace("_", "") as "pendingcbo"
+                          }
+                        >
+                          {item.status || "N/A"}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        {item.order_amount || "N/A"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {item.policy_amount || "N/A"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {item.total_valid_policies || "N/A"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {item.total_orders || "N/A"}
+                        {item.received_premium || "N/A"}
                       </TableCell>
                     </TableRow>
                   ))
@@ -164,4 +174,4 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
   );
 };
 
-export default ProductsByProductAmount;
+export default RecentOrders;

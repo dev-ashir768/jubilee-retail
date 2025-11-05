@@ -8,17 +8,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/shadcn/table";
-import { ProductsByProductAmountPayloadType } from "@/types/dashboardTypes";
+import { Top5AgentsPayloadType } from "@/types/dashboardTypes";
+import { Avatar, AvatarFallback, AvatarImage } from "../shadcn/avatar";
 import { Skeleton } from "../shadcn/skeleton";
 
-interface ProductsByProductAmountProps {
-  payload: ProductsByProductAmountPayloadType[];
+interface Top5AgentsProps {
+  payload: Top5AgentsPayloadType[];
   isLoading: boolean;
   isError: boolean;
   error: string;
 }
 
-const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
+const Top5Agents: React.FC<Top5AgentsProps> = ({
   payload,
   isLoading,
   isError,
@@ -29,24 +30,16 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
     <Card className="w-full shadow-none border-none">
       <CardHeader className="gap-0">
         <CardTitle className="text-base sm:text-lg">
-          <Skeleton className="h-6 w-48 rounded-sm" />
+          <Skeleton className="h-6 w-32 rounded-sm" />
         </CardTitle>
       </CardHeader>
+
       <CardContent>
         <div className="w-full">
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50 sticky top-0">
                 <TableHead>
-                  <Skeleton className="h-4 w-24" />
-                </TableHead>
-                <TableHead className="text-right">
-                  <Skeleton className="h-4 w-20" />
-                </TableHead>
-                <TableHead className="text-right">
-                  <Skeleton className="h-4 w-20" />
-                </TableHead>
-                <TableHead className="text-right">
                   <Skeleton className="h-4 w-20" />
                 </TableHead>
                 <TableHead className="text-right">
@@ -58,16 +51,10 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
               {Array.from({ length: 5 }).map((_, index) => (
                 <TableRow key={index}>
                   <TableCell>
-                    <Skeleton className="h-4 w-32" />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Skeleton className="h-4 w-16" />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Skeleton className="h-4 w-16" />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Skeleton className="h-4 w-16" />
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <Skeleton className="h-4 w-16" />
@@ -104,51 +91,45 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
     <>
       <Card className="w-full shadow-none border-none">
         <CardHeader className="gap-0">
-          <CardTitle className="text-base sm:text-lg">
-            Top 5 Products by Product Amount
-          </CardTitle>
+          <CardTitle className="text-base sm:text-lg">Top 5 Agents</CardTitle>
         </CardHeader>
+
         <CardContent>
           <div className="w-full">
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50 sticky top-0">
-                  <TableHead>Product Name</TableHead>
-                  <TableHead className="text-right">Order Amount</TableHead>
+                  <TableHead>Agent Name</TableHead>
                   <TableHead className="text-right">Policy Amount</TableHead>
-                  <TableHead className="text-right">
-                    Total Valid Policies
-                  </TableHead>
-                  <TableHead className="text-right">Total Orders</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {payload.length > 0 ? (
                   payload.map((item, index) => (
                     <TableRow key={index}>
-                      <TableCell className="font-medium">
-                        <div className="max-w-[200px] whitespace-normal">
-                          {item.product_name?.replace("_", " ") || "N/A"}
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarImage
+                              src="/images/user-avatar.png"
+                              alt={item.agent_name}
+                            />
+                            <AvatarFallback className="text-xs">
+                              {item.agent_name}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="font-medium">{item.agent_name}</div>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        {item.order_amount || "N/A"}
-                      </TableCell>
-                      <TableCell className="text-right">
                         {item.policy_amount || "N/A"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {item.total_valid_policies || "N/A"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {item.total_orders || "N/A"}
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={2}
                       className="h-[285px] text-center text-muted-foreground"
                     >
                       No data to display.
@@ -164,4 +145,4 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
   );
 };
 
-export default ProductsByProductAmount;
+export default Top5Agents;

@@ -54,11 +54,12 @@ const CboList = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [isPolicyId, setIsPolicyId] = useState<number>();
+  const defaultDaysBack = 10;
   const [orderSingleData, setSingleOrderData] =
     useState<SingleOrderPayloadTypes | null>(null);
   const { filterValue } = cboListFilterState();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 364),
+    from: subDays(new Date(), defaultDaysBack),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -386,6 +387,7 @@ const CboList = () => {
         isExportZipOpen={isExportZipOpen}
         setIsExportZipOpen={setIsExportZipOpen}
         exportZip={true}
+        defaultDaysBack={defaultDaysBack}
       />
 
       {isLoading ? (

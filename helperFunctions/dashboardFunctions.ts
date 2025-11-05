@@ -1,10 +1,15 @@
 import {
   ApiUsersByPolicyAmountResponse,
   MonthlyPolicyNOrdersResponse,
+  PaymentModeResponse,
   PolicyStatsResponse,
   PolicyStatusBreakdownResponse,
   ProductsByProductAmountResponse,
   ProductsDetailWiseResponse,
+  ProductShareOfPolicyAmountByAmountResponse,
+  RecentOrdersResponse,
+  Top5AgentsResponse,
+  Top5BranchesResponse,
 } from "@/types/dashboardTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
@@ -141,6 +146,119 @@ export const fetchPolicyStatusBreakdown = async ({
     return response;
   } catch (err) {
     console.error("Error fetching policy status breakdown valid invalid:", err);
+    return null;
+  }
+};
+
+export const fetchProductShareOfPolicyAmountByAmount = async ({
+  startDate,
+  endDate,
+}: dashboardFunctionProps): Promise<ProductShareOfPolicyAmountByAmountResponse | null> => {
+  const payload = {
+    date: `${startDate} to ${endDate}`,
+  };
+
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/dashboard/product-share-of-policy-amount-by-amount",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error(
+      "Error fetching product share of policy amount by amount:",
+      err
+    );
+    return null;
+  }
+};
+
+export const fetchTop5Agents = async ({
+  startDate,
+  endDate,
+}: dashboardFunctionProps): Promise<Top5AgentsResponse | null> => {
+  const payload = {
+    date: `${startDate} to ${endDate}`,
+  };
+
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/dashboard/top-5-agents",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching top 5 agents:", err);
+    return null;
+  }
+};
+
+export const fetchRecentOrders = async ({
+  startDate,
+  endDate,
+}: dashboardFunctionProps): Promise<RecentOrdersResponse | null> => {
+  const payload = {
+    date: `${startDate} to ${endDate}`,
+  };
+
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/dashboard/recent-orders",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching recent orders:", err);
+    return null;
+  }
+};
+
+export const fetchPaymentMode = async ({
+  startDate,
+  endDate,
+}: dashboardFunctionProps): Promise<PaymentModeResponse | null> => {
+  const payload = {
+    date: `${startDate} to ${endDate}`,
+  };
+
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/dashboard/payment-mode",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching payment mode:", err);
+    return null;
+  }
+};
+
+export const fetchTop5Branches = async ({
+  startDate,
+  endDate,
+}: dashboardFunctionProps): Promise<Top5BranchesResponse | null> => {
+  const payload = {
+    date: `${startDate} to ${endDate}`,
+  };
+
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/dashboard/top-5-branches",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching top 5 branches:", err);
     return null;
   }
 };

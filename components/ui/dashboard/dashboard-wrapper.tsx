@@ -1,24 +1,32 @@
 "use client";
 
-import { RevenueTrendChart } from "./revenue-trend-chart";
-import { PerformanceSparklineChart } from "./performance-sparkline-chart";
 import SubNav from "../foundations/sub-nav";
 import KPICards from "./kpi-cards";
 import {
   fetchApiUsersByPolicyAmount,
   fetchMonthlyPolicyNOrders,
+  fetchPaymentMode,
   fetchPolicyStats,
   fetchPolicyStatusBreakdown,
   fetchProductsByProductAmount,
   fetchProductsDetailWise,
+  fetchProductShareOfPolicyAmountByAmount,
+  fetchRecentOrders,
+  fetchTop5Agents,
+  fetchTop5Branches,
 } from "@/helperFunctions/dashboardFunctions";
 import {
   ApiUsersByPolicyAmountResponse,
   MonthlyPolicyNOrdersResponse,
+  PaymentModeResponse,
   PolicyStatsResponse,
   PolicyStatusBreakdownResponse,
   ProductsByProductAmountResponse,
   ProductsDetailWiseResponse,
+  ProductShareOfPolicyAmountByAmountResponse,
+  RecentOrdersResponse,
+  Top5AgentsResponse,
+  Top5BranchesResponse,
 } from "@/types/dashboardTypes";
 import { getRights } from "@/utils/getRights";
 import { useQuery } from "@tanstack/react-query";
@@ -26,20 +34,24 @@ import { format, subDays } from "date-fns";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
-import LoadingState from "../foundations/loading-state";
 import ProductsDetailWise from "./products-detail-wise";
 import ApiUsersByPolicyAmount from "./api-users-by-policy-amount";
 import ProductsByProductAmount from "./products-by-product-amount";
 import PolicyStatusBreakdown from "./policy-status-breakdown";
 import MonthlyOrdersAndPolicies from "./monthly-orders-and-policies";
+import Top5Agents from "./top-5-agents";
+import ProductShareOfPolicyAmountByAmount from "./product-share-of-policy-amount-by-amount";
+import RecentOrders from "./recent-orders";
+import PaymentMode from "./payment-mode";
+import Top5Branches from "./top-5-branches";
 
 export function DashboardWrapper() {
   // ======== CONSTANTS & HOOKS ========
   const pathname = usePathname();
   const router = useRouter();
-  const defaultDaysBack = 366;
+  const defaultDaysBack = 364;
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 364),
+    from: subDays(new Date(), defaultDaysBack),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -56,8 +68,8 @@ export function DashboardWrapper() {
   const {
     data: policyStatsResponse,
     isLoading: policyStatsLoading,
-    // isError: policyStatsIsError,
-    // error: policyStatsError,
+    isError: policyStatsIsError,
+    error: policyStatsError,
   } = useQuery<PolicyStatsResponse | null>({
     queryKey: [
       "policy-stats",
@@ -73,8 +85,8 @@ export function DashboardWrapper() {
   const {
     data: monthlyPolicyNOrdersResponse,
     isLoading: monthlyPolicyNOrdersLoading,
-    // isError: monthlyPolicyNOrdersIsError,
-    // error: monthlyPolicyNOrdersError,
+    isError: monthlyPolicyNOrdersIsError,
+    error: monthlyPolicyNOrdersError,
   } = useQuery<MonthlyPolicyNOrdersResponse | null>({
     queryKey: [
       "policy-monthly-orders-and-policies",
@@ -90,8 +102,8 @@ export function DashboardWrapper() {
   const {
     data: productsDetailWiseResponse,
     isLoading: productsDetailWiseLoading,
-    // isError: productsDetailWiseIsError,
-    // error: productsDetailWiseError,
+    isError: productsDetailWiseIsError,
+    error: productsDetailWiseError,
   } = useQuery<ProductsDetailWiseResponse | null>({
     queryKey: [
       "top-5-products-detail-wise",
@@ -107,8 +119,8 @@ export function DashboardWrapper() {
   const {
     data: productsByProductAmountResponse,
     isLoading: productsByProductAmountLoading,
-    // isError: productsByProductAmountIsError,
-    // error: productsByProductAmountError,
+    isError: productsByProductAmountIsError,
+    error: productsByProductAmountError,
   } = useQuery<ProductsByProductAmountResponse | null>({
     queryKey: [
       "top-5-products-by-product-amount",
@@ -124,8 +136,8 @@ export function DashboardWrapper() {
   const {
     data: apiUsersByPolicyAmountResponse,
     isLoading: apiUsersByPolicyAmountLoading,
-    // isError: apiUsersByPolicyAmountIsError,
-    // error: apiUsersByPolicyAmountError,
+    isError: apiUsersByPolicyAmountIsError,
+    error: apiUsersByPolicyAmountError,
   } = useQuery<ApiUsersByPolicyAmountResponse | null>({
     queryKey: [
       "top-5-products-by-product-amount",
@@ -141,8 +153,8 @@ export function DashboardWrapper() {
   const {
     data: policyStatusBreakdownResponse,
     isLoading: policyStatusBreakdownLoading,
-    // isError: policyStatusBreakdownIsError,
-    // error: policyStatusBreakdownError,
+    isError: policyStatusBreakdownIsError,
+    error: policyStatusBreakdownError,
   } = useQuery<PolicyStatusBreakdownResponse | null>({
     queryKey: [
       "policy-status-breakdown-valid-invalid",
@@ -150,6 +162,91 @@ export function DashboardWrapper() {
     ],
     queryFn: () =>
       fetchPolicyStatusBreakdown({
+        startDate,
+        endDate,
+      }),
+  });
+
+  const {
+    data: productShareOfPolicyAmountByAmountResponse,
+    isLoading: productShareOfPolicyAmountByAmountLoading,
+    isError: productShareOfPolicyAmountByAmountIsError,
+    error: productShareOfPolicyAmountByAmountError,
+  } = useQuery<ProductShareOfPolicyAmountByAmountResponse | null>({
+    queryKey: [
+      "product-share-of-policy-amount-by-amount",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchProductShareOfPolicyAmountByAmount({
+        startDate,
+        endDate,
+      }),
+  });
+
+  const {
+    data: top5AgentsResponse,
+    isLoading: top5AgentsLoading,
+    isError: top5AgentsIsError,
+    error: top5AgentsError,
+  } = useQuery<Top5AgentsResponse | null>({
+    queryKey: [
+      "top-5-agents",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchTop5Agents({
+        startDate,
+        endDate,
+      }),
+  });
+
+  const {
+    data: recentOrdersResponse,
+    isLoading: recentOrdersLoading,
+    isError: recentOrdersIsError,
+    error: recentOrdersError,
+  } = useQuery<RecentOrdersResponse | null>({
+    queryKey: [
+      "recent-orders",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchRecentOrders({
+        startDate,
+        endDate,
+      }),
+  });
+
+  const {
+    data: paymentModeResponse,
+    isLoading: paymentModeLoading,
+    isError: paymentModeIsError,
+    error: paymentModeError,
+  } = useQuery<PaymentModeResponse | null>({
+    queryKey: [
+      "payment-mode",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchPaymentMode({
+        startDate,
+        endDate,
+      }),
+  });
+
+  const {
+    data: top5BranchesResponse,
+    isLoading: top5BranchesLoading,
+    isError: top5BranchesIsError,
+    error: top5BranchesError,
+  } = useQuery<Top5BranchesResponse | null>({
+    queryKey: [
+      "top-5-branches",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchTop5Branches({
         startDate,
         endDate,
       }),
@@ -186,14 +283,32 @@ export function DashboardWrapper() {
     [apiUsersByPolicyAmountResponse]
   );
 
-  // ======== RENDER LOGIC ========
-  const isLoading =
-    policyStatsLoading ||
-    monthlyPolicyNOrdersLoading ||
-    productsDetailWiseLoading;
-  // const isError = policyStatsIsError || monthlyPolicyNOrdersIsError || productsDetailWiseIsError;
-  // const onError = policyStatsError?.message || monthlyPolicyNOrdersError?.message || productsDetailWiseError?.message;
+  const top5Agents = useMemo(
+    () => top5AgentsResponse?.payload || [],
+    [top5AgentsResponse]
+  );
 
+  const productShareOfPolicyAmountByAmount = useMemo(
+    () => productShareOfPolicyAmountByAmountResponse?.payload || [],
+    [productShareOfPolicyAmountByAmountResponse]
+  );
+
+  const recentOrders = useMemo(
+    () => recentOrdersResponse?.payload || [],
+    [recentOrdersResponse]
+  );
+
+  const paymentMode = useMemo(
+    () => paymentModeResponse?.payload || [],
+    [paymentModeResponse]
+  );
+
+  const top5Branches = useMemo(
+    () => top5BranchesResponse?.payload || [],
+    [top5BranchesResponse]
+  );
+
+  // ======== RENDER LOGIC ========
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
       const timer = setTimeout(() => {
@@ -203,10 +318,6 @@ export function DashboardWrapper() {
       return () => clearTimeout(timer);
     }
   }, [rights, router]);
-
-  if (isLoading) {
-    return <LoadingState />;
-  }
 
   return (
     <>
@@ -219,25 +330,88 @@ export function DashboardWrapper() {
       />
 
       <div className="grid grid-cols-1 gap-6">
-        <KPICards policyStats={policyStats} />
+        <KPICards
+          policyStats={policyStats}
+          isLoading={policyStatsLoading}
+          isError={policyStatsIsError}
+          error={policyStatsError?.message ?? "Error Occur"}
+        />
+
+        <Top5Branches
+          payload={top5Branches}
+          isLoading={top5BranchesLoading}
+          isError={top5BranchesIsError}
+          error={top5BranchesError?.message ?? "Error Occur"}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* <PoliciesClaimsChart /> */}
-          <ProductsDetailWise payload={productsDetailWise} />
+          <PolicyStatusBreakdown
+            payload={policyStatusBreakdown}
+            isLoading={policyStatusBreakdownLoading}
+            isError={policyStatusBreakdownIsError}
+            error={policyStatusBreakdownError?.message ?? "Error Occur"}
+          />
+          <ProductShareOfPolicyAmountByAmount
+            payload={productShareOfPolicyAmountByAmount}
+            isLoading={productShareOfPolicyAmountByAmountLoading}
+            isError={productShareOfPolicyAmountByAmountIsError}
+            error={productShareOfPolicyAmountByAmountError?.message ?? "Error Occur"}
+          />
+        </div>
 
-          <ProductsByProductAmount payload={productsByProductAmount} />
+        <div className="grid grid-cols-1 gap-6">
+          <MonthlyOrdersAndPolicies
+            payload={monthlyPolicyNOrders}
+            isLoading={monthlyPolicyNOrdersLoading}
+            isError={monthlyPolicyNOrdersIsError}
+            error={monthlyPolicyNOrdersError?.message ?? "Error Occur"}
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ApiUsersByPolicyAmount payload={apiUsersByPolicyAmount} />
+          <ApiUsersByPolicyAmount
+            payload={apiUsersByPolicyAmount}
+            isLoading={apiUsersByPolicyAmountLoading}
+            isError={apiUsersByPolicyAmountIsError}
+            error={apiUsersByPolicyAmountError?.message ?? "Error Occur"}
+          />
 
-          <PolicyStatusBreakdown payload={policyStatusBreakdown} />
+          <ProductsDetailWise
+            payload={productsDetailWise}
+            isLoading={productsDetailWiseLoading}
+            isError={productsDetailWiseIsError}
+            error={productsDetailWiseError?.message ?? "Error Occur"}
+          />
         </div>
 
-        <div className="grid grid-cols-1  gap-6">
-          {/* <RevenueTrendChart /> */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <PaymentMode
+            payload={paymentMode}
+            isLoading={paymentModeLoading}
+            isError={paymentModeIsError}
+            error={paymentModeError?.message ?? "Error Occur"}
+          />
+          <Top5Agents
+            payload={top5Agents}
+            isLoading={top5AgentsLoading}
+            isError={top5AgentsIsError}
+            error={top5AgentsError?.message ?? "Error Occur"}
+          />
+        </div>
 
-          <MonthlyOrdersAndPolicies payload={monthlyPolicyNOrders} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ProductsByProductAmount
+            payload={productsByProductAmount}
+            isLoading={productsByProductAmountLoading}
+            isError={productsByProductAmountIsError}
+            error={productsByProductAmountError?.message ?? "Error Occur"}
+          />
+          <RecentOrders
+            payload={recentOrders}
+            isLoading={recentOrdersLoading}
+            isError={recentOrdersIsError}
+            error={recentOrdersError?.message ?? "Error Occur"}
+          />
         </div>
       </div>
     </>

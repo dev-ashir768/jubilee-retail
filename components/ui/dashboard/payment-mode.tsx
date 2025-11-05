@@ -7,29 +7,28 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/shadcn/table";
-import { ProductsByProductAmountPayloadType } from "@/types/dashboardTypes";
+} from "../shadcn/table";
+import { PaymentModePayloadType } from "@/types/dashboardTypes";
 import { Skeleton } from "../shadcn/skeleton";
 
-interface ProductsByProductAmountProps {
-  payload: ProductsByProductAmountPayloadType[];
+interface PaymentModeProps {
+  payload: PaymentModePayloadType[];
   isLoading: boolean;
   isError: boolean;
   error: string;
 }
 
-const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
+const PaymentMode: React.FC<PaymentModeProps> = ({
   payload,
   isLoading,
   isError,
   error,
 }) => {
-  
   const renderSkeleton = () => (
     <Card className="w-full shadow-none border-none">
-      <CardHeader className="gap-0">
-        <CardTitle className="text-base sm:text-lg">
-          <Skeleton className="h-6 w-48 rounded-sm" />
+      <CardHeader>
+        <CardTitle>
+          <Skeleton className="h-6 w-32 rounded-sm" />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -38,19 +37,19 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
             <TableHeader>
               <TableRow className="bg-gray-50 sticky top-0">
                 <TableHead>
+                  <Skeleton className="h-4 w-20" />
+                </TableHead>
+                <TableHead className="text-right">
+                  <Skeleton className="h-4 w-20" />
+                </TableHead>
+                <TableHead className="text-right">
+                  <Skeleton className="h-4 w-28" />
+                </TableHead>
+                <TableHead className="text-right">
                   <Skeleton className="h-4 w-24" />
                 </TableHead>
                 <TableHead className="text-right">
-                  <Skeleton className="h-4 w-20" />
-                </TableHead>
-                <TableHead className="text-right">
-                  <Skeleton className="h-4 w-20" />
-                </TableHead>
-                <TableHead className="text-right">
-                  <Skeleton className="h-4 w-20" />
-                </TableHead>
-                <TableHead className="text-right">
-                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-24" />
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -83,8 +82,8 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
 
   const renderError = () => (
     <Card className="w-full shadow-none border-none">
-      <CardHeader className="gap-0">
-        <CardTitle className="text-base sm:text-lg">Error</CardTitle>
+      <CardHeader>
+        <CardTitle>Error</CardTitle>
       </CardHeader>
       <CardContent>
         <p>{error}</p>
@@ -103,23 +102,25 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
   return (
     <>
       <Card className="w-full shadow-none border-none">
-        <CardHeader className="gap-0">
-          <CardTitle className="text-base sm:text-lg">
-            Top 5 Products by Product Amount
-          </CardTitle>
+        <CardHeader>
+          <CardTitle>Payment Modes</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="w-full">
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50 sticky top-0">
-                  <TableHead>Product Name</TableHead>
-                  <TableHead className="text-right">Order Amount</TableHead>
-                  <TableHead className="text-right">Policy Amount</TableHead>
-                  <TableHead className="text-right">
-                    Total Valid Policies
-                  </TableHead>
+                  <TableHead>Payment Mode</TableHead>
                   <TableHead className="text-right">Total Orders</TableHead>
+                  <TableHead className="text-right">
+                    Total Received Amount
+                  </TableHead>
+                  <TableHead className="text-right">
+                    Valid Policies Count
+                  </TableHead>
+                  <TableHead className="text-right">
+                    Total Discount Given
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -128,20 +129,20 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
                     <TableRow key={index}>
                       <TableCell className="font-medium">
                         <div className="max-w-[200px] whitespace-normal">
-                          {item.product_name?.replace("_", " ") || "N/A"}
+                          {item.payment_mode?.replace("_", " ") || "N/A"}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        {item.order_amount || "N/A"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {item.policy_amount || "N/A"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {item.total_valid_policies || "N/A"}
-                      </TableCell>
-                      <TableCell className="text-right">
                         {item.total_orders || "N/A"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {item.total_received_amount || "N/A"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {item.valid_policies_count || "N/A"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {item.total_discount_given || "N/A"}
                       </TableCell>
                     </TableRow>
                   ))
@@ -164,4 +165,4 @@ const ProductsByProductAmount: React.FC<ProductsByProductAmountProps> = ({
   );
 };
 
-export default ProductsByProductAmount;
+export default PaymentMode;

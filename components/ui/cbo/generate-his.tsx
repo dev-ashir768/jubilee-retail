@@ -35,8 +35,9 @@ const GenerateHis: React.FC<GenerateHisProps> = ({
   isExportZipOpen,
   setIsExportZipOpen,
 }) => {
+  const defaultDaysBack = 6;
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 364),
+    from: subDays(new Date(), defaultDaysBack),
     to: new Date(),
   });
   const [localDateRange, setLocalDateRange] = useState<DateRange | undefined>(
@@ -112,7 +113,7 @@ const GenerateHis: React.FC<GenerateHisProps> = ({
 
   const handleReset = useCallback(() => {
     const defaultDateRange = {
-      from: subDays(new Date(), 6),
+      from: subDays(new Date(), defaultDaysBack),
       to: new Date(),
     };
     setDateRange(defaultDateRange);
@@ -131,9 +132,7 @@ const GenerateHis: React.FC<GenerateHisProps> = ({
             </DialogDescription>
           </DialogHeader>
           <div>
-            <DateRangeCalendar
-              date={localDateRange}
-            />
+            <DateRangeCalendar date={localDateRange} />
 
             <div className="mt-4">
               <Select value={fileType} onValueChange={setFileType}>

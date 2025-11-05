@@ -70,7 +70,7 @@ const ReportingForm: React.FC<ReportingFormProps> = ({
 
   // ======== STATES FOR ISSUE DATE ========
   const [issueDateRange, setIssueDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 364),
+    from: subDays(new Date(), defaultDaysBack),
     to: new Date(),
   });
   const [issueSingleDate, setIssueSingleDate] = useState<Date | undefined>(
@@ -79,7 +79,7 @@ const ReportingForm: React.FC<ReportingFormProps> = ({
 
   // ======== STATES FOR START DATE ========
   const [startDateRange, setStartDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 364),
+    from: subDays(new Date(), defaultDaysBack),
     to: new Date(),
   });
   const [startSingleDate, setStartSingleDate] = useState<Date | undefined>(
@@ -89,7 +89,7 @@ const ReportingForm: React.FC<ReportingFormProps> = ({
   // ======== STATES FOR EXPIRY DATE ========
   const [expiryDateRange, setExpiryDateRange] = useState<DateRange | undefined>(
     {
-      from: subDays(new Date(), 364),
+      from: subDays(new Date(), defaultDaysBack),
       to: new Date(),
     }
   );
