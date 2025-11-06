@@ -5,7 +5,7 @@ import { fetchClientList } from "@/helperFunctions/clientFunction";
 import useClientIdStore from "@/hooks/useClientIdStore";
 import { ClientPayloadType, ClientResponseType } from "@/types/clientTypes";
 import { getRights } from "@/utils/getRights";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import Error from "../foundations/error";
 import Empty from "../foundations/empty";
@@ -33,14 +33,24 @@ import ClientFilters from "../filters/client-filter";
 import { BranchResponseType } from "@/types/branchTypes";
 import { fetchAllBranchList } from "@/helperFunctions/branchFunction";
 import { clientFilterState } from "@/hooks/clientFilterState";
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
 
 const ClientList = () => {
   // Constants
   const ADD_URL = "/branches-clients/add-clients";
   const EDIT_URL = "/branches-clients/edit-clients";
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate } = handleStatusMutation();
   const { filterValue } = clientFilterState();
   const defaultDaysBack = 366;
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -51,7 +61,7 @@ const ClientList = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
-
+  console.log(startDate, endDate);
   // Zustand
   const { setClientId } = useClientIdStore();
 
@@ -213,10 +223,12 @@ const ClientList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
           <Badge
             className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
+            onClick={() => handleStatusUpdate(id)}
           >
             {status}
           </Badge>
@@ -238,35 +250,42 @@ const ClientList = () => {
       cell: ({ row }) => {
         const record = row.original;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {rights?.can_edit === "1" && (
-                <DropdownMenuItem
-                  onClick={() => setClientId(record.id)}
-                  asChild
-                >
-                  <Link href={EDIT_URL}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit
-                  </Link>
-                </DropdownMenuItem>
-              )}
-              {rights?.can_edit === "1" && (
-                <DropdownMenuItem>
-                  <Trash className="mr-2 h-4 w-4" />
-                  Delete
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {rights?.can_edit === "1" && (
+                  <DropdownMenuItem
+                    onClick={() => setClientId(record.id)}
+                    asChild
+                  >
+                    <Link href={EDIT_URL}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                {rights?.can_delete === "1" && (
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setDeleteDialogOpen(true);
+                      setSelectedRecordId(record.id);
+                    }}
+                  >
+                    <Trash className="h-4 w-4 mr-1" />
+                    Delete
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
         );
       },
     },
@@ -276,6 +295,49 @@ const ClientList = () => {
   const rights = useMemo(() => {
     return getRights(pathname);
   }, [pathname]);
+
+  // ======== HANDLE ========
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_CLIENT!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "clients-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+              ...(filterValue?.branch ? [filterValue?.branch] : []),
+            ],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_CLIENT!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "clients-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+              ...(filterValue?.branch ? [filterValue?.branch] : []),
+            ],
+          });
+        },
+      }
+    );
+  };
 
   // ======== FETCH PAYLOAD ========
   const branchList = useMemo(
@@ -353,6 +415,12 @@ const ClientList = () => {
         branchList={branchList}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}
+      />
+
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
       />
     </>
   );

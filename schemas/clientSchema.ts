@@ -15,7 +15,7 @@ export const ClientSchema = z.object({
   igis_client_code: z
     .string()
     .min(10, "IGIS client code is required")
-    .max(10, "IGIS client code cannot exceed 10 characters")
+    .max(18, "IGIS client code cannot exceed 18 characters")
     .trim()
     .refine((value) => !forbiddenCodeRegex.test(value), {
       message: "IGIS client code contains forbidden code patterns",

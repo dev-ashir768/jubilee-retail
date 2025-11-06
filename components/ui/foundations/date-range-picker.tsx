@@ -38,11 +38,25 @@ export function DateRangePicker({
   }, [date]);
 
   const handleSelect = (range: DateRange | undefined, triggerDate?: Date) => {
-    if (range && localDate?.from && localDate?.to && triggerDate) {
+    // Restart selection only if clicking on the existing 'from' date when a range (or single day) is selected
+    if (
+      range &&
+      localDate?.from &&
+      localDate?.to &&
+      triggerDate &&
+      triggerDate.getTime() === localDate.from.getTime()
+    ) {
       setLocalDate({ from: triggerDate, to: undefined });
       return;
     }
-    // Default behavior for other cases
+
+    // If only 'from' is selected (first click), set both 'from' and 'to' to that date for single-day selection
+    if (range?.from && !range?.to) {
+      setLocalDate({ from: range.from, to: range.from });
+      return;
+    }
+
+    // Default behavior: complete the range or handle other cases
     setLocalDate(range);
   };
 

@@ -61,7 +61,6 @@ const AddClientForm: React.FC<AddClientFormProps> = ({ branchList }) => {
     AxiosError<ClientResponseType>,
     ClientSchemaType
   >({
-    mutationKey: ["add-client"],
     mutationFn: (record) => {
       return axiosFunction({
         method: "POST",

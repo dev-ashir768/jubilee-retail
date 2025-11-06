@@ -4,7 +4,7 @@ import { fetchBranchList } from "@/helperFunctions/branchFunction";
 import useBranchIdStore from "@/hooks/useBranchIdStore";
 import { BranchPayloadType, BranchResponseType } from "@/types/branchTypes";
 import { getRights } from "@/utils/getRights";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import Error from "../foundations/error";
@@ -29,11 +29,21 @@ import BranchDatatable from "./branch-datatable";
 import LoadingState from "../foundations/loading-state";
 import { DateRange } from "react-day-picker";
 import { format, subDays } from "date-fns";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import DeleteDialog from "../common/delete-dialog";
 
 const BranchList = () => {
   // Constants
   const ADD_URL = "/branches-clients/add-branch";
   const EDIT_URL = "/branches-clients/edit-branch";
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate } = handleStatusMutation();
   const router = useRouter();
   const { setBranchId } = useBranchIdStore();
   const pathname = usePathname();
@@ -59,11 +69,15 @@ const BranchList = () => {
     isError: branchListIsError,
     error: branchListError,
   } = useQuery<BranchResponseType | null>({
-    queryKey: ["branch-list", ...(startDate && endDate ? [`${startDate} to ${endDate}`] : [])],
-    queryFn: ()=> fetchBranchList({
-      startDate,
-      endDate
-    }),
+    queryKey: [
+      "branch-list",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchBranchList({
+        startDate,
+        endDate,
+      }),
   });
 
   // Column filter options
@@ -267,10 +281,12 @@ const BranchList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original.id;
         return (
           <Badge
             className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
+            onClick={() => handleStatusUpdate(id)}
           >
             {status}
           </Badge>
@@ -313,8 +329,8 @@ const BranchList = () => {
                   </Link>
                 </DropdownMenuItem>
               )}
-              {rights?.can_edit === "1" && (
-                <DropdownMenuItem>
+              {rights?.can_delete === "1" && (
+                <DropdownMenuItem onClick={() => setDeleteDialogOpen(true)}>
                   <Trash className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>
@@ -325,6 +341,47 @@ const BranchList = () => {
       },
     },
   ];
+
+  // ======== HANDLE ========
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_BRANCH!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "branch-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+            ],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_BRANCH!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "branch-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+            ],
+          });
+        },
+      }
+    );
+  };
 
   // ======== RENDER LOGIC ========
   const isLoading = branchListLoading;
@@ -386,6 +443,12 @@ const BranchList = () => {
       />
 
       {renderPageContent()}
+
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
+      />
     </>
   );
 };
