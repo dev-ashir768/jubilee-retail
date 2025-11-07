@@ -10,7 +10,7 @@ export const fetchAgentList = async ({
   startDate,
   endDate,
 }: fetchAgentListProps): Promise<AgentResponseTypes | null> => {
-const payload = { date: `${startDate} to ${endDate}` };
+  const payload = { date: `${startDate} to ${endDate}` };
 
   try {
     const response = await axiosFunction({

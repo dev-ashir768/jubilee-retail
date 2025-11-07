@@ -18,7 +18,6 @@ import {
 } from "recharts";
 import { Skeleton } from "../shadcn/skeleton";
 
-const COLORS = ["#ef4444", "#10b981"];
 const BORDER = "#e5e7eb";
 
 interface PolicyStatusBreakdownProps {
@@ -38,6 +37,17 @@ const PolicyStatusBreakdown: React.FC<PolicyStatusBreakdownProps> = ({
     name: entry.status_group,
     value: entry.count,
   }));
+
+  const getColor = (name: string) => {
+    switch (name) {
+      case "Valid":
+        return "#10b981"; // green
+      case "Invalid":
+        return "#ef4444"; // red
+      default:
+        return "#8884d8"; // default
+    }
+  };
 
   const renderLabel = (props: PieLabelRenderProps) => {
     const name = props.name as string;
@@ -106,7 +116,7 @@ const PolicyStatusBreakdown: React.FC<PolicyStatusBreakdownProps> = ({
                 {chartData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
+                    fill={getColor(entry.name)}
                   />
                 ))}
               </Pie>

@@ -92,7 +92,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userInfo }) => {
           {isMobile && <DropdownMenuSeparator />}
           <DropdownMenuGroup>
             <DropdownMenuItem className="cursor-pointer" asChild>
-              <Link href="/">
+              <Link href="/user-profile">
                 <User />
                 User Profile
               </Link>
