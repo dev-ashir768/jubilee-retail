@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
@@ -73,6 +72,15 @@ const CreateOrderWrapper = () => {
     setIsRiderDialogOpen(true);
   };
 
+  const handleTemplateDownload = ()=> {
+    const link = document.createElement("a");
+    link.href = "/templates/template.xlsx";
+    link.download = "template";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   // HANDLE MUTATION
   const createBulkOrderMutation = useMutation<
     BulkOrderResponseType,
@@ -103,7 +111,6 @@ const CreateOrderWrapper = () => {
   });
 
   const handlePush = useCallback(() => {
-    console.log('handlePush called');
     if (!jsonResult || jsonResult.length === 0) return;
     createBulkOrderMutation.mutate(jsonResult);
   }, [jsonResult, createBulkOrderMutation]);
@@ -355,7 +362,12 @@ const CreateOrderWrapper = () => {
     <>
       {!toggle ? (
         <>
-          <SubNav title="Create Order" />
+          <div className="flex md:flex-row flex-col justify-between items-center">
+            <SubNav title="Create Order" />
+            <Button size="lg" className="min-w-[150px]" type="button" onClick={handleTemplateDownload}>
+            Template
+            </Button>
+          </div>
           <Card className="w-full h-full shadow-none border-none">
             <CardHeader className="border-b">
               <CardTitle>Create your all orders</CardTitle>
@@ -369,7 +381,7 @@ const CreateOrderWrapper = () => {
         </>
       ) : (
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex md:flex-row flex-col justify-between items-center">
             <h2 className="text-lg font-semibold">Order Review</h2>
             <div className="space-x-2">
               {!showResults ? (
@@ -427,8 +439,11 @@ const CreateOrderWrapper = () => {
                   <TabsTrigger value="error">Error</TabsTrigger>
                 </TabsList>
                 <TabsContent value="view" className="mt-4">
-                    <CreateOrderDatatable columns={reviewColumns} payload={jsonResult || []} />
-                  </TabsContent>
+                  <CreateOrderDatatable
+                    columns={reviewColumns}
+                    payload={jsonResult || []}
+                  />
+                </TabsContent>
                 <TabsContent value="success" className="mt-4">
                   {successData.length > 0 ? (
                     <CreateOrderDatatable

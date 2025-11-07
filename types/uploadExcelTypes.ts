@@ -1,5 +1,6 @@
 export type ExcelDataExpectedRow = {
   // Core required fields
+  policy_no: string;
   partner_name: string;
   payment_mode: string;
   plan: string;

@@ -3,6 +3,8 @@ export type ProductsPayloadTypes = {
   product_name: string;
   product_type: string;
   product_category_id: number;
+  is_cbo: boolean;
+  is_takaful: boolean;
   is_active: boolean;
   is_deleted: boolean;
   created_by: number;

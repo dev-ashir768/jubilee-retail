@@ -3,6 +3,7 @@ import { ExcelDataExpectedRow } from "@/types/uploadExcelTypes";
 
 // Core required keys (100% expected, including base spouse)
 export const CORE_KEYS: (keyof ExcelDataExpectedRow)[] = [
+  "policy_no",
   "partner_name",
   "payment_mode",
   "plan",

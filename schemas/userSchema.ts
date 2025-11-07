@@ -82,6 +82,12 @@ export const UserSchema = z.object({
     .min(1, { message: "User type is required" }),
   is_active: z.boolean({ message: "Status is required" }),
   menu_rights: menu_rights.array(),
+   redirection_url: z
+      .string({ invalid_type_error: "Redirection Url must be a string" })
+      .nullable()
+      .refine((val) => !forbiddenCodeRegex.test(String(val)), {
+        message: "Invalid input: Code-like content is not allowed",
+      }),
 });
 
 export type UserSchemaType = z.infer<typeof UserSchema>;

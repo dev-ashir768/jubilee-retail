@@ -15,8 +15,7 @@ const ProductSchema = z.object({
 
   product_type: z
     .string()
-    .min(6, "Product type must be at least 6 characters long")
-    .max(10, "Product type cannot be longer than 10 characters")
+    .min(1, "Product type is required")
     .trim()
     .refine((val) => !forbiddenCodeRegex.test(val), {
       message: "Product Type contains forbidden code patterns",
@@ -28,6 +27,8 @@ const ProductSchema = z.object({
       invalid_type_error: "Product category ID must be a number",
     })
     .min(1, "Product category ID must be a positive number"),
+  is_cbo: z.boolean({ message: "CBO is required" }),
+  is_takaful: z.boolean({ message: "Takaful is required" }),
 });
 
 export default ProductSchema;

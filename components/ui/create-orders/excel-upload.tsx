@@ -197,6 +197,18 @@ const ExcelUpload = () => {
             }
           }
 
+          if (row.client_name) {
+            policy_detail.push({
+              name: String(row.client_name!),
+              type: "client",
+              relation: "client",
+              cnic: row.client_cnic ? String(row.client_cnic) : null,
+              cnic_issue_date: row.client_cnic_issue_date ? String(row.client_cnic_issue_date) : null,
+              dob: row.client_dob ? String(row.client_dob) : null,
+              gender: row.gender ? String(row.gender).toLocaleLowerCase() : null,
+            });
+          }
+
           // Add riders (rider1, rider2)
           const rider: RiderTypes[] = [];
           if (row.rider1_covered) {
@@ -214,6 +226,7 @@ const ExcelUpload = () => {
 
           // Assemble the final nested object
           return {
+            policy_no: row.policy_no,
             api_user_name: row.partner_name,
             payment_mode_code: row.payment_mode.toLocaleUpperCase(),
             child_sku: row.plan,

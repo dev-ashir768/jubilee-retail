@@ -2,7 +2,7 @@ import { StylesConfig } from "react-select";
 
 export interface SelectOption {
   label: string;
-  value: number | string;
+  value: number | string | boolean;
 }
 
 export const singleSelectStyle: StylesConfig<SelectOption, false> = {

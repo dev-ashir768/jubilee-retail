@@ -6,6 +6,7 @@ export type userInfoTypes = {
   contact: string;
   isActive: boolean;
   image: string;
+  redirection_url: string | null;
 };
 
 export type menusTypes = {

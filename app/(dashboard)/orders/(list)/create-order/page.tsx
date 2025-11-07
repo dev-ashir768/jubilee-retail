@@ -1,4 +1,4 @@
-import CreateOrderWrapper from "@/components/ui/partner-integration/create-order-wrapper";
+import CreateOrderWrapper from "@/components/ui/create-orders/create-order-wrapper";
 import React from "react";
 
 const page = () => {

@@ -44,6 +44,7 @@ import ProductShareOfPolicyAmountByAmount from "./product-share-of-policy-amount
 import RecentOrders from "./recent-orders";
 import PaymentMode from "./payment-mode";
 import Top5Branches from "./top-5-branches";
+import Empty from "../foundations/empty";
 
 export function DashboardWrapper() {
   // ======== CONSTANTS & HOOKS ========
@@ -318,6 +319,14 @@ export function DashboardWrapper() {
       return () => clearTimeout(timer);
     }
   }, [rights, router]);
+
+  if (rights && rights?.can_view === "0")
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have permission."
+      />
+    );
 
   return (
     <>

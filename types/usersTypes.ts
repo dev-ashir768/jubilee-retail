@@ -87,6 +87,7 @@ export type UserPayloadType = {
   phone: string;
   image: string;
   username: string;
+  redirection_url: string;
   user_type: string;
   is_admin: boolean;
   is_active: boolean;
@@ -152,9 +153,10 @@ export type SingleUserPayloadType = {
   email: string;
   contact: string;
   image: string;
-  is_active: boolean;
+  redirection_url: string | null
+  isActive: boolean;
   is_locked: boolean;
-  user_type: string;
+  userType: string;
   rights: rightsType[];
 };
 

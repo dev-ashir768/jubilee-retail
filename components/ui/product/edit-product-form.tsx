@@ -45,6 +45,8 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
       product_name: singleProduct[0]?.product_name,
       product_type: singleProduct[0]?.product_type,
       product_category_id: singleProduct[0]?.product_category_id,
+      is_takaful: singleProduct[0]?.is_takaful,
+      is_cbo: singleProduct[0]?.is_cbo,
     },
   });
 
@@ -52,6 +54,22 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
   const productCategoryOptions =
     productCategoryList.map((item) => ({ label: item.name, value: item.id })) ||
     [];
+
+  const productTypeOptions = [
+    { value: "health", label: "Health" },
+    { value: "nonhealth", label: "Non Health" },
+    { value: "travel", label: "Travel" },
+  ];
+
+  const isCBOOption = [
+    { value: true, label: "Yes" },
+    { value: false, label: "No" },
+  ];
+
+  const isTakafulOption = [
+    { value: true, label: "Yes" },
+    { value: false, label: "No" },
+  ];
 
   // ======== MUTATION HANDLER ========
   const addCityMutation = useMutation<
@@ -132,11 +150,21 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
               Product Type<span className="text-red-500 text-md">*</span>
             </Label>
             <div className="space-y-2">
-              <Input
-                type="text"
-                id="product_type"
-                {...register("product_type")}
-                placeholder="Enter product Name"
+              <Controller
+                name="product_type"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    options={productTypeOptions}
+                    value={productTypeOptions.find(
+                      (item) => item.value === field.value
+                    )}
+                    onChange={(val) => field.onChange(val ? val.value : null)}
+                    placeholder="Select Product type"
+                    className="w-full"
+                    styles={singleSelectStyle}
+                  />
+                )}
               />
               {errors.product_type && (
                 <p className="text-red-500 text-sm">
@@ -172,6 +200,60 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
               {errors.product_category_id && (
                 <p className="text-red-500 text-sm">
                   {errors.product_category_id.message}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="is_cbo" className="gap-1 text-gray-600">
+              CBO<span className="text-red-500 text-md">*</span>
+            </Label>
+            <div className="space-y-2">
+              <Controller
+                name="is_cbo"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    id="is_cbo"
+                    value={isCBOOption.find(
+                      (item) => item.value === field.value
+                    )}
+                    options={isCBOOption}
+                    onChange={(val) => field.onChange(val ? val.value : "")}
+                    className="w-full"
+                    styles={singleSelectStyle}
+                  />
+                )}
+              />
+              {errors.is_cbo && (
+                <p className="text-red-500 text-sm">{errors.is_cbo.message}</p>
+              )}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="is_takaful" className="gap-1 text-gray-600">
+              Takaful<span className="text-red-500 text-md">*</span>
+            </Label>
+            <div className="space-y-2">
+              <Controller
+                name="is_takaful"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    id="is_takaful"
+                    value={isTakafulOption.find(
+                      (item) => item.value === field.value
+                    )}
+                    options={isTakafulOption}
+                    onChange={(val) => field.onChange(val ? val.value : "")}
+                    className="w-full"
+                    styles={singleSelectStyle}
+                  />
+                )}
+              />
+              {errors.is_takaful && (
+                <p className="text-red-500 text-sm">
+                  {errors.is_takaful.message}
                 </p>
               )}
             </div>
