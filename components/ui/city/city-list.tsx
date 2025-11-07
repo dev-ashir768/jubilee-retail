@@ -3,7 +3,7 @@
 import { fetchCityList } from '@/helperFunctions/cityFunction';
 import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
@@ -20,8 +20,14 @@ import { getRights } from '@/utils/getRights';
 import { Badge } from '../shadcn/badge';
 import LoadingState from '../foundations/loading-state';
 import useCityIdStore from '@/hooks/useCityIdStore';
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import { useQueryClient } from "@tanstack/react-query";
 
-const CityList = () => {  
+const CityList = () => {
 
   // Constants
   const ADD_URL = '/cites-couiers/add-cities'
@@ -30,6 +36,12 @@ const CityList = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { setCityId } = useCityIdStore();
+
+  const queryClient = useQueryClient();
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
 
   // Fetch city list data using react-query
   const { data: cityListResponse, isLoading: cityListLoading, isError: cityListIsError, error: cityListError } = useQuery<CityResponseType | null>({
@@ -47,14 +59,14 @@ const CityList = () => {
     }));
   }, [cityListResponse]);
 
-  const igisCityCodeFilterOptions = useMemo(() => {
-    const allIgisCityCodes = cityListResponse?.payload?.map((item) => item.igis_city_code) || [];
-    const uniqueIgisCityCodes = Array.from(new Set(allIgisCityCodes));
-    return uniqueIgisCityCodes.map((igis_city_code) => ({
-      label: igis_city_code,
-      value: igis_city_code,
-    }));
-  }, [cityListResponse]);
+  // const igisCityCodeFilterOptions = useMemo(() => {
+  //   const allIgisCityCodes = cityListResponse?.payload?.map((item) => item.igis_city_code) || [];
+  //   const uniqueIgisCityCodes = Array.from(new Set(allIgisCityCodes));
+  //   return uniqueIgisCityCodes.map((igis_city_code) => ({
+  //     label: igis_city_code,
+  //     value: igis_city_code,
+  //   }));
+  // }, [cityListResponse]);
 
   const createdByFilterOptions = useMemo(() => {
     const allCreatedBy = cityListResponse?.payload?.map((item) => item.created_by.toString()) || [];
@@ -67,17 +79,17 @@ const CityList = () => {
 
   // Define columns for the data table
   const columns: ColumnDef<CityPayloadType>[] = [
-    {
-      accessorKey: 'igis_city_code',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="IGIS City Code" />,
-      cell: ({ row }) => <div>{row.getValue("igis_city_code")}</div>,
-      filterFn: "multiSelect",
-      meta: {
-        filterType: "multiselect",
-        filterOptions: igisCityCodeFilterOptions,
-        filterPlaceholder: "Filter IGIS city code...",
-      } as ColumnMeta,
-    },
+    // {
+    //   accessorKey: 'igis_city_code',
+    //   header: ({ column }) => <DatatableColumnHeader column={column} title="IGIS City Code" />,
+    //   cell: ({ row }) => <div>{row.getValue("igis_city_code")}</div>,
+    //   filterFn: "multiSelect",
+    //   meta: {
+    //     filterType: "multiselect",
+    //     filterOptions: igisCityCodeFilterOptions,
+    //     filterPlaceholder: "Filter IGIS city code...",
+    //   } as ColumnMeta,
+    // },
     {
       accessorKey: 'city_name',
       header: ({ column }) => <DatatableColumnHeader column={column} title="City Name" />,
@@ -106,8 +118,14 @@ const CityList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
-          <Badge className="justify-center py-1 min-w-[50px] w-[70px]" variant={status === "active" ? "success" : "danger"}>
+          <Badge
+            className={`justify-center py-1 min-w-[50px] w-[70px]`
+            }
+            variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
+          >
             {status}
           </Badge>
         );
@@ -146,9 +164,16 @@ const CityList = () => {
                   </Link>
                 </DropdownMenuItem>
               )}
-              {rights?.can_edit === "1" && (
-                <DropdownMenuItem>
-                  <Trash className="mr-2 h-4 w-4" />
+              {rights?.can_delete === "1" && (
+                <DropdownMenuItem
+                  onClick={
+                    () => {
+                      setDeleteDialogOpen(true);
+                      setSelectedRecordId(record.id);
+                    }
+                  }
+                >
+                  <Trash className="h-4 w-4 mr-1" />
                   Delete
                 </DropdownMenuItem>
               )}
@@ -158,6 +183,41 @@ const CityList = () => {
       },
     },
   ];
+
+  // ======== HANDLE ========
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_CITY!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['city-list'],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_CITY!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['city-list'],
+          });
+        },
+      }
+    );
+  };
 
   // Rights
   const rights = useMemo(() => {
@@ -190,6 +250,11 @@ const CityList = () => {
     <>
       <SubNav title="City List" addBtnTitle="Add City" urlPath={ADD_URL} />
       <CityDatatable columns={columns} payload={cityListResponse?.payload || []} />
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
+      />
     </>
   );
 };

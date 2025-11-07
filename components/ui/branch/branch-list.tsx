@@ -43,7 +43,7 @@ const BranchList = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const { mutate: deleteMutate } = handleDeleteMutation();
-  const { mutate: statusMutate } = handleStatusMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
   const router = useRouter();
   const { setBranchId } = useBranchIdStore();
   const pathname = usePathname();
@@ -286,7 +286,7 @@ const BranchList = () => {
           <Badge
             className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
-            onClick={() => handleStatusUpdate(id)}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
             {status}
           </Badge>

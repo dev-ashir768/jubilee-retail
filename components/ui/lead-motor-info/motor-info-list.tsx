@@ -34,13 +34,24 @@ import { axiosFunction } from "@/utils/axiosFunction";
 import { toast } from "sonner";
 import { DateRange } from "react-day-picker";
 import { format, subDays } from "date-fns";
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+
 
 const MotorInfoList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/leads/lead-motor-info";
-  const queryClient = useQueryClient();
+  
   const router = useRouter();
   const defaultDaysBack = 366;
+  const queryClient = useQueryClient();
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), defaultDaysBack),
     to: new Date(),
@@ -315,13 +326,13 @@ const MotorInfoList = () => {
               <Badge
                 variant={
                   currentStatus as
-                    | "waiting"
-                    | "interested"
-                    | "not_interested"
-                    | "cancelled"
-                    | "waiting"
-                    | "callback_scheduled"
-                    | "pending"
+                  | "waiting"
+                  | "interested"
+                  | "not_interested"
+                  | "cancelled"
+                  | "waiting"
+                  | "callback_scheduled"
+                  | "pending"
                 }
               >
                 {currentStatus.replace(/_/g, " ")}
@@ -342,8 +353,14 @@ const MotorInfoList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
-          <Badge variant={status === "active" ? "danger" : "danger"}>
+          <Badge
+            className={`justify-center py-1 min-w-[50px] w-[70px]`
+            }
+            variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
+          >
             {status}
           </Badge>
         );
@@ -361,7 +378,8 @@ const MotorInfoList = () => {
     {
       id: "actions",
       header: "Actions",
-      cell: () => {
+      cell: ({ row }) => {
+        const record = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -371,9 +389,16 @@ const MotorInfoList = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {rights?.can_edit === "1" && (
-                <DropdownMenuItem>
-                  <Trash className="mr-2 h-4 w-4" />
+              {rights?.can_delete === "1" && (
+                <DropdownMenuItem
+                  onClick={
+                    () => {
+                      setDeleteDialogOpen(true);
+                      setSelectedRecordId(record.id);
+                    }
+                  }
+                >
+                  <Trash className="h-4 w-4 mr-1" />
                   Delete
                 </DropdownMenuItem>
               )}
@@ -383,6 +408,48 @@ const MotorInfoList = () => {
       },
     },
   ];
+
+  // ======== HANDLE ========
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_LEADMOTORINFO!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "lead-motor-info-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+            ],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_LEADMOTORINFO!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "lead-motor-info-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+            ],
+          });
+        },
+      }
+    );
+  };
+
 
   // ======== RENDER LOGIC ========
   const isLoading = LeadsMotorInfoListLoading;
@@ -436,6 +503,12 @@ const MotorInfoList = () => {
       />
 
       {renderPageContent()}
+
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
+      />
     </>
   );
 };

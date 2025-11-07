@@ -5,7 +5,7 @@ import useProductCategoryIdStore from '@/hooks/useProductCategoryStore';
 import { ProductCategoriesPayloadTypes, ProductCategoriesResponseTypes } from '@/types/productCategoriesTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import React, { useMemo } from 'react'
+import React, { useMemo,useState } from 'react'
 import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
@@ -21,6 +21,12 @@ import { ColumnDef } from '@tanstack/react-table';
 import { fetchAllUserList } from '@/helperFunctions/userFunction';
 import { UserResponseType } from '@/types/usersTypes';
 import { Badge } from '../shadcn/badge';
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ProductCategoryList = () => {
 
@@ -29,6 +35,12 @@ const ProductCategoryList = () => {
   const EDIT_ROUTE = '/products-plans/edit-product-category'
   const LISTING_ROUTE = '/products-plans/product-category'
   const { setProductCategoryId } = useProductCategoryIdStore();
+
+  const queryClient = useQueryClient();
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
@@ -40,8 +52,8 @@ const ProductCategoryList = () => {
   })
 
   const { data: usersListResponse, isLoading: usersListLoading, isError: usersListIsError, error: usersListError } = useQuery<UserResponseType | null>({
-   queryKey: ['all-users-list'],
-       queryFn: fetchAllUserList
+    queryKey: ['all-users-list'],
+    queryFn: fetchAllUserList
   })
 
   // ======== PAYLOADS DATA ========
@@ -136,8 +148,14 @@ const ProductCategoryList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
-          <Badge variant={status === "active" ? "success" : "danger"}>
+          <Badge
+            className={`justify-center py-1 min-w-[50px] w-[70px]`
+            }
+            variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
+          >
             {status}
           </Badge>
         );
@@ -176,19 +194,60 @@ const ProductCategoryList = () => {
                   </Link>
                 </DropdownMenuItem>
               }
-              {
-                rights?.can_edit === "1" &&
-                <DropdownMenuItem>
-                  <Trash className='mr-2 h-4 w-4' />
+              {rights?.can_delete === "1" && (
+                <DropdownMenuItem
+                  onClick={
+                    () => {
+                      setDeleteDialogOpen(true);
+                      setSelectedRecordId(record.id);
+                    }
+                  }
+                >
+                  <Trash className="h-4 w-4 mr-1" />
                   Delete
                 </DropdownMenuItem>
-              }
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )
       }
     }
   ]
+
+  // ======== HANDLE ========
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_PRODUCTCATEGORY!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['product-categories-list'],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_PRODUCTCATEGORY!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['product-categories-list'],
+          });
+        },
+      }
+    );
+  };
 
   // ======== RENDER LOGIC ========
   const isLoading = productCategoriesListLoading || usersListLoading
@@ -209,6 +268,12 @@ const ProductCategoryList = () => {
       />
 
       <ProductCategoryDatatable columns={columns} payload={productCategoriesList} />
+
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
+      />
     </>
   )
 }

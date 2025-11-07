@@ -6,7 +6,7 @@ import { getRights } from "@/utils/getRights";
 import { useQuery } from "@tanstack/react-query";
 import { MoreHorizontal, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +28,12 @@ import { couponFilterState } from "@/hooks/couponFilterState";
 import { ProductsResponseTypes } from "@/types/productsTypes";
 import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 import CouponFilters from "../filters/coupon-filter";
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import { useQueryClient } from "@tanstack/react-query";
 
 const CouponsList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -37,6 +43,12 @@ const CouponsList = () => {
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const defaultDaysBack = 366;
   const { filterValue } = couponFilterState();
+  const queryClient = useQueryClient();
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), defaultDaysBack),
     to: new Date(),
@@ -90,6 +102,52 @@ const CouponsList = () => {
   const productList = useMemo(
     () => productListResponse?.payload || [],
     [productListResponse]
+  );
+
+  // ======== HANDLE ========
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_COUPON!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "coupons-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+              ...(filterValue?.product_id ? [filterValue?.product_id] : []),
+            ],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = useCallback(
+    (id: number) => {
+      return statusMutate(
+        {
+          module: process.env.NEXT_PUBLIC_PATH_COUPON!,
+          record_id: id,
+        },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: [
+                "coupons-list",
+                ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+                ...(filterValue?.product_id ? [filterValue?.product_id] : []),
+              ],
+            });
+          },
+        }
+      );
+    },
+    [statusMutate, endDate, filterValue?.product_id, queryClient, startDate]
   );
 
   // ======== COLUMN DEFINITIONS ========
@@ -158,8 +216,15 @@ const CouponsList = () => {
         accessorFn: (row) => (row.is_active ? "active" : "inactive"),
         cell: ({ row }) => {
           const status = row.getValue("is_active") as string;
+          const id = row.original?.id;
           return (
-            <Badge variant={status === "active" ? "success" : "danger"}>
+            <Badge
+              className={`justify-center py-1 min-w-[50px] w-[70px]`}
+              variant={status === "active" ? "success" : "danger"}
+              onClick={
+                statusIsPending ? undefined : () => handleStatusUpdate(id)
+              }
+            >
               {status}
             </Badge>
           );
@@ -168,7 +233,8 @@ const CouponsList = () => {
       {
         id: "actions",
         header: "Actions",
-        cell: () => {
+        cell: ({ row }) => {
+          const record = row.original;
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -178,9 +244,14 @@ const CouponsList = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {rights?.can_edit === "1" && (
-                  <DropdownMenuItem>
-                    <Trash className="mr-2 h-4 w-4" />
+                {rights?.can_delete === "1" && (
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setDeleteDialogOpen(true);
+                      setSelectedRecordId(record.id);
+                    }}
+                  >
+                    <Trash className="h-4 w-4 mr-1" />
                     Delete
                   </DropdownMenuItem>
                 )}
@@ -190,7 +261,7 @@ const CouponsList = () => {
         },
       },
     ],
-    [rights]
+    [rights, handleStatusUpdate, statusIsPending]
   );
 
   // ======== RENDER LOGIC ========
@@ -252,6 +323,12 @@ const CouponsList = () => {
         isFilterOpen={isFilterOpen}
         productList={productList}
         setIsFilterOpen={setIsFilterOpen}
+      />
+
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
       />
     </>
   );

@@ -36,6 +36,10 @@ import { format, subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
 import MotorQuotesFilters from "../../filters/motor-quotes";
 import { motorQuotesFilterState } from "@/hooks/motorQuotesFilterState";
+import {
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+
 
 const MotorQuoteList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -45,6 +49,7 @@ const MotorQuoteList = () => {
   const defaultDaysBack = 600;
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterValue } = motorQuotesFilterState();
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), defaultDaysBack),
     to: new Date(),
@@ -434,8 +439,14 @@ const MotorQuoteList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
-          <Badge variant={status === "active" ? "success" : "danger"}>
+          <Badge
+            className={`justify-center py-1 min-w-[50px] w-[70px]`
+            }
+            variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
+          >
             {status}
           </Badge>
         );
@@ -483,6 +494,28 @@ const MotorQuoteList = () => {
       },
     },
   ];
+
+  // ======== HANDLE ========
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_MOTORQUOTE!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "motor-quote-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+              ...(filterValue ? [filterValue] : []),
+            ],
+          });
+        },
+      }
+    );
+  };
 
   // ======== RENDER LOGIC ========
   const isLoading = motorQuoteListLoading;

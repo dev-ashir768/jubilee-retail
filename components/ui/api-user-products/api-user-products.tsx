@@ -35,6 +35,13 @@ import { DateRange } from "react-day-picker";
 import { format, subDays } from "date-fns";
 import ApiUserProductsFilters from "../filters/api-user-products";
 import { apiUserProductsFilterState } from "@/hooks/apiUserProductsFilterState";
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import { useQueryClient } from "@tanstack/react-query";
+
 
 const ApiUserProductsList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -45,6 +52,11 @@ const ApiUserProductsList = () => {
   const { filterValue } = apiUserProductsFilterState();
   const { setApiUserProductsId } = useApiUserProductsIdStore();
   const router = useRouter();
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+  const queryClient = useQueryClient();
   const defaultDaysBack = 366;
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), defaultDaysBack),
@@ -180,8 +192,15 @@ const ApiUserProductsList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
-          <Badge variant={status === "active" ? "success" : "danger"}>
+          <Badge
+            className={`justify-center py-1 min-w-[50px] w-[70px]`
+            }
+            variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
+           
+          >
             {status}
           </Badge>
         );
@@ -221,9 +240,16 @@ const ApiUserProductsList = () => {
                   </Link>
                 </DropdownMenuItem>
               )}
-              {rights?.can_edit === "1" && (
-                <DropdownMenuItem>
-                  <Trash className="mr-2 h-4 w-4" />
+              {rights?.can_delete === "1" && (
+                <DropdownMenuItem
+                  onClick={
+                    () => {
+                      setDeleteDialogOpen(true);
+                      setSelectedRecordId(record.id);
+                    }
+                  }
+                >
+                  <Trash className="h-4 w-4 mr-1" />
                   Delete
                 </DropdownMenuItem>
               )}
@@ -233,6 +259,49 @@ const ApiUserProductsList = () => {
       },
     },
   ];
+
+  // ======== HANDLE ========
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_APIUSERPRODUCT!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "api-user-products-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+              ...(filterValue ? [filterValue] : []),
+            ],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_APIUSERPRODUCT!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "api-user-products-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+              ...(filterValue ? [filterValue] : []),
+            ],
+          });
+        },
+      }
+    );
+  };
 
   // ======== RENDER LOGIC ========
   const isLoading = apiUserProductsListLoading || apiUserLoading;
@@ -295,6 +364,12 @@ const ApiUserProductsList = () => {
         apiUserList={apiUserList}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}
+      />
+
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
       />
     </>
   );

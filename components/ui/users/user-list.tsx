@@ -32,6 +32,12 @@ import UserDatatable from "./user-datatable";
 import LoadingState from "../foundations/loading-state";
 import { DateRange } from "react-day-picker";
 import { format, subDays } from "date-fns";
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import { useQueryClient } from "@tanstack/react-query";
 
 const UserList = () => {
   // ======== CONSTANTS AND HOOKS ========
@@ -48,6 +54,12 @@ const UserList = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+  const queryClient = useQueryClient();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -195,10 +207,13 @@ const UserList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`}
+            className={`justify-center py-1 min-w-[50px] w-[70px]`
+            }
             variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
             {status}
           </Badge>
@@ -238,9 +253,16 @@ const UserList = () => {
                   </Link>
                 </DropdownMenuItem>
               )}
-              {rights?.can_edit === "1" && (
-                <DropdownMenuItem>
-                  <Trash className="mr-2 h-4 w-4" />
+              {rights?.can_delete === "1" && (
+                <DropdownMenuItem
+                  onClick={
+                    () => {
+                      setDeleteDialogOpen(true);
+                      setSelectedRecordId(record.id);
+                    }
+                  }
+                >
+                  <Trash className="h-4 w-4 mr-1" />
                   Delete
                 </DropdownMenuItem>
               )}
@@ -250,6 +272,50 @@ const UserList = () => {
       },
     },
   ];
+
+  // ======== HANDLE ========
+
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_USER!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "users-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+            ],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_USER!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "users-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+            ],
+          });
+        },
+      }
+    );
+  };
+
+
 
   // ======== RENDER LOGIC ========
   const isLoading = userListLoading;
@@ -308,6 +374,12 @@ const UserList = () => {
       />
 
       {renderPageContent()}
+
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
+      />
     </>
   );
 };

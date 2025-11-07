@@ -3,7 +3,7 @@
 import { fetchIgisMakeList, fetchIgisSubMakeList } from '@/helperFunctions/igisFunction';
 import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
@@ -20,6 +20,12 @@ import { getRights } from '@/utils/getRights';
 import IgisSubMakeDatatable from './igis-sub-make-datatable';
 import LoadingState from '../foundations/loading-state';
 import useIgisSubMakeIdStore from '@/hooks/useIgisSubMakeIdStore';
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import { useQueryClient } from "@tanstack/react-query";
 
 const IgisSubMakeList = () => {
   // Constants
@@ -29,6 +35,12 @@ const IgisSubMakeList = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { setIgisMakeId } = useIgisSubMakeIdStore();
+
+  const queryClient = useQueryClient();
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
 
   // Fetch IGIS make list data for make_id to make_name mapping
   const { data: igisMakeListResponse, isLoading: igisMakeListLoading, isError: igisMakeListIsError, error: igisMakeListError } = useQuery<IgisMakeResponseType | null>({
@@ -134,8 +146,14 @@ const IgisSubMakeList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
-          <Badge className="justify-center py-1 min-w-[50px] w-[70px]" variant={status === "active" ? "success" : "danger"}>
+          <Badge
+            className={`justify-center py-1 min-w-[50px] w-[70px]`
+            }
+            variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
+          >
             {status}
           </Badge>
         );
@@ -186,9 +204,16 @@ const IgisSubMakeList = () => {
                   </Link>
                 </DropdownMenuItem>
               )}
-              {rights?.can_edit === "1" && (
-                <DropdownMenuItem>
-                  <Trash className="mr-2 h-4 w-4" />
+              {rights?.can_delete === "1" && (
+                <DropdownMenuItem
+                  onClick={
+                    () => {
+                      setDeleteDialogOpen(true);
+                      setSelectedRecordId(record.id);
+                    }
+                  }
+                >
+                  <Trash className="h-4 w-4 mr-1" />
                   Delete
                 </DropdownMenuItem>
               )}
@@ -198,6 +223,41 @@ const IgisSubMakeList = () => {
       },
     },
   ];
+
+  // ======== HANDLE ========
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_IGISSUBMAKE!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['igis-sub-make-list'],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_IGISSUBMAKE!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['igis-sub-make-list'],
+          });
+        },
+      }
+    );
+  };
 
   // Rights
   const rights = useMemo(() => {
@@ -230,6 +290,11 @@ const IgisSubMakeList = () => {
     <>
       <SubNav title="IGIS Sub Make List" addBtnTitle="Add IGIS Sub-Make" urlPath={ADD_URL} />
       <IgisSubMakeDatatable columns={columns} payload={igisSubMakeListResponse?.payload || []} />
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
+      />
     </>
   );
 };

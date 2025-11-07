@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import SubNav from "../foundations/sub-nav";
 import { useRouter } from "next/navigation";
 import { getRights } from "@/utils/getRights";
@@ -31,14 +31,25 @@ import DatatableColumnHeader from "../datatable/datatable-column-header";
 import { ColumnDef } from "@tanstack/react-table";
 import usePaymentModesIdStore from "@/hooks/paymentModesIdStore";
 import { createFilterOptions } from "@/utils/filterOptions";
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import { useQueryClient } from "@tanstack/react-query";
 
 const PaymentModesList = () => {
   // ======== CONSTANTS & HOOKS ========
   const ADD_ROUTE = "/products-plans/add-payment-modes";
   const EDIT_ROUTE = "/products-plans/edit-payment-modes";
   const LISTING_ROUTE = "/products-plans/payment-modes";
-  const {setPaymentModesId} = usePaymentModesIdStore()
+  const { setPaymentModesId } = usePaymentModesIdStore()
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -109,8 +120,14 @@ const PaymentModesList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
-          <Badge variant={status === "active" ? "success" : "danger"}>
+          <Badge
+            className={`justify-center py-1 min-w-[50px] w-[70px]`
+            }
+            variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
+          >
             {status}
           </Badge>
         );
@@ -147,9 +164,16 @@ const PaymentModesList = () => {
                   </Link>
                 </DropdownMenuItem>
               )}
-              {rights?.can_edit === "1" && (
-                <DropdownMenuItem>
-                  <Trash className="mr-2 h-4 w-4" />
+              {rights?.can_delete === "1" && (
+                <DropdownMenuItem
+                  onClick={
+                    () => {
+                      setDeleteDialogOpen(true);
+                      setSelectedRecordId(record.id);
+                    }
+                  }
+                >
+                  <Trash className="h-4 w-4 mr-1" />
                   Delete
                 </DropdownMenuItem>
               )}
@@ -159,6 +183,41 @@ const PaymentModesList = () => {
       },
     },
   ];
+
+  // ======== HANDLE ========
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_PAYMENTMODE!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["payment-modes-list"],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_PAYMENTMODE!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["payment-modes-list"],
+          });
+        },
+      }
+    );
+  };
 
   // ======== RENDER LOGIC ========
   const isLoading = paymentModesListLoading;
@@ -194,6 +253,12 @@ const PaymentModesList = () => {
       />
 
       <PaymentModesDatatable columns={columns} payload={paymentModesList} />
+
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
+      />
     </>
   );
 };

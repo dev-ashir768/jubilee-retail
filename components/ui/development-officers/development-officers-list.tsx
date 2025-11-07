@@ -28,12 +28,16 @@ import { Button } from "../shadcn/button";
 import Link from "next/link";
 import SubNav from "../foundations/sub-nav";
 import useDevelopmentOfficerIdStore from "@/hooks/useDevelopmentOfficerStore";
-import { fetchAllBranchList } from "@/helperFunctions/branchFunction";
-import { BranchResponseType } from "@/types/branchTypes";
 import DevelopmentOfficerDatatable from "./development-officer-datatable";
 import LoadingState from "../foundations/loading-state";
 import { DateRange } from "react-day-picker";
 import { format, subDays } from "date-fns";
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import { useQueryClient } from "@tanstack/react-query";
 
 const DevelopmentOfficersList = () => {
   const router = useRouter();
@@ -48,6 +52,12 @@ const DevelopmentOfficersList = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+  const queryClient = useQueryClient();
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -55,15 +65,15 @@ const DevelopmentOfficersList = () => {
   }, [pathname]);
 
   // Fetch branch list data using react-query
-  const {
-    data: branchListResponse,
-    isLoading: branchListLoading,
-    isError: branchListIsError,
-    error: branchListError,
-  } = useQuery<BranchResponseType | null>({
-    queryKey: ["all-branch-list"],
-    queryFn: fetchAllBranchList,
-  });
+  // const {
+  //   data: branchListResponse,
+  //   isLoading: branchListLoading,
+  //   isError: branchListIsError,
+  //   error: branchListError,
+  // } = useQuery<BranchResponseType | null>({
+  //   queryKey: ["all-branch-list"],
+  //   queryFn: fetchAllBranchList,
+  // });
 
   // Fetch development officer list data using react-query
   const {
@@ -84,13 +94,13 @@ const DevelopmentOfficersList = () => {
   });
 
   // Create a branch ID to name mapping
-  const branchNameMap = useMemo(() => {
-    const map = new Map<number, string>();
-    branchListResponse?.payload.forEach((item) => {
-      map.set(item.id, item.name);
-    });
-    return map;
-  }, [branchListResponse?.payload]);
+  // const branchNameMap = useMemo(() => {
+  //   const map = new Map<number, string>();
+  //   branchListResponse?.payload.forEach((item) => {
+  //     map.set(item.id, item.name);
+  //   });
+  //   return map;
+  // }, [branchListResponse?.payload]);
 
   // Column filter options
   const nameFilterOptions = useMemo(() => {
@@ -114,17 +124,17 @@ const DevelopmentOfficersList = () => {
     }));
   }, [developmentOfficerListResponse]);
 
-  const branchNameFilterOptions = useMemo(() => {
-    const allBranchIds =
-      developmentOfficerListResponse?.payload?.map((item) =>
-        item.branch_id.toString()
-      ) || [];
-    const uniqueBranchIds = Array.from(new Set(allBranchIds));
-    return uniqueBranchIds.map((branch_id) => ({
-      label: branchNameMap.get(+branch_id),
-      value: branchNameMap.get(+branch_id),
-    }));
-  }, [developmentOfficerListResponse, branchNameMap]);
+  // const branchNameFilterOptions = useMemo(() => {
+  //   const allBranchIds =
+  //     developmentOfficerListResponse?.payload?.map((item) =>
+  //       item.branch_id.toString()
+  //     ) || [];
+  //   const uniqueBranchIds = Array.from(new Set(allBranchIds));
+  //   return uniqueBranchIds.map((branch_id) => ({
+  //     label: branchNameMap.get(+branch_id),
+  //     value: branchNameMap.get(+branch_id),
+  //   }));
+  // }, [developmentOfficerListResponse, branchNameMap]);
 
   // Define columns for the data table
   const columns: ColumnDef<DevelopmentOfficerPayloadTypes>[] = [
@@ -133,7 +143,7 @@ const DevelopmentOfficersList = () => {
       header: ({ column }) => (
         <DatatableColumnHeader column={column} title="Name" />
       ),
-      cell: ({ row }) => <div>{row.getValue("name")}</div>,
+      cell: ({ row }) => <div>{row.getValue("name") || "N/A"}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
@@ -146,7 +156,7 @@ const DevelopmentOfficersList = () => {
       header: ({ column }) => (
         <DatatableColumnHeader column={column} title="IGIS Code" />
       ),
-      cell: ({ row }) => <div>{row.getValue("igis_code")}</div>,
+      cell: ({ row }) => <div>{row.getValue("igis_code") || "N/A"}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
@@ -162,10 +172,12 @@ const DevelopmentOfficersList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
           <Badge
-            className="justify-center py-1 min-w-[50px] w-[70px]"
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
             {status}
           </Badge>
@@ -181,20 +193,20 @@ const DevelopmentOfficersList = () => {
         filterPlaceholder: "Filter status...",
       } as ColumnMeta,
     },
-    {
-      accessorKey: "branch_id",
-      header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="Branch Name" />
-      ),
-      accessorFn: (row) => branchNameMap.get(row.branch_id) || row.branch_id,
-      cell: ({ row }) => <div>{row.getValue("branch_id")}</div>,
-      filterFn: "multiSelect",
-      meta: {
-        filterType: "multiselect",
-        filterOptions: branchNameFilterOptions,
-        filterPlaceholder: "Filter branch ID...",
-      } as ColumnMeta,
-    },
+    // {
+    //   accessorKey: "branch_id",
+    //   header: ({ column }) => (
+    //     <DatatableColumnHeader column={column} title="Branch Name" />
+    //   ),
+    //   accessorFn: (row) => branchNameMap.get(row.branch_id) || row.branch_id,
+    //   cell: ({ row }) => <div>{row.getValue("branch_id")|| "N/A"}</div>,
+    //   filterFn: "multiSelect",
+    //   meta: {
+    //     filterType: "multiselect",
+    //     filterOptions: branchNameFilterOptions,
+    //     filterPlaceholder: "Filter branch ID...",
+    //   } as ColumnMeta,
+    // },
     {
       id: "actions",
       header: "Actions",
@@ -222,9 +234,14 @@ const DevelopmentOfficersList = () => {
                   </Link>
                 </DropdownMenuItem>
               )}
-              {rights?.can_edit === "1" && (
-                <DropdownMenuItem>
-                  <Trash className="mr-2 h-4 w-4" />
+              {rights?.can_delete === "1" && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDeleteDialogOpen(true);
+                    setSelectedRecordId(record.id);
+                  }}
+                >
+                  <Trash className="h-4 w-4 mr-1" />
                   Delete
                 </DropdownMenuItem>
               )}
@@ -235,11 +252,51 @@ const DevelopmentOfficersList = () => {
     },
   ];
 
+  // ======== HANDLE ========
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_DEVELOPMENTOFFICER!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "development-officers-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+            ],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_DEVELOPMENTOFFICER!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "development-officers-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+            ],
+          });
+        },
+      }
+    );
+  };
+
   // ======== RENDER LOGIC ========
-  const isLoading = branchListLoading || developmentOfficerListLoading;
-  const isError = branchListIsError || developmentOfficerListIsError;
-  const onError =
-    branchListError?.message || developmentOfficerListError?.message;
+  const isLoading =  developmentOfficerListLoading;
+  const isError =  developmentOfficerListIsError;
+  const onError = developmentOfficerListError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -294,8 +351,14 @@ const DevelopmentOfficersList = () => {
         setDateRange={setDateRange}
         defaultDaysBack={defaultDaysBack}
       />
-      
+
       {renderPageContent()}
+
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
+      />
     </>
   );
 };

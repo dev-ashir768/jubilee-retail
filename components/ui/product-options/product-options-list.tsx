@@ -9,7 +9,7 @@ import { ProductsResponseTypes } from '@/types/productsTypes';
 import { UserResponseType } from '@/types/usersTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import LoadingState from '../foundations/loading-state';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
@@ -23,6 +23,12 @@ import DatatableColumnHeader from '../datatable/datatable-column-header';
 import { ColumnDef } from '@tanstack/react-table';
 import SubNav from '../foundations/sub-nav';
 import ProductOptionsDatatable from './product-options-datatable';
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ProductOptionsList = () => {
 
@@ -31,6 +37,12 @@ const ProductOptionsList = () => {
   const EDIT_ROUTE = '/products-plans/edit-product-options'
   const LISTING_ROUTE = '/products-plans/product-options'
   const { setProductOptionsId } = useProductOptionsIdStore();
+  const queryClient = useQueryClient();
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
@@ -44,11 +56,11 @@ const ProductOptionsList = () => {
 
   const { data: usersListResponse, isLoading: usersListLoading, isError: usersListIsError, error: usersListError } = useQuery<UserResponseType | null>({
     queryKey: ['all-users-list'],
-        queryFn: fetchAllUserList
+    queryFn: fetchAllUserList
   })
 
   const { data: productListResponse, isLoading: productListLoading, isError: productListIsError, error: productListError } = useQuery<ProductsResponseTypes | null>({
-     queryKey: ['all-products-list'],
+    queryKey: ['all-products-list'],
     queryFn: fetchAllProductsList
   });
 
@@ -170,8 +182,14 @@ const ProductOptionsList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
-          <Badge variant={status === "active" ? "success" : "danger"}>
+          <Badge
+            className={`justify-center py-1 min-w-[50px] w-[70px]`
+            }
+            variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
+          >
             {status}
           </Badge>
         );
@@ -210,19 +228,60 @@ const ProductOptionsList = () => {
                   </Link>
                 </DropdownMenuItem>
               }
-              {
-                rights?.can_edit === "1" &&
-                <DropdownMenuItem>
-                  <Trash className='mr-2 h-4 w-4' />
+              {rights?.can_delete === "1" && (
+                <DropdownMenuItem
+                  onClick={
+                    () => {
+                      setDeleteDialogOpen(true);
+                      setSelectedRecordId(record.id);
+                    }
+                  }
+                >
+                  <Trash className="h-4 w-4 mr-1" />
                   Delete
                 </DropdownMenuItem>
-              }
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )
       }
     }
   ]
+
+  // ======== HANDLE ========
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_PRODUCTOPTION!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['product-options-list'],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_PRODUCTOPTION!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['product-options-list'],
+          });
+        },
+      }
+    );
+  };
 
   // ======== RENDER LOGIC ========
   const isLoading = productOptionsListLoading || usersListLoading || productListLoading
@@ -242,8 +301,14 @@ const ProductOptionsList = () => {
       />
 
       <ProductOptionsDatatable columns={columns} payload={productOptionsList} />
+
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
+      />
     </>
   )
 }
 
-export default ProductOptionsList
+export default ProductOptionsList;

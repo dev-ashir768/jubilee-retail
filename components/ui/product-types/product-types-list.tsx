@@ -7,7 +7,7 @@ import { ProductTypePayloadTypes, ProductTypeResponseTypes } from '@/types/produ
 import { UserResponseType } from '@/types/usersTypes';
 import { getRights } from '@/utils/getRights';
 import { useQuery } from '@tanstack/react-query';
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../shadcn/dropdown-menu';
 import { Button } from '../shadcn/button';
 import { ColumnMeta } from '@/types/dataTableTypes';
@@ -21,6 +21,12 @@ import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import SubNav from '../foundations/sub-nav';
 import ProductTypesDatatable from './product-types-datatable';
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ProductTypesList = () => {
 
@@ -29,6 +35,11 @@ const ProductTypesList = () => {
   const EDIT_ROUTE = '/products-plans/edit-product-type'
   const LISTING_ROUTE = '/products-plans/product-type'
   const { setProductTypeId } = useProductTypesIdStore();
+  const queryClient = useQueryClient();
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => { return getRights(LISTING_ROUTE) }, [LISTING_ROUTE])
@@ -40,8 +51,8 @@ const ProductTypesList = () => {
   })
 
   const { data: usersListResponse, isLoading: usersListLoading, isError: usersListIsError, error: usersListError } = useQuery<UserResponseType | null>({
-  queryKey: ['all-users-list'],
-      queryFn: fetchAllUserList
+    queryKey: ['all-users-list'],
+    queryFn: fetchAllUserList
   })
 
   // ======== PAYLOADS DATA ========
@@ -125,8 +136,14 @@ const ProductTypesList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
-          <Badge variant={status === "active" ? "success" : "danger"}>
+          <Badge
+            className={`justify-center py-1 min-w-[50px] w-[70px]`
+            }
+            variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
+          >
             {status}
           </Badge>
         );
@@ -165,19 +182,60 @@ const ProductTypesList = () => {
                   </Link>
                 </DropdownMenuItem>
               }
-              {
-                rights?.can_edit === "1" &&
-                <DropdownMenuItem>
-                  <Trash className='mr-2 h-4 w-4' />
+              {rights?.can_delete === "1" && (
+                <DropdownMenuItem
+                  onClick={
+                    () => {
+                      setDeleteDialogOpen(true);
+                      setSelectedRecordId(record.id);
+                    }
+                  }
+                >
+                  <Trash className="h-4 w-4 mr-1" />
                   Delete
                 </DropdownMenuItem>
-              }
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )
       }
     }
   ]
+
+  // ======== HANDLE ========
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_PRODUCTTYPE!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['product-types-list'],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_PRODUCTTYPE!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['product-types-list'],
+          });
+        },
+      }
+    );
+  };
 
   // ======== RENDER LOGIC ========
   const isLoading = productTypesListLoading || usersListLoading;
@@ -198,6 +256,13 @@ const ProductTypesList = () => {
         urlPath={ADD_ROUTE}
       />
       <ProductTypesDatatable columns={columns} payload={productTypesList} />
+
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
+      />
+
     </>
   )
 }

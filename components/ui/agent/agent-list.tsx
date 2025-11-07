@@ -25,12 +25,16 @@ import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import { Button } from "../shadcn/button";
 import Link from "next/link";
 import SubNav from "../foundations/sub-nav";
-import { DevelopmentOfficerResponseTypes } from "@/types/developmentOfficerTypes";
-import { fetchAllDevelopmentOfficerList } from "@/helperFunctions/developmentOfficerFunction";
 import AgentDatatable from "./agent-datatable";
 import LoadingState from "../foundations/loading-state";
 import { format, subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AgentList = () => {
   // Constants
@@ -38,6 +42,11 @@ const AgentList = () => {
   const { setAgentId } = useAgentIdStore();
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
   const defaultDaysBack = 366;
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), defaultDaysBack),
@@ -49,24 +58,24 @@ const AgentList = () => {
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   // Fetch development officer list data using react-query
-  const {
-    data: developmentOfficerListResponse,
-    isLoading: developmentOfficerListLoading,
-    isError: developmentOfficerListIsError,
-    error: developmentOfficerListError,
-  } = useQuery<DevelopmentOfficerResponseTypes | null>({
-    queryKey: ["all-development-officers-list"],
-    queryFn: fetchAllDevelopmentOfficerList,
-  });
+  // const {
+  //   data: developmentOfficerListResponse,
+  //   isLoading: developmentOfficerListLoading,
+  //   isError: developmentOfficerListIsError,
+  //   error: developmentOfficerListError,
+  // } = useQuery<DevelopmentOfficerResponseTypes | null>({
+  //   queryKey: ["all-development-officers-list"],
+  //   queryFn: fetchAllDevelopmentOfficerList,
+  // });
 
   // Create a development officer ID to name mapping
-  const developmentOfficerNameMap = useMemo(() => {
-    const map = new Map<number, string>();
-    developmentOfficerListResponse?.payload.forEach((item) => {
-      map.set(item.id, item.name);
-    });
-    return map;
-  }, [developmentOfficerListResponse]);
+  // const developmentOfficerNameMap = useMemo(() => {
+  //   const map = new Map<number, string>();
+  //   developmentOfficerListResponse?.payload.forEach((item) => {
+  //     map.set(item.id, item.name);
+  //   });
+  //   return map;
+  // }, [developmentOfficerListResponse]);
 
   // Fetch agent list data using react-query
   const {
@@ -76,7 +85,7 @@ const AgentList = () => {
     error: agentListError,
   } = useQuery<AgentResponseTypes | null>({
     queryKey: ["agents-list", ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),],
-    queryFn: ()=> fetchAgentList({
+    queryFn: () => fetchAgentList({
       startDate,
       endDate
     }),
@@ -120,19 +129,19 @@ const AgentList = () => {
     }));
   }, [agentListResponse]);
 
-  const developmentOfficerIdFilterOptions = useMemo(() => {
-    const allDevelopmentOfficerIds =
-      agentListResponse?.payload?.map((item) =>
-        item.development_officer_id.toString()
-      ) || [];
-    const uniqueDevelopmentOfficerIds = Array.from(
-      new Set(allDevelopmentOfficerIds)
-    );
-    return uniqueDevelopmentOfficerIds.map((development_officer_id) => ({
-      label: developmentOfficerNameMap.get(+development_officer_id),
-      value: developmentOfficerNameMap.get(+development_officer_id),
-    }));
-  }, [agentListResponse, developmentOfficerNameMap]);
+  // const developmentOfficerIdFilterOptions = useMemo(() => {
+  //   const allDevelopmentOfficerIds =
+  //     agentListResponse?.payload?.map((item) =>
+  //       item.development_officer_id.toString()
+  //     ) || [];
+  //   const uniqueDevelopmentOfficerIds = Array.from(
+  //     new Set(allDevelopmentOfficerIds)
+  //   );
+  //   return uniqueDevelopmentOfficerIds.map((development_officer_id) => ({
+  //     label: developmentOfficerNameMap.get(+development_officer_id),
+  //     value: developmentOfficerNameMap.get(+development_officer_id),
+  //   }));
+  // }, [agentListResponse, developmentOfficerNameMap]);
 
   // Define columns for the data table
   const columns: ColumnDef<AgentPayloadTypes>[] = [
@@ -175,22 +184,21 @@ const AgentList = () => {
         filterPlaceholder: "Filter IGIS agent code...",
       } as ColumnMeta,
     },
-    {
-      accessorKey: "development_officer_id",
-      header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="Development Officer ID" />
-      ),
-      accessorFn: (row) =>
-        developmentOfficerNameMap.get(row.development_officer_id) ||
-        row.development_officer_id,
-      cell: ({ row }) => <div>{row.getValue("development_officer_id")}</div>,
-      filterFn: "multiSelect",
-      meta: {
-        filterType: "multiselect",
-        filterOptions: developmentOfficerIdFilterOptions,
-        filterPlaceholder: "Filter development officer ID...",
-      } as ColumnMeta,
-    },
+    // {
+    //   accessorKey: "development_officer_id",
+    //   header: ({ column }) => (
+    //     <DatatableColumnHeader column={column} title="Development Officer ID" />
+    //   ),
+    //   accessorFn: (row) =>
+    //     developmentOfficerNameMap.get(row.development_officer_id) || row.development_officer_id,
+    //   cell: ({ row }) => <div>{row.getValue("development_officer_id" )|| "N/A"}</div>,
+    //   filterFn: "multiSelect",
+    //   meta: {
+    //     filterType: "multiselect",
+    //     filterOptions: developmentOfficerIdFilterOptions,
+    //     filterPlaceholder: "Filter development officer ID...",
+    //   } as ColumnMeta,
+    // },
     {
       accessorKey: "is_active",
       header: ({ column }) => (
@@ -199,10 +207,13 @@ const AgentList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
           <Badge
-            className="justify-center py-1 min-w-[50px] w-[70px]"
+            className={`justify-center py-1 min-w-[50px] w-[70px]`
+            }
             variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
             {status}
           </Badge>
@@ -242,9 +253,16 @@ const AgentList = () => {
                   </Link>
                 </DropdownMenuItem>
               )}
-              {rights?.can_edit === "1" && (
-                <DropdownMenuItem>
-                  <Trash className="mr-2 h-4 w-4" />
+              {rights?.can_delete === "1" && (
+                <DropdownMenuItem
+                  onClick={
+                    () => {
+                      setDeleteDialogOpen(true);
+                      setSelectedRecordId(record.id);
+                    }
+                  }
+                >
+                  <Trash className="h-4 w-4 mr-1" />
                   Delete
                 </DropdownMenuItem>
               )}
@@ -260,11 +278,46 @@ const AgentList = () => {
     return getRights(pathname);
   }, [pathname]);
 
+  // ======== HANDLE ========
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_AGENT!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["agents-list", ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_AGENT!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["agents-list", ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),],
+          });
+        },
+      }
+    );
+  };
+
   // ======== RENDER LOGIC ========
-  const isLoading = agentListLoading || developmentOfficerListLoading;
-  const isError = agentListIsError || developmentOfficerListIsError;
+  const isLoading = agentListLoading
+  const isError = agentListIsError 
   const onError =
-    agentListError?.message || developmentOfficerListError?.message;
+    agentListError?.message
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -318,6 +371,12 @@ const AgentList = () => {
       />
 
       {renderPageContent()}
+
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
+      />
     </>
   );
 };

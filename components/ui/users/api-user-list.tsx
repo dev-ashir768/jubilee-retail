@@ -4,7 +4,7 @@ import { getRights } from "@/utils/getRights";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import SubNav from "../foundations/sub-nav";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { fetchApiUserList } from "@/helperFunctions/userFunction";
 import Error from "../foundations/error";
 import { ApiUsersPayloadType, ApiUsersResponseType } from "@/types/usersTypes";
@@ -30,6 +30,11 @@ import ApiUserDatatable from "./api-user-datatable";
 import LoadingState from "../foundations/loading-state";
 import { DateRange } from "react-day-picker";
 import { format, subDays } from "date-fns";
+import {
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+
 
 const ApiUserList = () => {
   // ======== CONSTANTS AND HOOKS ========
@@ -45,6 +50,8 @@ const ApiUserList = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -194,10 +201,13 @@ const ApiUserList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`}
+            className={`justify-center py-1 min-w-[50px] w-[70px]`
+            }
             variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
             {status}
           </Badge>
@@ -239,6 +249,26 @@ const ApiUserList = () => {
       },
     },
   ];
+
+  // ======== HANDLE ========
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_APIUSER!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "api-user-list",
+              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+            ],
+          });
+        },
+      }
+    );
+  };
 
   // ======== RENDER LOGIC ========
   const isLoading = apiUserLoading;
@@ -286,9 +316,11 @@ const ApiUserList = () => {
 
   return (
     <>
-      <SubNav title="Api User List" datePicker={true} defaultDaysBack={defaultDaysBack} setDateRange={setDateRange} dateRange={dateRange}  />
+      <SubNav title="Api User List" datePicker={true} defaultDaysBack={defaultDaysBack} setDateRange={setDateRange} dateRange={dateRange} />
 
       {renderPageContent()}
+
+      
     </>
   );
 };

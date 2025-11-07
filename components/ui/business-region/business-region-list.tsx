@@ -1,9 +1,10 @@
+
 "use client";
 
 import { fetchBusinessRegionList } from '@/helperFunctions/businessRegionFunction';
 import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Error from '../foundations/error';
 import Empty from '../foundations/empty';
 import DatatableColumnHeader from '../datatable/datatable-column-header';
@@ -20,6 +21,12 @@ import { BusinessRegionPayloadType, BusinessRegionResponseType } from '@/types/b
 import BusinessRegionDatatable from './business-region-datatable';
 import LoadingState from '../foundations/loading-state';
 import useBusinessRegionIdStore from '@/hooks/useBusinessRegionIdStore';
+import DeleteDialog from "../common/delete-dialog";
+import {
+  handleDeleteMutation,
+  handleStatusMutation,
+} from "@/helperFunctions/commonFunctions";
+import { useQueryClient } from "@tanstack/react-query";
 
 const BusinessRegionList = () => {
   // Constants
@@ -29,6 +36,12 @@ const BusinessRegionList = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { setBusinessRegionId } = useBusinessRegionIdStore();
+  const queryClient = useQueryClient();
+  const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const { mutate: deleteMutate } = handleDeleteMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
 
   // Rights
   const rights = useMemo(() => {
@@ -91,8 +104,14 @@ const BusinessRegionList = () => {
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
+        const id = row.original?.id;
         return (
-          <Badge className="justify-center py-1 min-w-[50px] w-[70px]" variant={status === "active" ? "success" : "danger"}>
+          <Badge
+            className={`justify-center py-1 min-w-[50px] w-[70px]`
+            }
+            variant={status === "active" ? "success" : "danger"}
+            onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
+          >
             {status}
           </Badge>
         );
@@ -131,9 +150,16 @@ const BusinessRegionList = () => {
                   </Link>
                 </DropdownMenuItem>
               )}
-              {rights?.can_edit === "1" && (
-                <DropdownMenuItem>
-                  <Trash className="mr-2 h-4 w-4" />
+              {rights?.can_delete === "1" && (
+                <DropdownMenuItem
+                  onClick={
+                    () => {
+                      setDeleteDialogOpen(true);
+                      setSelectedRecordId(record.id);
+                    }
+                  }
+                >
+                  <Trash className="h-4 w-4 mr-1" />
                   Delete
                 </DropdownMenuItem>
               )}
@@ -143,6 +169,40 @@ const BusinessRegionList = () => {
       },
     },
   ];
+
+  const handleDeleteConfirm = () => {
+    setDeleteDialogOpen(false);
+    deleteMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_BUSINESSREGION!,
+        record_id: selectedRecordId!,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['business-region-list'],
+          });
+          setSelectedRecordId(null);
+        },
+      }
+    );
+  };
+
+  const handleStatusUpdate = (id: number) => {
+    statusMutate(
+      {
+        module: process.env.NEXT_PUBLIC_PATH_BUSINESSREGION!,
+        record_id: id,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['business-region-list'],
+          });
+        },
+      }
+    );
+  };
 
   // Rights Redirection
   if (rights?.can_view !== "1") {
@@ -171,6 +231,12 @@ const BusinessRegionList = () => {
     <>
       <SubNav title="Business Region List" addBtnTitle="Add Business Region" urlPath={ADD_URL} />
       <BusinessRegionDatatable columns={columns} payload={businessRegionListResponse.payload} />
+
+      <DeleteDialog
+        isDialogOpen={deleteDialogOpen}
+        setIsDialogOpen={setDeleteDialogOpen}
+        handleConfirmDelete={handleDeleteConfirm}
+      />
     </>
   );
 };
