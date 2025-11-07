@@ -46,8 +46,8 @@ export const axiosFunction = async ({
   } catch (err: any) {
     if (err.status === 401) {
       toast.error("Your session has expired. Please login again.");
-      // handleLogout();
-      // window.location.href = `/login`;
+      handleLogout();
+      window.location.href = `/login`;
     }
 
     if (err.status === 404) {
