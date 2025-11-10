@@ -48,8 +48,13 @@ const UserProfile: React.FC<UserProfileProps> = ({ userInfo }) => {
             className="!px-0 hover:bg-transparent focus-visible:ring-0 [&[data-state=open]>svg]:rotate-180"
           >
             <Avatar className="h-[34px] w-[34px] rounded-md bg-gray-100 p-1">
-              <AvatarImage src="/images/user-avatar.png" alt="user-avatar" />
-              <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+              <AvatarImage
+                src={process.env.NEXT_PUBLIC_UPLOADS_BASE_URL + "/users/" + userInfo.image}
+                alt="user-avatar"
+              />
+              <AvatarFallback className="rounded-lg">
+                {userInfo.fullname.substring(0, 2)}
+              </AvatarFallback>
             </Avatar>
             {!isMobile && (
               <>
@@ -75,10 +80,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ userInfo }) => {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-[34px] w-[34px] rounded-md bg-gray-100 p-1">
                   <AvatarImage
-                    src="/images/user-avatar.png"
+                    src={process.env.NEXT_PUBLIC_UPLOADS_BASE_URL + "/users/" + userInfo?.image}
                     alt="user-avatar"
                   />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {userInfo.fullname.substring(0, 2)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">

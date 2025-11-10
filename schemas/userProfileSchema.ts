@@ -36,23 +36,34 @@ export const UserProfileSchema = z.object({
     }),
   image: z.string().optional(),
   is_active: z.boolean({ required_error: "Status is required" }),
+  is_locked: z.boolean({ required_error: "Lock Status is required" }),
+  user_id: z.number({ message: "User Id is required" }),
   user_type: z.enum(["api_user", "dashboard_user"], {
     required_error: "User type is required",
   }),
   password: z
     .string()
-    .min(8, { message: "Password must be at least 8 characters long" })
-    .regex(/[A-Z]/, {
-      message: "Password must contain at least one uppercase letter",
-    })
-    .regex(/[0-9]/, { message: "Password must contain at least one number" })
-    .regex(/[!@#$%^&*]/, {
-      message: "Password must contain at least one special character",
-    })
-    .trim()
-    .refine((val) => !forbiddenCodeRegex.test(val), {
-      message: "Invalid input: Code-like content is not allowed",
-    }),
+    .transform((val) => val.trim())
+    .pipe(
+      z.union([
+        z.literal(""),
+        z
+          .string()
+          .min(8, { message: "Password must be at least 8 characters long" })
+          .regex(/[A-Z]/, {
+            message: "Password must contain at least one uppercase letter",
+          })
+          .regex(/[0-9]/, {
+            message: "Password must contain at least one number",
+          })
+          .regex(/[!@#$%^&*]/, {
+            message: "Password must contain at least one special character",
+          })
+          .refine((val) => !forbiddenCodeRegex.test(val), {
+            message: "Invalid input: Code-like content is not allowed",
+          }),
+      ])
+    ),
 });
 
 export type UserProfileSchemaType = z.infer<typeof UserProfileSchema>;

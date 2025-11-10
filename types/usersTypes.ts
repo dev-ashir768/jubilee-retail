@@ -88,7 +88,7 @@ export type UserPayloadType = {
   image: string;
   username: string;
   redirection_url: string;
-  user_type: string;
+  user_type: "api_user" | "dashboard_user";
   is_admin: boolean;
   is_active: boolean;
   is_deleted: boolean;
@@ -132,7 +132,7 @@ export type MenuTypes = {
   created_at: string;
   updated_at: string;
   deleted_at: string;
-}
+};
 
 export type rightsType = {
   id: number;
@@ -153,10 +153,10 @@ export type SingleUserPayloadType = {
   email: string;
   contact: string;
   image: string;
-  redirection_url: string | null
+  redirection_url: string | null;
   isActive: boolean;
   is_locked: boolean;
-  userType: string;
+  userType: "api_user" | "dashboard_user";
   rights: rightsType[];
 };
 

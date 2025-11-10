@@ -36,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({ userInfo }) => {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
+                <BreadcrumbLink href="/">Home</BreadcrumbLink>
               </BreadcrumbItem>
               {currentModule?.[2] && (
                 <>

@@ -7,6 +7,9 @@ export type userInfoTypes = {
   isActive: boolean;
   image: string;
   redirection_url: string | null;
+  userType: "api_user" | "dashboard_user";
+  is_active: boolean;
+  is_locked: boolean;
 };
 
 export type menusTypes = {
