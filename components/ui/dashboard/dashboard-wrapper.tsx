@@ -45,6 +45,8 @@ import RecentOrders from "./recent-orders";
 import PaymentMode from "./payment-mode";
 import Top5Branches from "./top-5-branches";
 import Empty from "../foundations/empty";
+import { userInfoTypes } from "@/types/verifyOtpTypes";
+import { getCookie } from "cookies-next";
 
 export function DashboardWrapper() {
   // ======== CONSTANTS & HOOKS ========
@@ -59,6 +61,10 @@ export function DashboardWrapper() {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+
+  const userInfoFromCookie: userInfoTypes = useMemo(() => {
+    return JSON.parse(getCookie("userInfo")?.toString() || "{}");
+  }, []);
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -346,12 +352,14 @@ export function DashboardWrapper() {
           error={policyStatsError?.message ?? "Error Occur"}
         />
 
-        <Top5Branches
-          payload={top5Branches}
-          isLoading={top5BranchesLoading}
-          isError={top5BranchesIsError}
-          error={top5BranchesError?.message ?? "Error Occur"}
-        />
+        {userInfoFromCookie?.userType === "dashboard_user" && (
+          <Top5Branches
+            payload={top5Branches}
+            isLoading={top5BranchesLoading}
+            isError={top5BranchesIsError}
+            error={top5BranchesError?.message ?? "Error Occur"}
+          />
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <PolicyStatusBreakdown
@@ -364,7 +372,9 @@ export function DashboardWrapper() {
             payload={productShareOfPolicyAmountByAmount}
             isLoading={productShareOfPolicyAmountByAmountLoading}
             isError={productShareOfPolicyAmountByAmountIsError}
-            error={productShareOfPolicyAmountByAmountError?.message ?? "Error Occur"}
+            error={
+              productShareOfPolicyAmountByAmountError?.message ?? "Error Occur"
+            }
           />
         </div>
 
@@ -378,37 +388,38 @@ export function DashboardWrapper() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ApiUsersByPolicyAmount
-            payload={apiUsersByPolicyAmount}
-            isLoading={apiUsersByPolicyAmountLoading}
-            isError={apiUsersByPolicyAmountIsError}
-            error={apiUsersByPolicyAmountError?.message ?? "Error Occur"}
-          />
-
+          {userInfoFromCookie?.userType === "dashboard_user" && (
+            <ApiUsersByPolicyAmount
+              payload={apiUsersByPolicyAmount}
+              isLoading={apiUsersByPolicyAmountLoading}
+              isError={apiUsersByPolicyAmountIsError}
+              error={apiUsersByPolicyAmountError?.message ?? "Error Occur"}
+            />
+          )}
           <ProductsDetailWise
             payload={productsDetailWise}
             isLoading={productsDetailWiseLoading}
             isError={productsDetailWiseIsError}
             error={productsDetailWiseError?.message ?? "Error Occur"}
           />
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <PaymentMode
-            payload={paymentMode}
-            isLoading={paymentModeLoading}
-            isError={paymentModeIsError}
-            error={paymentModeError?.message ?? "Error Occur"}
-          />
-          <Top5Agents
-            payload={top5Agents}
-            isLoading={top5AgentsLoading}
-            isError={top5AgentsIsError}
-            error={top5AgentsError?.message ?? "Error Occur"}
-          />
-        </div>
+          {userInfoFromCookie?.userType === "dashboard_user" && (
+            <>
+              <PaymentMode
+                payload={paymentMode}
+                isLoading={paymentModeLoading}
+                isError={paymentModeIsError}
+                error={paymentModeError?.message ?? "Error Occur"}
+              />
+              <Top5Agents
+                payload={top5Agents}
+                isLoading={top5AgentsLoading}
+                isError={top5AgentsIsError}
+                error={top5AgentsError?.message ?? "Error Occur"}
+              />
+            </>
+          )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ProductsByProductAmount
             payload={productsByProductAmount}
             isLoading={productsByProductAmountLoading}

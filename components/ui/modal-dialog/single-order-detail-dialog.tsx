@@ -5,11 +5,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../shadcn/dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/shadcn/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/shadcn/card";
 import { Label } from "../shadcn/label";
 
 import { Badge } from "../shadcn/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../shadcn/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../shadcn/tabs";
 import {
   SingleOrderPayloadTypes,
   PolicyDetailType,
@@ -18,7 +23,7 @@ import {
 const formatDate = (dateString: string | null | undefined) => {
   if (!dateString) return null;
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return null; 
+  if (isNaN(date.getTime())) return null;
   return date.toLocaleDateString();
 };
 
@@ -49,13 +54,12 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
     },
     {} as Record<string, PolicyDetailType[]>
   );
-  
+
   // Customer data ko alag variable mein nikal lein
   const customerPolicyData =
     policyDetailsByType && policyDetailsByType["Customer"]
       ? policyDetailsByType["Customer"][0]
       : null;
-
 
   // 2. Conditional Tabs ke liye data check karna
   const hasTravelInfo =
@@ -146,62 +150,6 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
               value="overview"
               className="space-y-4 max-h-[70vh] overflow-y-auto pr-3"
             >
-              {/* Card for Policy Holder (Customer) */}
-              {customerPolicyData && (
-                <Card className="w-full shadow-none border-none bg-gray-50">
-                  <CardHeader className="border-b gap-0">
-                    <CardTitle>Policy Holder (Customer)</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <InfoField
-                        label="Name"
-                        value={customerPolicyData.name}
-                      />
-                      <InfoField
-                        label="CNIC"
-                        value={customerPolicyData.cnic}
-                      />
-                      <InfoField
-                        label="Passport No."
-                        value={customerPolicyData.passport_no}
-                      />
-                      <InfoField
-                        label="DOB"
-                        value={formatDate(customerPolicyData.dob)}
-                      />
-                      <InfoField
-                        label="Age"
-                        value={customerPolicyData.age}
-                      />
-                      <InfoField
-                        label="Gender"
-                        value={customerPolicyData.gender}
-                      />
-                      <InfoField
-                        label="CNIC Issue Date"
-                        value={formatDate(
-                          customerPolicyData.cnic_issue_date
-                        )}
-                      />
-                      <InfoField
-                        label="Phone"
-                        value={customerPolicyData.contact_number}
-                      />
-                      <InfoField
-                        label="Email"
-                        value={customerPolicyData.email}
-                      />
-                      <div className="lg:col-span-3">
-                        <InfoField
-                          label="Address"
-                          value={customerPolicyData.address}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
               <Card className="w-full shadow-none border-none bg-gray-50">
                 <CardHeader className="border-b gap-0">
                   <CardTitle>Order & Policy Summary</CardTitle>
@@ -247,7 +195,7 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
 
               <Card className="w-full shadow-none border-none bg-gray-50">
                 <CardHeader className="border-b gap-0">
-                  <CardTitle>Admin & Shipping Details</CardTitle>
+                  <CardTitle>Details</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -310,6 +258,52 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Card for Policy Holder (Customer) */}
+              {customerPolicyData && (
+                <Card className="w-full shadow-none border-none bg-gray-50">
+                  <CardHeader className="border-b gap-0">
+                    <CardTitle>Policy Holder (Customer)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <InfoField label="Name" value={customerPolicyData.name} />
+                      <InfoField label="CNIC" value={customerPolicyData.cnic} />
+                      <InfoField
+                        label="Passport No."
+                        value={customerPolicyData.passport_no}
+                      />
+                      <InfoField
+                        label="DOB"
+                        value={formatDate(customerPolicyData.dob)}
+                      />
+                      <InfoField label="Age" value={customerPolicyData.age} />
+                      <InfoField
+                        label="Gender"
+                        value={customerPolicyData.gender}
+                      />
+                      <InfoField
+                        label="CNIC Issue Date"
+                        value={formatDate(customerPolicyData.cnic_issue_date)}
+                      />
+                      <InfoField
+                        label="Phone"
+                        value={customerPolicyData.contact_number}
+                      />
+                      <InfoField
+                        label="Email"
+                        value={customerPolicyData.email}
+                      />
+                      <div className="lg:col-span-3">
+                        <InfoField
+                          label="Address"
+                          value={customerPolicyData.address}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             {/* --- TAB 2: POLICY DETAILS (DESTRUCTURED) --- */}
@@ -324,12 +318,14 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                 Object.entries(policyDetailsByType)
                   .filter(([type]) => type.toUpperCase() !== "CUSTOMER")
                   .map(([type, details]) => {
-                    
                     // Ab 'details' ek array hai (e.g., 2 beneficiaries).
                     // Hum table ke bajaye InfoFields use kareinge.
 
                     return (
-                      <Card key={type} className="w-full shadow-none border-none bg-gray-50">
+                      <Card
+                        key={type}
+                        className="w-full shadow-none border-none bg-gray-50"
+                      >
                         <CardHeader className="border-b gap-0">
                           <CardTitle>
                             {type}
@@ -338,9 +334,7 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                         </CardHeader>
                         <CardContent className="space-y-2">
                           {details.map((item, index) => (
-                            <div
-                              key={item.id}
-                            >
+                            <div key={item.id}>
                               {details.length > 1 && (
                                 <h4 className="text-lg font-medium mb-3 pb-3 border-b">
                                   {type} {index + 1}
@@ -363,10 +357,7 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                                   value={formatDate(item.dob)}
                                 />
                                 <InfoField label="Age" value={item.age} />
-                                <InfoField
-                                  label="Gender"
-                                  value={item.gender}
-                                />
+                                <InfoField label="Gender" value={item.gender} />
                                 <InfoField
                                   label="Passport No."
                                   value={item.passport_no}
@@ -500,13 +491,11 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
               </TabsContent>
             )}
           </Tabs>
-         
         </DialogContent>
       </Dialog>
     </>
   );
 };
-
 
 interface InfoFieldProps {
   label: string;
@@ -535,7 +524,9 @@ const InfoField: React.FC<InfoFieldProps> = ({ label, value, highlight }) => {
   return (
     <div
       className={
-        highlight ? "p-1.5 rounded-lg bg-primary/5 border border-primary/10" : ""
+        highlight
+          ? "p-1.5 rounded-lg bg-primary/5 border border-primary/10"
+          : ""
       }
     >
       <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
