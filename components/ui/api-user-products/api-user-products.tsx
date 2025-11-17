@@ -32,7 +32,7 @@ import { createFilterOptions } from "@/utils/filterOptions";
 import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import { DateRange } from "react-day-picker";
-import { format, subDays } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import ApiUserProductsFilters from "../filters/api-user-products";
 import { apiUserProductsFilterState } from "@/hooks/apiUserProductsFilterState";
 import DeleteDialog from "../common/delete-dialog";
@@ -57,9 +57,9 @@ const ApiUserProductsList = () => {
   const { mutate: deleteMutate } = handleDeleteMutation();
   const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
   const queryClient = useQueryClient();
-  const defaultDaysBack = 366;
+  
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -352,7 +352,7 @@ const ApiUserProductsList = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
-        defaultDaysBack={defaultDaysBack}
+        
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}

@@ -27,7 +27,7 @@ import Link from "next/link";
 import SubNav from "../foundations/sub-nav";
 import AgentDatatable from "./agent-datatable";
 import LoadingState from "../foundations/loading-state";
-import { format, subDays } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import { DateRange } from "react-day-picker";
 import DeleteDialog from "../common/delete-dialog";
 import {
@@ -47,9 +47,9 @@ const AgentList = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { mutate: deleteMutate } = handleDeleteMutation();
   const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
-  const defaultDaysBack = 366;
+  
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -367,7 +367,7 @@ const AgentList = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
-        defaultDaysBack={defaultDaysBack}
+        
       />
 
       {renderPageContent()}

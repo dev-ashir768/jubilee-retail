@@ -28,7 +28,7 @@ import SubNav from "../foundations/sub-nav";
 import ClientDatatable from "./client-datatable";
 import LoadingState from "../foundations/loading-state";
 import { DateRange } from "react-day-picker";
-import { format, subDays } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import ClientFilters from "../filters/client-filter";
 import { BranchResponseType } from "@/types/branchTypes";
 import { fetchAllBranchList } from "@/helperFunctions/branchFunction";
@@ -50,11 +50,12 @@ const ClientList = () => {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const { mutate: deleteMutate } = handleDeleteMutation();
-  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
   const { filterValue } = clientFilterState();
-  const defaultDaysBack = 366;
+  
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -403,7 +404,7 @@ const ClientList = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
-        defaultDaysBack={defaultDaysBack}
+        
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}

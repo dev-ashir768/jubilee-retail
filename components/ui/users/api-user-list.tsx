@@ -29,7 +29,7 @@ import { toast } from "sonner";
 import ApiUserDatatable from "./api-user-datatable";
 import LoadingState from "../foundations/loading-state";
 import { DateRange } from "react-day-picker";
-import { format, subDays } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
@@ -38,12 +38,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const ApiUserList = () => {
   // ======== CONSTANTS AND HOOKS ========
-  const defaultDaysBack = 366;
+  
   const router = useRouter();
   const queryClient = useQueryClient();
   const pathname = usePathname();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack ?? 366),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -316,7 +316,7 @@ const ApiUserList = () => {
 
   return (
     <>
-      <SubNav title="Api User List" datePicker={true} defaultDaysBack={defaultDaysBack} setDateRange={setDateRange} dateRange={dateRange} />
+      <SubNav title="Api User List" datePicker={true}  setDateRange={setDateRange} dateRange={dateRange} />
 
       {renderPageContent()}
 

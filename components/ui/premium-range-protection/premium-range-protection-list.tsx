@@ -35,6 +35,7 @@ import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 const PremiumRangeProtectionList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -143,7 +144,7 @@ const PremiumRangeProtectionList = () => {
           <DatatableColumnHeader column={column} title="Premium Range" />
         ),
         cell: ({ row }) => (
-          <div>{`${row.original.premium_start} - ${row.original.premium_end}`}</div>
+          <div>{`${formatNumberCell(row.original.premium_start)} - ${formatNumberCell(row.original.premium_end)}`}</div>
         ),
       },
       {
@@ -151,7 +152,7 @@ const PremiumRangeProtectionList = () => {
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Net Premium" />
         ),
-        cell: ({ row }) => <div>{row.original.net_premium}</div>,
+        cell: ({ row }) => <div>{formatNumberCell(row.original.net_premium)}</div>,
         filterFn: "multiSelect",
         meta: {
           filterType: "multiselect",

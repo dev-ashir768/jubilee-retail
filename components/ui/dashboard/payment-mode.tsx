@@ -10,6 +10,7 @@ import {
 } from "../shadcn/table";
 import { PaymentModePayloadType } from "@/types/dashboardTypes";
 import { Skeleton } from "../shadcn/skeleton";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 interface PaymentModeProps {
   payload: PaymentModePayloadType[];
@@ -133,16 +134,16 @@ const PaymentMode: React.FC<PaymentModeProps> = ({
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        {item.total_orders || "N/A"}
+                        {formatNumberCell(item.total_orders) || "N/A"}
                       </TableCell>
                       <TableCell className="text-right">
-                        {item.total_received_amount || "N/A"}
+                        {formatNumberCell(+item.total_received_amount) || "N/A"}
                       </TableCell>
                       <TableCell className="text-right">
-                        {item.valid_policies_count || "N/A"}
+                        {formatNumberCell(item.valid_policies_count) || "N/A"}
                       </TableCell>
                       <TableCell className="text-right">
-                        {item.total_discount_given || "N/A"}
+                        {formatNumberCell(+item.total_discount_given) || "N/A"}
                       </TableCell>
                     </TableRow>
                   ))

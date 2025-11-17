@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../shadcn/dialog";
-import { subDays } from "date-fns";
+import { startOfMonth } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { Button } from "../shadcn/button";
 import { Loader2 } from "lucide-react";
@@ -35,9 +35,8 @@ const GenerateHis: React.FC<GenerateHisProps> = ({
   isExportZipOpen,
   setIsExportZipOpen,
 }) => {
-  const defaultDaysBack = 6;
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const [localDateRange, setLocalDateRange] = useState<DateRange | undefined>(
@@ -113,7 +112,7 @@ const GenerateHis: React.FC<GenerateHisProps> = ({
 
   const handleReset = useCallback(() => {
     const defaultDateRange = {
-      from: subDays(new Date(), defaultDaysBack),
+      from: startOfMonth(new Date()),
       to: new Date(),
     };
     setDateRange(defaultDateRange);

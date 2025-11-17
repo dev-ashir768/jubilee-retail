@@ -34,7 +34,7 @@ import Link from "next/link";
 import { ProductCategoriesResponseTypes } from "@/types/productCategoriesTypes";
 import { fetchProductCategoriesList } from "@/helperFunctions/productCategoriesFunction";
 import { DateRange } from "react-day-picker";
-import { format, subDays } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import { useRouter } from "next/navigation";
 import DeleteDialog from "../common/delete-dialog";
 import {
@@ -55,9 +55,9 @@ const ProductList = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { mutate: deleteMutate } = handleDeleteMutation();
   const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
-  const defaultDaysBack = 366;
+  
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -416,7 +416,7 @@ const ProductList = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
-        defaultDaysBack={defaultDaysBack}
+        
       />
 
       {renderPageContent()}

@@ -11,7 +11,7 @@ import {
   PieLabelRenderProps,
 } from "recharts";
 import { Skeleton } from "../shadcn/skeleton";
-import { NumberFormaterFunction } from "@/utils/numberFormaterFunction";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 const COLORS = [
   "#ef4444",
@@ -136,7 +136,7 @@ const ProductShareOfPolicyAmountByAmount: React.FC<
                 }}
                 labelStyle={{ color: "#000" }}
                 formatter={(value: number) => [
-                  `${NumberFormaterFunction(value)} Amount`,
+                  `${formatNumberCell(value)} Amount`,
                   "Policy Amount",
                 ]}
               />

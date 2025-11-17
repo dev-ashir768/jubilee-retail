@@ -22,7 +22,7 @@ import Error from "../foundations/error";
 import Empty from "../foundations/empty";
 import SubNav from "../foundations/sub-nav";
 import CouponsDatatable from "./coupons-datatable";
-import { format, subDays } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { couponFilterState } from "@/hooks/couponFilterState";
 import { ProductsResponseTypes } from "@/types/productsTypes";
@@ -34,6 +34,7 @@ import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 const CouponsList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -41,7 +42,7 @@ const CouponsList = () => {
   const LISTING_ROUTE = "/coupons-management/coupons";
   const router = useRouter();
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
-  const defaultDaysBack = 366;
+  
   const { filterValue } = couponFilterState();
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
@@ -50,7 +51,7 @@ const CouponsList = () => {
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -172,7 +173,8 @@ const CouponsList = () => {
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Quantity" />
         ),
-        cell: ({ row }) => <div>{row.original.quantity}</div>,
+        accessorFn: (row) => row.quantity || "N/A",
+        cell: ({ row }) => <div>{formatNumberCell(row.original.quantity)}</div>,
       },
       {
         accessorKey: "coupon_type",
@@ -186,27 +188,30 @@ const CouponsList = () => {
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Discount Value" />
         ),
-        cell: ({ row }) => <div>{row.original.discount_value}</div>,
-        // filterFn: "multiSelect",
-        // meta: {
-        //   filterType: "multiselect",
-        //   filterOptions: discountValueFilterOptions,
-        //   filterPlaceholder: "Filter by discount value...",
-        // } as ColumnMeta,
+        accessorFn: (row) => row.discount_value || "N/A",
+        cell: ({ row }) => (
+          <div>{formatNumberCell(row.original.discount_value)}</div>
+        ),
       },
       {
         accessorKey: "use_per_customer",
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Use Per Customer" />
         ),
-        cell: ({ row }) => <div>{row.original.use_per_customer}</div>,
+        accessorFn: (row) => row.use_per_customer || "N/A",
+        cell: ({ row }) => (
+          <div>{formatNumberCell(row.original.use_per_customer)}</div>
+        ),
       },
       {
         accessorKey: "remaining",
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Remaining" />
         ),
-        cell: ({ row }) => <div>{row.original.remaining}</div>,
+        accessorFn: (row) => row.remaining || "N/A",
+        cell: ({ row }) => (
+          <div>{formatNumberCell(row.original.remaining)}</div>
+        ),
       },
       {
         accessorKey: "is_active",
@@ -311,7 +316,7 @@ const CouponsList = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
-        defaultDaysBack={defaultDaysBack}
+        
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}

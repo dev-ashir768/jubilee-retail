@@ -28,7 +28,7 @@ import SubNav from "../foundations/sub-nav";
 import BranchDatatable from "./branch-datatable";
 import LoadingState from "../foundations/loading-state";
 import { DateRange } from "react-day-picker";
-import { format, subDays } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import {
   handleDeleteMutation,
   handleStatusMutation,
@@ -47,9 +47,9 @@ const BranchList = () => {
   const router = useRouter();
   const { setBranchId } = useBranchIdStore();
   const pathname = usePathname();
-  const defaultDaysBack = 366;
+  
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -439,7 +439,7 @@ const BranchList = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
-        defaultDaysBack={defaultDaysBack}
+        
       />
 
       {renderPageContent()}

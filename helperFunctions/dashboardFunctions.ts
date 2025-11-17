@@ -1,5 +1,6 @@
 import {
   ApiUsersByPolicyAmountResponse,
+  CouponUsageResponse,
   MonthlyPolicyNOrdersResponse,
   PaymentModeResponse,
   PolicyStatsResponse,
@@ -7,8 +8,6 @@ import {
   ProductsByProductAmountResponse,
   ProductsDetailWiseResponse,
   ProductShareOfPolicyAmountByAmountResponse,
-  RecentOrdersResponse,
-  Top5AgentsResponse,
   Top5BranchesResponse,
 } from "@/types/dashboardTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
@@ -175,50 +174,6 @@ export const fetchProductShareOfPolicyAmountByAmount = async ({
   }
 };
 
-export const fetchTop5Agents = async ({
-  startDate,
-  endDate,
-}: dashboardFunctionProps): Promise<Top5AgentsResponse | null> => {
-  const payload = {
-    date: `${startDate} to ${endDate}`,
-  };
-
-  try {
-    const response = await axiosFunction({
-      method: "POST",
-      urlPath: "/dashboard/top-5-agents",
-      data: payload,
-    });
-
-    return response;
-  } catch (err) {
-    console.error("Error fetching top 5 agents:", err);
-    return null;
-  }
-};
-
-export const fetchRecentOrders = async ({
-  startDate,
-  endDate,
-}: dashboardFunctionProps): Promise<RecentOrdersResponse | null> => {
-  const payload = {
-    date: `${startDate} to ${endDate}`,
-  };
-
-  try {
-    const response = await axiosFunction({
-      method: "POST",
-      urlPath: "/dashboard/recent-orders",
-      data: payload,
-    });
-
-    return response;
-  } catch (err) {
-    console.error("Error fetching recent orders:", err);
-    return null;
-  }
-};
-
 export const fetchPaymentMode = async ({
   startDate,
   endDate,
@@ -259,6 +214,28 @@ export const fetchTop5Branches = async ({
     return response;
   } catch (err) {
     console.error("Error fetching top 5 branches:", err);
+    return null;
+  }
+};
+
+export const fetchCouponUsage = async ({
+  startDate,
+  endDate,
+}: dashboardFunctionProps): Promise<CouponUsageResponse | null> => {
+  const payload = {
+    date: `${startDate} to ${endDate}`,
+  };
+
+  try {
+    const response = await axiosFunction({
+      method: "POST",
+      urlPath: "/dashboard/coupon-usage",
+      data: payload,
+    });
+
+    return response;
+  } catch (err) {
+    console.error("Error fetching coupon usage:", err);
     return null;
   }
 };

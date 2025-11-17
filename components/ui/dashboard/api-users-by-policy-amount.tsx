@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/shadcn/table";
 import { ApiUsersByPolicyAmountPayloadType } from "@/types/dashboardTypes";
 import { Skeleton } from "../shadcn/skeleton";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 interface ApiUsersByPolicyAmountProps {
   payload: ApiUsersByPolicyAmountPayloadType[];
@@ -24,7 +25,6 @@ const ApiUsersByPolicyAmount: React.FC<ApiUsersByPolicyAmountProps> = ({
   isError,
   error,
 }) => {
-  
   const renderSkeleton = () => (
     <Card className="w-full shadow-none border-none">
       <CardHeader className="gap-0">
@@ -142,13 +142,13 @@ const ApiUsersByPolicyAmount: React.FC<ApiUsersByPolicyAmountProps> = ({
                         {item.total_valid_policies || "N/A"}
                       </TableCell>
                       <TableCell className="text-right">
-                        {item.policy_amount || "N/A"}
+                        {formatNumberCell(item.policy_amount || "N/A")}
                       </TableCell>
                       <TableCell className="text-right">
-                        {item.order_amount || "N/A"}
+                        {formatNumberCell(item.order_amount || "N/A")}
                       </TableCell>
                       <TableCell className="text-right">
-                        {item.total_orders || "N/A"}
+                        {formatNumberCell(item.total_orders || "N/A")}
                       </TableCell>
                     </TableRow>
                   ))

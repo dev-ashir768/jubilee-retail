@@ -19,6 +19,7 @@ import {
 } from "recharts";
 import { format, startOfMonth } from "date-fns";
 import { Skeleton } from "../shadcn/skeleton";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 const CHART_COLORS = {
   orders: "#3b82f6",
@@ -72,7 +73,7 @@ const MonthlyPoliciesTrend: React.FC<MonthlyPoliciesTrendProps> = ({
       .map(([monthKey, values]) => ({
         month: monthKey,
         formattedMonth: format(new Date(monthKey + "-01"), "MMM yyyy"),
-        orders: values.orders,
+        orders:  values.orders,
         policies: values.policies,
       }));
   };
@@ -89,7 +90,7 @@ const MonthlyPoliciesTrend: React.FC<MonthlyPoliciesTrendProps> = ({
               <span className="font-semibold" style={{ color: entry.color }}>
                 {entry.name}:
               </span>
-              <span>{entry.value.toLocaleString()}</span>
+              <span>{formatNumberCell(+entry.value.toLocaleString())}</span>
             </p>
           ))}
         </div>

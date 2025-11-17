@@ -33,7 +33,7 @@ import { AxiosError } from "axios";
 import { axiosFunction } from "@/utils/axiosFunction";
 import { toast } from "sonner";
 import { DateRange } from "react-day-picker";
-import { format, subDays } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import DeleteDialog from "../common/delete-dialog";
 import {
   handleDeleteMutation,
@@ -46,14 +46,14 @@ const MotorInfoList = () => {
   const LISTING_ROUTE = "/leads/lead-motor-info";
   
   const router = useRouter();
-  const defaultDaysBack = 366;
+  
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { mutate: deleteMutate } = handleDeleteMutation();
   const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -499,7 +499,7 @@ const MotorInfoList = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
-        defaultDaysBack={defaultDaysBack}
+        
       />
 
       {renderPageContent()}

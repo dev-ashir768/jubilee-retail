@@ -7,9 +7,9 @@ import {
   CardTitle,
 } from "@/components/ui/shadcn/card";
 import { PolicyStatsPayloadType } from "@/types/dashboardTypes";
-import { NumberFormaterFunction } from "@/utils/numberFormaterFunction";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { Skeleton } from "@/components/ui/shadcn/skeleton";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 const sparklineMockData = [
   { value: 40 },
@@ -79,7 +79,7 @@ const KPICards: React.FC<KPICardsProps> = ({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold text-gray-800 mb-2">
-          {NumberFormaterFunction(config.value)}
+          {formatNumberCell(config.value || "N/A")}
         </div>
         <div className="h-10 w-full">
           <ResponsiveContainer width="100%" height="100%">

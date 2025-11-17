@@ -17,7 +17,7 @@ import { fetchOrdersListing } from "@/helperFunctions/ordersFunctions";
 import { CboPayloadType, CboResponseType } from "@/types/cboTypes";
 import CboDatatable from "./cbo-datatable";
 import { DateRange } from "react-day-picker";
-import { subDays, format } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ProductsResponseTypes } from "@/types/productsTypes";
@@ -54,12 +54,11 @@ const CboList = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [isPolicyId, setIsPolicyId] = useState<number>();
-  const defaultDaysBack = 10;
   const [orderSingleData, setSingleOrderData] =
     useState<SingleOrderPayloadTypes | null>(null);
   const { filterValue } = cboListFilterState();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -99,8 +98,8 @@ const CboList = () => {
     isError: branchListIsError,
     error: branchListError,
   } = useQuery<BranchResponseType | null>({
-   queryKey: ['all-branch-list'],
-       queryFn: fetchAllBranchList
+    queryKey: ["all-branch-list"],
+    queryFn: fetchAllBranchList,
   });
 
   const {
@@ -322,7 +321,9 @@ const CboList = () => {
                   row?.original.policy_status.toLocaleLowerCase() ===
                     "pendingcbo" && (
                     <DropdownMenuItem
-                      onClick={() => handlePolicyStatusDialog(row.original?.policy_id)}
+                      onClick={() =>
+                        handlePolicyStatusDialog(row.original?.policy_id)
+                      }
                     >
                       <span>Change Status</span>
                     </DropdownMenuItem>
@@ -333,7 +334,12 @@ const CboList = () => {
         },
       },
     ],
-    [rights, handleSingleOrderFetch, singleOrderMutation, handlePolicyStatusDialog]
+    [
+      rights,
+      handleSingleOrderFetch,
+      singleOrderMutation,
+      handlePolicyStatusDialog,
+    ]
   );
 
   // ======== RENDER LOGIC ========
@@ -387,7 +393,7 @@ const CboList = () => {
         isExportZipOpen={isExportZipOpen}
         setIsExportZipOpen={setIsExportZipOpen}
         exportZip={true}
-        defaultDaysBack={defaultDaysBack}
+        
       />
 
       {isLoading ? (

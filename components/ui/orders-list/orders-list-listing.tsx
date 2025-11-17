@@ -20,7 +20,7 @@ import {
 } from "@/types/ordersListTypes";
 import { fetchOrdersListing } from "@/helperFunctions/ordersFunctions";
 import { DateRange } from "react-day-picker";
-import { subDays, format } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ProductsResponseTypes } from "@/types/productsTypes";
@@ -49,7 +49,6 @@ import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 
 const OrdersListListing = () => {
   // ======== CONSTANTS & HOOKS ========
-    const defaultDaysBack = 364;
   const LISTING_ROUTE = "/orders/list";
   const router = useRouter();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -59,7 +58,7 @@ const OrdersListListing = () => {
   const [orderSingleData, setSingleOrderData] =
     useState<SingleOrderPayloadTypes | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -523,7 +522,7 @@ const OrdersListListing = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
-        defaultDaysBack={defaultDaysBack}
+        
       />
 
       {isLoading ? (

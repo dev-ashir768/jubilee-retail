@@ -4,57 +4,50 @@ import SubNav from "../foundations/sub-nav";
 import KPICards from "./kpi-cards";
 import {
   fetchApiUsersByPolicyAmount,
+  fetchCouponUsage,
   fetchMonthlyPolicyNOrders,
   fetchPaymentMode,
   fetchPolicyStats,
   fetchPolicyStatusBreakdown,
-  fetchProductsByProductAmount,
   fetchProductsDetailWise,
   fetchProductShareOfPolicyAmountByAmount,
-  fetchRecentOrders,
-  fetchTop5Agents,
   fetchTop5Branches,
 } from "@/helperFunctions/dashboardFunctions";
 import {
   ApiUsersByPolicyAmountResponse,
+  CouponUsageResponse,
   MonthlyPolicyNOrdersResponse,
   PaymentModeResponse,
   PolicyStatsResponse,
   PolicyStatusBreakdownResponse,
-  ProductsByProductAmountResponse,
   ProductsDetailWiseResponse,
   ProductShareOfPolicyAmountByAmountResponse,
-  RecentOrdersResponse,
-  Top5AgentsResponse,
   Top5BranchesResponse,
 } from "@/types/dashboardTypes";
 import { getRights } from "@/utils/getRights";
 import { useQuery } from "@tanstack/react-query";
-import { format, subDays } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import ProductsDetailWise from "./products-detail-wise";
 import ApiUsersByPolicyAmount from "./api-users-by-policy-amount";
-import ProductsByProductAmount from "./products-by-product-amount";
 import PolicyStatusBreakdown from "./policy-status-breakdown";
 import MonthlyOrdersAndPolicies from "./monthly-orders-and-policies";
-import Top5Agents from "./top-5-agents";
 import ProductShareOfPolicyAmountByAmount from "./product-share-of-policy-amount-by-amount";
-import RecentOrders from "./recent-orders";
 import PaymentMode from "./payment-mode";
 import Top5Branches from "./top-5-branches";
 import Empty from "../foundations/empty";
 import { userInfoTypes } from "@/types/verifyOtpTypes";
 import { getCookie } from "cookies-next";
+import CouponUsage from "./coupon-usage";
 
 export function DashboardWrapper() {
   // ======== CONSTANTS & HOOKS ========
   const pathname = usePathname();
   const router = useRouter();
-  const defaultDaysBack = 364;
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -124,30 +117,13 @@ export function DashboardWrapper() {
   });
 
   const {
-    data: productsByProductAmountResponse,
-    isLoading: productsByProductAmountLoading,
-    isError: productsByProductAmountIsError,
-    error: productsByProductAmountError,
-  } = useQuery<ProductsByProductAmountResponse | null>({
-    queryKey: [
-      "top-5-products-by-product-amount",
-      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-    ],
-    queryFn: () =>
-      fetchProductsByProductAmount({
-        startDate,
-        endDate,
-      }),
-  });
-
-  const {
     data: apiUsersByPolicyAmountResponse,
     isLoading: apiUsersByPolicyAmountLoading,
     isError: apiUsersByPolicyAmountIsError,
     error: apiUsersByPolicyAmountError,
   } = useQuery<ApiUsersByPolicyAmountResponse | null>({
     queryKey: [
-      "top-5-products-by-product-amount",
+      "top-5-api-user-by-policy-amount",
       ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
     ],
     queryFn: () =>
@@ -192,40 +168,6 @@ export function DashboardWrapper() {
   });
 
   const {
-    data: top5AgentsResponse,
-    isLoading: top5AgentsLoading,
-    isError: top5AgentsIsError,
-    error: top5AgentsError,
-  } = useQuery<Top5AgentsResponse | null>({
-    queryKey: [
-      "top-5-agents",
-      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-    ],
-    queryFn: () =>
-      fetchTop5Agents({
-        startDate,
-        endDate,
-      }),
-  });
-
-  const {
-    data: recentOrdersResponse,
-    isLoading: recentOrdersLoading,
-    isError: recentOrdersIsError,
-    error: recentOrdersError,
-  } = useQuery<RecentOrdersResponse | null>({
-    queryKey: [
-      "recent-orders",
-      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-    ],
-    queryFn: () =>
-      fetchRecentOrders({
-        startDate,
-        endDate,
-      }),
-  });
-
-  const {
     data: paymentModeResponse,
     isLoading: paymentModeLoading,
     isError: paymentModeIsError,
@@ -259,6 +201,23 @@ export function DashboardWrapper() {
       }),
   });
 
+  const {
+    data: couponUsageResponse,
+    isLoading: couponUsageLoading,
+    isError: couponUsageIsError,
+    error: couponUsageError,
+  } = useQuery<CouponUsageResponse | null>({
+    queryKey: [
+      "coupon-usage",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () =>
+      fetchCouponUsage({
+        startDate,
+        endDate,
+      }),
+  });
+
   // ======== PAYLOADS DATA ========
   const policyStats = useMemo(
     () => policyStatsResponse?.payload || [],
@@ -280,29 +239,14 @@ export function DashboardWrapper() {
     [productsDetailWiseResponse]
   );
 
-  const productsByProductAmount = useMemo(
-    () => productsByProductAmountResponse?.payload || [],
-    [productsByProductAmountResponse]
-  );
-
   const apiUsersByPolicyAmount = useMemo(
     () => apiUsersByPolicyAmountResponse?.payload || [],
     [apiUsersByPolicyAmountResponse]
   );
 
-  const top5Agents = useMemo(
-    () => top5AgentsResponse?.payload || [],
-    [top5AgentsResponse]
-  );
-
   const productShareOfPolicyAmountByAmount = useMemo(
     () => productShareOfPolicyAmountByAmountResponse?.payload || [],
     [productShareOfPolicyAmountByAmountResponse]
-  );
-
-  const recentOrders = useMemo(
-    () => recentOrdersResponse?.payload || [],
-    [recentOrdersResponse]
   );
 
   const paymentMode = useMemo(
@@ -313,6 +257,11 @@ export function DashboardWrapper() {
   const top5Branches = useMemo(
     () => top5BranchesResponse?.payload || [],
     [top5BranchesResponse]
+  );
+
+  const couponUsage = useMemo(
+    () => couponUsageResponse?.payload || [],
+    [couponUsageResponse]
   );
 
   // ======== RENDER LOGIC ========
@@ -341,7 +290,7 @@ export function DashboardWrapper() {
         datePicker={true}
         setDateRange={setDateRange}
         dateRange={dateRange}
-        defaultDaysBack={defaultDaysBack}
+        
       />
 
       <div className="grid grid-cols-1 gap-6">
@@ -411,27 +360,15 @@ export function DashboardWrapper() {
                 isError={paymentModeIsError}
                 error={paymentModeError?.message ?? "Error Occur"}
               />
-              <Top5Agents
-                payload={top5Agents}
-                isLoading={top5AgentsLoading}
-                isError={top5AgentsIsError}
-                error={top5AgentsError?.message ?? "Error Occur"}
+
+              <CouponUsage
+                data={couponUsage}
+                error={couponUsageError?.message ?? "Error Occur"}
+                isError={couponUsageIsError}
+                isLoading={couponUsageLoading}
               />
             </>
           )}
-
-          <ProductsByProductAmount
-            payload={productsByProductAmount}
-            isLoading={productsByProductAmountLoading}
-            isError={productsByProductAmountIsError}
-            error={productsByProductAmountError?.message ?? "Error Occur"}
-          />
-          <RecentOrders
-            payload={recentOrders}
-            isLoading={recentOrdersLoading}
-            isError={recentOrdersIsError}
-            error={recentOrdersError?.message ?? "Error Occur"}
-          />
         </div>
       </div>
     </>

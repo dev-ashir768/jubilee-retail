@@ -33,27 +33,27 @@ import { toast } from "sonner";
 import { axiosFunction } from "@/utils/axiosFunction";
 import { AxiosError } from "axios";
 import { DateRange } from "react-day-picker";
-import { format, subDays } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import DeleteDialog from "../common/delete-dialog";
 import {
   handleDeleteMutation,
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 
-
 const LeadInfoList = () => {
   // ======== CONSTANTS & HOOKS ========
 
   const LISTING_ROUTE = "/leads/lead-info";
   const router = useRouter();
-  const defaultDaysBack = 366;
+  
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { mutate: deleteMutate } = handleDeleteMutation();
-  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -377,13 +377,13 @@ const LeadInfoList = () => {
               <Badge
                 variant={
                   currentStatus as
-                  | "waiting"
-                  | "interested"
-                  | "not_interested"
-                  | "cancelled"
-                  | "waiting"
-                  | "callback_scheduled"
-                  | "pending"
+                    | "waiting"
+                    | "interested"
+                    | "not_interested"
+                    | "cancelled"
+                    | "waiting"
+                    | "callback_scheduled"
+                    | "pending"
                 }
               >
                 {currentStatus.replace(/_/g, " ")}
@@ -407,8 +407,7 @@ const LeadInfoList = () => {
         const id = row.original?.id;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`
-            }
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
             onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
@@ -545,7 +544,7 @@ const LeadInfoList = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
-        defaultDaysBack={defaultDaysBack}
+        
       />
 
       {renderPageContent()}

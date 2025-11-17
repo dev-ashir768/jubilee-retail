@@ -90,37 +90,6 @@ export type ProductShareOfPolicyAmountByAmountResponse = {
   payload: ProductShareOfPolicyAmountByAmountPayloadType[];
 };
 
-// top-5-agents
-
-export type Top5AgentsPayloadType = {
-  agent_name: string;
-  policy_amount: string;
-};
-
-export type Top5AgentsResponse = {
-  status: 1 | 0;
-  message: string;
-  payload: Top5AgentsPayloadType[];
-};
-
-// recent-orders
-
-export type RecentOrdersPayloadType = {
-  order_code: string;
-  customer_name: string;
-  customer_contact: string;
-  product_name: string;
-  received_premium: string;
-  status: string;
-  created_at: string;
-};
-
-export type RecentOrdersResponse = {
-  status: 1 | 0;
-  message: string;
-  payload: RecentOrdersPayloadType[];
-};
-
 // payment-mode
 
 export type PaymentModePayloadType = {
@@ -149,4 +118,19 @@ export type Top5BranchesResponse = {
   status: 1 | 0;
   message: string;
   payload: Top5BranchesPayloadType[];
+};
+
+// coupon-usage
+
+export type CouponUsagePayloadType = {
+  coupon_code: string;
+  coupon_name: string;
+  total_uses: number;
+  total_discount_amount: string;
+};
+
+export type CouponUsageResponse = {
+  status: 1 | 0;
+  message: string;
+  payload: CouponUsagePayloadType[];
 };

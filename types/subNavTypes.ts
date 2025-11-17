@@ -13,5 +13,4 @@ export type subNavTypes = {
   setDateRange?: (date: DateRange | undefined) => void;
   isExportZipOpen?: boolean;
   setIsExportZipOpen?: (isExportZipOpen: boolean) => void;
-  defaultDaysBack?: number
 };

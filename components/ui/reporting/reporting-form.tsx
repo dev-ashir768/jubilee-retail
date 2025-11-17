@@ -33,7 +33,7 @@ import { CouponsPayloadType } from "@/types/couponsTypes";
 import { ReportingFiltersResponseType } from "@/types/reportingFiltersType";
 import { AxiosError } from "axios";
 import { DateRange } from "react-day-picker";
-import { format, subDays } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import { DateRangePicker } from "../foundations/date-range-picker";
 import { DatePicker } from "../foundations/date-picker";
 
@@ -66,11 +66,11 @@ const ReportingForm: React.FC<ReportingFormProps> = ({
   const [expiryDateEnabled, setExpiryDateEnabled] = useState(false);
   const [modifiedDateEnabled, setModifiedDateEnabled] = useState(false);
   const [amountAssuredEnabled, setAmountAssuredEnabled] = useState(false);
-  const defaultDaysBack = 366;
+  
 
   // ======== STATES FOR ISSUE DATE ========
   const [issueDateRange, setIssueDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const [issueSingleDate, setIssueSingleDate] = useState<Date | undefined>(
@@ -79,7 +79,7 @@ const ReportingForm: React.FC<ReportingFormProps> = ({
 
   // ======== STATES FOR START DATE ========
   const [startDateRange, setStartDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const [startSingleDate, setStartSingleDate] = useState<Date | undefined>(
@@ -89,7 +89,7 @@ const ReportingForm: React.FC<ReportingFormProps> = ({
   // ======== STATES FOR EXPIRY DATE ========
   const [expiryDateRange, setExpiryDateRange] = useState<DateRange | undefined>(
     {
-      from: subDays(new Date(), defaultDaysBack),
+      from: startOfMonth(new Date()),
       to: new Date(),
     }
   );
@@ -101,7 +101,7 @@ const ReportingForm: React.FC<ReportingFormProps> = ({
   const [modifiedDateRange, setModifiedDateRange] = useState<
     DateRange | undefined
   >({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const [modifiedSingleDate, setModifiedSingleDate] = useState<
@@ -434,7 +434,7 @@ const ReportingForm: React.FC<ReportingFormProps> = ({
     if (issueDateMode === "between") {
       return (
         <DateRangePicker
-          defaultDaysBack={defaultDaysBack}
+          
           date={issueDateRange}
           setDate={(newRange) => {
             setIssueDateRange(newRange);
@@ -471,7 +471,7 @@ const ReportingForm: React.FC<ReportingFormProps> = ({
     if (startDateMode === "between") {
       return (
         <DateRangePicker
-          defaultDaysBack={defaultDaysBack}
+          
           date={startDateRange}
           setDate={(newRange) => {
             setStartDateRange(newRange);
@@ -508,7 +508,7 @@ const ReportingForm: React.FC<ReportingFormProps> = ({
     if (expiryDateMode === "between") {
       return (
         <DateRangePicker
-          defaultDaysBack={defaultDaysBack}
+          
           date={expiryDateRange}
           setDate={(newRange) => {
             setExpiryDateRange(newRange);
@@ -545,7 +545,7 @@ const ReportingForm: React.FC<ReportingFormProps> = ({
     if (modifiedDateMode === "between") {
       return (
         <DateRangePicker
-          defaultDaysBack={defaultDaysBack}
+          
           date={modifiedDateRange}
           setDate={(newRange) => {
             setModifiedDateRange(newRange);

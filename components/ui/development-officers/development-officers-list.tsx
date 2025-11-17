@@ -31,7 +31,7 @@ import useDevelopmentOfficerIdStore from "@/hooks/useDevelopmentOfficerStore";
 import DevelopmentOfficerDatatable from "./development-officer-datatable";
 import LoadingState from "../foundations/loading-state";
 import { DateRange } from "react-day-picker";
-import { format, subDays } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import DeleteDialog from "../common/delete-dialog";
 import {
   handleDeleteMutation,
@@ -43,9 +43,9 @@ const DevelopmentOfficersList = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { setDevelopmentOfficerId } = useDevelopmentOfficerIdStore();
-  const defaultDaysBack = 366;
+  
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -349,7 +349,7 @@ const DevelopmentOfficersList = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
-        defaultDaysBack={defaultDaysBack}
+        
       />
 
       {renderPageContent()}

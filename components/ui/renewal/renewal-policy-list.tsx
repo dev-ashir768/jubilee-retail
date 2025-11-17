@@ -20,7 +20,7 @@ import {
   RenewalPolicyResponseType,
 } from "@/types/renewalPolicyTypes";
 import { DateRange } from "react-day-picker";
-import { subDays, format } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ProductsResponseTypes } from "@/types/productsTypes";
@@ -49,7 +49,6 @@ import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 const RenewalPolicyList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/orders/renewals";
-  const defaultDaysBack = 364
   const router = useRouter();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterValue } = renewalPolicyFilterState();
@@ -57,7 +56,7 @@ const RenewalPolicyList = () => {
   const [orderSingleData, setSingleOrderData] =
     useState<SingleOrderPayloadTypes | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -387,7 +386,7 @@ queryFn: fetchAllApiUserList,
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}
-        defaultDaysBack={defaultDaysBack}
+        
       />
       {isLoading ? (
         <LoadingState />

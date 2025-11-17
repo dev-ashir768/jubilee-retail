@@ -32,13 +32,14 @@ import { createFilterOptions } from "@/utils/filterOptions";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { axiosFunction } from "@/utils/axiosFunction";
-import { format, subDays } from "date-fns";
+import { format, startOfMonth } from "date-fns";
 import { DateRange } from "react-day-picker";
 import MotorQuotesFilters from "../../filters/motor-quotes";
 import { motorQuotesFilterState } from "@/hooks/motorQuotesFilterState";
 import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 
 const MotorQuoteList = () => {
@@ -46,12 +47,11 @@ const MotorQuoteList = () => {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const router = useRouter();
-  const defaultDaysBack = 600;
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterValue } = motorQuotesFilterState();
   const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subDays(new Date(), defaultDaysBack),
+    from: startOfMonth(new Date()),
     to: new Date(),
   });
   const startDate = dateRange?.from
@@ -285,7 +285,7 @@ const MotorQuoteList = () => {
         <DatatableColumnHeader column={column} title="Premium Value" />
       ),
       accessorFn: (row) => row.premium_value || "N/A",
-      cell: ({ row }) => <div>{row.getValue("premium_value")}</div>,
+      cell: ({ row }) => <div>{formatNumberCell(row.getValue("premium_value"))}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
@@ -299,7 +299,7 @@ const MotorQuoteList = () => {
         <DatatableColumnHeader column={column} title="Rate" />
       ),
       accessorFn: (row) => row.rate || "N/A",
-      cell: ({ row }) => <div>{row.getValue("rate")}</div>,
+      cell: ({ row }) => <div>{formatNumberCell(row.getValue("rate"))}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
@@ -367,7 +367,7 @@ const MotorQuoteList = () => {
         <DatatableColumnHeader column={column} title="Vehicle Value" />
       ),
       accessorFn: (row) => row.vehicle_value || "N/A",
-      cell: ({ row }) => <div>{row.getValue("vehicle_value")}</div>,
+      cell: ({ row }) => <div>{formatNumberCell(row.getValue("vehicle_value"))}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
@@ -567,7 +567,7 @@ const MotorQuoteList = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
-        defaultDaysBack={defaultDaysBack}
+        
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}
