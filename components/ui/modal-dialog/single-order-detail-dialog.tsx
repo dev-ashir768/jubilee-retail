@@ -331,7 +331,7 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                         <CardHeader className="border-b gap-0">
                           <CardTitle>
                             {type}
-                            {details.length > 1 ? "s" : ""}
+                            {details.length > 1 ? "s" : ""} Details
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2">
@@ -635,14 +635,14 @@ const InfoField: React.FC<InfoFieldProps> = ({ label, value, highlight }) => {
     <div
       className={
         highlight
-          ? "p-1.5 rounded-lg bg-primary/5 border border-primary/10"
+          ? "p-1.5 rounded-lg bg-primary/5 border border-primary/10 capitalize"
           : ""
       }
     >
       <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
         {label}
       </Label>
-      <p className={`mt-2 font-medium text-foreground whitespace-break-spaces`}>
+      <p className={`mt-2 font-medium text-foreground whitespace-break-spaces capitalize`}>
         {displayValue}
       </p>
     </div>

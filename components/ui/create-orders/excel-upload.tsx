@@ -200,8 +200,8 @@ const ExcelUpload = () => {
           if (row.client_name) {
             policy_detail.push({
               name: String(row.client_name!),
-              type: "client",
-              relation: "client",
+              type: "customer",
+              relation: "self",
               cnic: row.client_cnic ? String(row.client_cnic) : null,
               cnic_issue_date: row.client_cnic_issue_date ? String(row.client_cnic_issue_date) : null,
               dob: row.client_dob ? String(row.client_dob) : null,
