@@ -50,6 +50,7 @@ import { AgentResponseTypes } from "@/types/agentTypes";
 import { ClientResponseType } from "@/types/clientTypes";
 import { fetchAllClientList } from "@/helperFunctions/clientFunction";
 import { fetchAllAgentList } from "@/helperFunctions/agentFunction";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 const PoliciesList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -84,7 +85,7 @@ const PoliciesList = () => {
     error: apiUserListError,
   } = useQuery<ApiUsersResponseType | null>({
     queryKey: ["all-api-user-list"],
-queryFn: fetchAllApiUserList,
+    queryFn: fetchAllApiUserList,
   });
 
   const {
@@ -103,8 +104,8 @@ queryFn: fetchAllApiUserList,
     isError: branchListIsError,
     error: branchListError,
   } = useQuery<BranchResponseType | null>({
-   queryKey: ['all-branch-list'],
-       queryFn: fetchAllBranchList
+    queryKey: ["all-branch-list"],
+    queryFn: fetchAllBranchList,
   });
 
   const {
@@ -283,7 +284,7 @@ queryFn: fetchAllApiUserList,
         ),
         accessorFn: (row) => row.product || "N/A",
         cell: ({ row }) => (
-          <div className="truncate w-32">{row.original.product}</div>
+          <div className="line-clamp-2 max-w-[300px] whitespace-break-spaces">{row.original.product}</div>
         ),
       },
       {
@@ -291,18 +292,24 @@ queryFn: fetchAllApiUserList,
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Premium" />
         ),
-        accessorFn: (row) => row.premium || "N/A",
-        cell: ({ row }) => <div>{row.original.premium}</div>,
+        accessorFn: (row) => row?.premium,
+        cell: ({ row }) => {
+          const amount = row.original.premium;
+          return <div>{amount ? formatNumberCell(amount) : "N/A"}</div>;
+        },
       },
       {
         accessorKey: "issue_date",
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Issue Date" />
         ),
-        accessorFn: (row) => row.issue_date || "N/A",
         cell: ({ row }) => {
-          const date = new Date(row.original.issue_date);
-          return <div>{date.toLocaleDateString()}</div>;
+          if (!row.original.issue_date) return <div>N/A</div>;
+          return (
+            <div>
+              {format(new Date(row.original.issue_date), "MMM dd, yyyy")}
+            </div>
+          );
         },
       },
       {
@@ -449,7 +456,6 @@ queryFn: fetchAllApiUserList,
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}
-        
       />
 
       {isLoading ? (

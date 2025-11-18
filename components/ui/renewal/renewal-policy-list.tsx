@@ -2,7 +2,7 @@
 
 import { getRights } from "@/utils/getRights";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {  MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../shadcn/button";
@@ -45,6 +45,7 @@ import {
   DropdownMenuTrigger,
 } from "../shadcn/dropdown-menu";
 import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 const RenewalPolicyList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -77,7 +78,7 @@ const RenewalPolicyList = () => {
     error: apiUserListError,
   } = useQuery<ApiUsersResponseType | null>({
     queryKey: ["all-api-user-list"],
-queryFn: fetchAllApiUserList,
+    queryFn: fetchAllApiUserList,
   });
 
   const {
@@ -96,8 +97,8 @@ queryFn: fetchAllApiUserList,
     isError: branchListIsError,
     error: branchListError,
   } = useQuery<BranchResponseType | null>({
-   queryKey: ['all-branch-list'],
-       queryFn: fetchAllBranchList
+    queryKey: ["all-branch-list"],
+    queryFn: fetchAllBranchList,
   });
 
   const {
@@ -252,7 +253,11 @@ queryFn: fetchAllApiUserList,
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Premium" />
         ),
-        cell: ({ row }) => <div>{row.original.premium || "N/A"}</div>,
+        accessorFn: (row) => row?.premium,
+        cell: ({ row }) => {
+          const amount = row.original.premium;
+          return <div>{amount ? formatNumberCell(amount) : "N/A"}</div>;
+        },
       },
       {
         accessorKey: "issue_date",
@@ -261,8 +266,11 @@ queryFn: fetchAllApiUserList,
         ),
         cell: ({ row }) => {
           if (!row.original.issue_date) return <div>N/A</div>;
-          const date = new Date(row.original.issue_date);
-          return <div>{date.toLocaleDateString()}</div>;
+          return (
+            <div>
+              {format(new Date(row.original.issue_date), "MMM dd, yyyy")}
+            </div>
+          );
         },
       },
       {
@@ -386,7 +394,6 @@ queryFn: fetchAllApiUserList,
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}
-        
       />
       {isLoading ? (
         <LoadingState />

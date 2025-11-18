@@ -25,8 +25,6 @@ import { ColumnMeta } from "@/types/dataTableTypes";
 import DatatableColumnHeader from "../datatable/datatable-column-header";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "../shadcn/badge";
-import { UserResponseType } from "@/types/usersTypes";
-import { fetchAllUserList } from "@/helperFunctions/userFunction";
 import DeleteDialog from "../common/delete-dialog";
 import {
   handleDeleteMutation,
@@ -45,7 +43,8 @@ const PlansList = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const { mutate: deleteMutate } = handleDeleteMutation();
-  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -63,28 +62,8 @@ const PlansList = () => {
     queryFn: fetchPlansList,
   });
 
-  const {
-    data: usersListData,
-    isLoading: usersListLoading,
-    isError: usersListIsError,
-    error: usersListError,
-  } = useQuery<UserResponseType | null>({
-    queryKey: ["users-list"],
-    queryFn: fetchAllUserList,
-  });
-
   // ======== PAYLOADS DATA ========
   const planList = useMemo(() => planListData?.payload || [], [planListData]);
-  const usersList = useMemo(
-    () => usersListData?.payload || [],
-    [usersListData]
-  );
-
-  // ======== LOOKUPS ========
-  const userMap = useMemo(() => {
-    if (!usersList || usersList.length === 0) return new Map();
-    return new Map(usersList.map((users) => [users.id, users.fullname]));
-  }, [usersList]);
 
   // ======== FILTER OPTIONS ========
   const nameFilterOptions = useMemo(() => {
@@ -95,23 +74,6 @@ const PlansList = () => {
       value: name,
     }));
   }, [planList]);
-
-  const createdByFilterOptions = useMemo(() => {
-    if (!planList.length || !userMap.size) return [];
-
-    const creatorIdsInPlans = planList.map((plan) => plan.created_by);
-
-    const uniqueCreatorIds = Array.from(new Set(creatorIdsInPlans));
-
-    const options = uniqueCreatorIds
-      .map((id) => {
-        const name = userMap.get(id);
-        return name ? { label: name, value: name } : null;
-      })
-      .filter(Boolean);
-
-    return options as { label: string; value: string }[];
-  }, [planList, userMap]);
 
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<PlanPayloadTypes>[] = [
@@ -133,14 +95,11 @@ const PlansList = () => {
       header: ({ column }) => (
         <DatatableColumnHeader column={column} title="Created by" />
       ),
-      accessorFn: (row) => userMap.get(row.created_by) || row.created_by,
-      cell: ({ row }) => <div>{row.getValue("created_by")}</div>,
-      filterFn: "multiSelect",
-      meta: {
-        filterType: "multiselect",
-        filterOptions: createdByFilterOptions,
-        filterPlaceholder: "Filter by creator...",
-      } as ColumnMeta,
+      accessorFn: (row) => row.created_by,
+      cell: ({ row }) => {
+        const user_id = row.original.created_by;
+        return <div>{user_id}</div>;
+      },
     },
     {
       accessorKey: "is_active",
@@ -153,8 +112,7 @@ const PlansList = () => {
         const id = row.original?.id;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`
-            }
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
             onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
@@ -196,12 +154,10 @@ const PlansList = () => {
               )}
               {rights?.can_delete === "1" && (
                 <DropdownMenuItem
-                  onClick={
-                    () => {
-                      setDeleteDialogOpen(true);
-                      setSelectedRecordId(record.id);
-                    }
-                  }
+                  onClick={() => {
+                    setDeleteDialogOpen(true);
+                    setSelectedRecordId(record.id);
+                  }}
                 >
                   <Trash className="h-4 w-4 mr-1" />
                   Delete
@@ -249,11 +205,10 @@ const PlansList = () => {
     );
   };
 
-
   // ======== RENDER LOGIC ========
-  const isLoading = planListLoading || usersListLoading;
-  const isError = planListIsError || usersListIsError;
-  const onError = planListError?.message || usersListError?.message;
+  const isLoading = planListLoading;
+  const isError = planListIsError ;
+  const onError = planListError?.message ;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {

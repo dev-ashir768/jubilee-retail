@@ -19,12 +19,14 @@ import {
   SingleOrderPayloadTypes,
   PolicyDetailType,
 } from "@/types/singleOrderType";
+import { format } from "date-fns";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 const formatDate = (dateString: string | null | undefined) => {
   if (!dateString) return null;
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return null;
-  return date.toLocaleDateString();
+  return format(new Date(date), "MMM dd, yyyy");
 };
 
 interface OrderDetailDialogProps {
@@ -166,11 +168,11 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                     />
                     <InfoField
                       label="Premium"
-                      value={`PKR ${orderSingleData.payment}`}
+                      value={`PKR ${formatNumberCell(orderSingleData.payment)}`}
                     />
                     <InfoField
                       label="Discount"
-                      value={orderSingleData.discount_amount}
+                      value={formatNumberCell(orderSingleData.discount_amount)}
                     />
                     <InfoField
                       label="Product Name"
@@ -449,21 +451,74 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                 value="purchase"
                 className="space-y-4 max-h-[70vh] overflow-y-auto pr-3"
               >
-                <Card className="w-full shadow-none border-none bg-gray-50">
-                  <CardHeader className="border-b gap-0">
-                    <CardTitle>Purchase Protection Details</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {purchaseProtectionData.map((item, index) => (
-                      <pre
-                        key={index}
-                        className="bg-gray-100 p-3 rounded-md text-xs mt-2"
-                      >
-                        {JSON.stringify(item, null, 2)}
-                      </pre>
-                    ))}
-                  </CardContent>
-                </Card>
+                {purchaseProtectionData.map((item, index) => (
+                  <Card
+                    key={item.id || index}
+                    className="w-full shadow-none border-none bg-gray-50 mb-4 last:mb-0"
+                  >
+                    <CardHeader className="border-b gap-0">
+                      <CardTitle>
+                        Purchase Protection Item{" "}
+                        {purchaseProtectionData.length > 1 ? index + 1 : ""}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="lg:col-span-2">
+                          <InfoField label="Item Name" value={item.name} />
+                        </div>
+                        <InfoField
+                          label="SKU / Retailer SKU"
+                          value={item.retailer_sku}
+                        />
+
+                        <InfoField
+                          label="Serial Number"
+                          value={item.serial_number}
+                        />
+                        <InfoField label="IMEI" value={item.imei} />
+                        <InfoField label="Quantity" value={item.quantity} />
+
+                        <InfoField
+                          label="Sum Insured"
+                          value={
+                            item.sum_insured ? `PKR ${item.sum_insured}` : null
+                          }
+                        />
+                        <InfoField
+                          label="Item Price"
+                          value={
+                            item.item_price ? `PKR ${item.item_price}` : null
+                          }
+                        />
+                        <InfoField
+                          label="Total Price"
+                          value={
+                            item.total_price ? `PKR ${item.total_price}` : null
+                          }
+                        />
+
+                        <InfoField
+                          label="Duration"
+                          value={
+                            item.duration
+                              ? `${item.duration} ${item.duration_type || ""}`
+                              : null
+                          }
+                        />
+
+                        <InfoField
+                          label="Received Premium"
+                          value={
+                            item.received_premium
+                              ? `PKR ${item.received_premium}`
+                              : null
+                          }
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </TabsContent>
             )}
 
@@ -473,21 +528,76 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                 value="home"
                 className="space-y-4 max-h-[70vh] overflow-y-auto pr-3"
               >
-                <Card className="w-full shadow-none border-none bg-gray-50">
-                  <CardHeader className="border-b gap-0">
-                    <CardTitle>Home Insurance Details</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {homeInsuranceData.map((item, index) => (
-                      <pre
-                        key={index}
-                        className="bg-gray-100 p-3 rounded-md text-xs mt-2"
-                      >
-                        {JSON.stringify(item, null, 2)}
-                      </pre>
-                    ))}
-                  </CardContent>
-                </Card>
+                {homeInsuranceData.map((item, index) => (
+                  <Card
+                    key={item.id || index}
+                    className="w-full shadow-none border-none bg-gray-50 mb-4 last:mb-0"
+                  >
+                    <CardHeader className="border-b gap-0">
+                      <CardTitle>
+                        Home Details{" "}
+                        {homeInsuranceData.length > 1 ? index + 1 : ""}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {/* Basic Info */}
+                        <InfoField
+                          label="Ownership Status"
+                          value={item.ownership_status}
+                        />
+                        <InfoField
+                          label="Structure Type"
+                          value={item.structure_type}
+                        />
+                        <InfoField label="Plot Area" value={item.plot_area} />
+                        <InfoField label="City" value={item.city} />
+
+                        {/* Coverages (Money Fields) */}
+                        <InfoField
+                          label="Building Coverage"
+                          value={
+                            parseFloat(item.building) > 0
+                              ? `PKR ${item.building}`
+                              : null
+                          }
+                        />
+                        <InfoField
+                          label="Loss of Rent"
+                          value={
+                            parseFloat(item.rent) > 0
+                              ? `PKR ${item.rent}`
+                              : null
+                          }
+                        />
+                        <InfoField
+                          label="Content Coverage"
+                          value={
+                            parseFloat(item.content) > 0
+                              ? `PKR ${item.content}`
+                              : null
+                          }
+                        />
+                        <InfoField
+                          label="Jewelry Coverage"
+                          value={
+                            parseFloat(item.jewelry) > 0
+                              ? `PKR ${item.jewelry}`
+                              : null
+                          }
+                        />
+
+                        {/* Address (Full Width) */}
+                        <div className="lg:col-span-3">
+                          <InfoField
+                            label="Insured Address"
+                            value={item.address}
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </TabsContent>
             )}
           </Tabs>

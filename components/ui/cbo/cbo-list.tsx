@@ -44,6 +44,7 @@ import {
 } from "../shadcn/dropdown-menu";
 import ChangeCBOPolicyStatus from "./change-cbo-policy-status";
 import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 const CboList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -250,7 +251,11 @@ const CboList = () => {
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Premium" />
         ),
-        cell: ({ row }) => <div>{row.original.premium || "N/A"}</div>,
+        accessorFn: (row) => row?.premium,
+        cell: ({ row }) => {
+          const amount = row.original.premium;
+          return <div>{amount ? formatNumberCell(amount) : "N/A"}</div>;
+        },
       },
       {
         accessorKey: "issue_date",
@@ -259,8 +264,11 @@ const CboList = () => {
         ),
         cell: ({ row }) => {
           if (!row.original.issue_date) return <div>N/A</div>;
-          const date = new Date(row.original.issue_date);
-          return <div>{date.toLocaleDateString()}</div>;
+          return (
+            <div>
+              {format(new Date(row.original.issue_date), "MMM dd, yyyy")}
+            </div>
+          );
         },
       },
       {
@@ -393,7 +401,6 @@ const CboList = () => {
         isExportZipOpen={isExportZipOpen}
         setIsExportZipOpen={setIsExportZipOpen}
         exportZip={true}
-        
       />
 
       {isLoading ? (

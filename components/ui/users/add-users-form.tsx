@@ -560,7 +560,6 @@
 
 // export default AddUsersForm;
 
-
 "use client";
 
 import React, { useMemo, useState } from "react";
@@ -634,6 +633,25 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
     return options;
   }, [allMenus]);
 
+  // 1. Yeh maps add kar do (allMenus ke neeche)
+  const { childToParentMap, parentToChildrenMap } = useMemo(() => {
+    const childToParent = new Map<number, number>();
+    const parentToChildren = new Map<number, number[]>();
+
+    allMenus?.forEach((menu) => {
+      if (menu.childs && menu.childs.length > 0) {
+        const childIds = menu.childs.map((c) => c.id);
+        parentToChildren.set(menu.menu_id, childIds);
+        childIds.forEach((id) => childToParent.set(id, menu.menu_id));
+      }
+    });
+
+    return {
+      childToParentMap: childToParent,
+      parentToChildrenMap: parentToChildren,
+    };
+  }, [allMenus]);
+
   // Form via react hook form
   const {
     handleSubmit,
@@ -684,6 +702,7 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
   });
 
   // Handle Rights
+  // 2. Yeh purana handleRights delete kar do aur yeh naya laga do
   const handleRights = ({
     menu_id,
     rights,
@@ -693,32 +712,61 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
     rights: RightsType;
     value: boolean;
   }) => {
-    setMenuRights((prevState) => {
-      const existingIndex = prevState.findIndex(
-        (entry) => entry.menu_id === menu_id
-      );
+    setMenuRights((prev) => {
+      const updated = [...prev];
 
-      if (existingIndex !== -1) {
-        // If the menu_id already exists, update that entry
-        const updatedRights = [...prevState];
-        updatedRights[existingIndex] = {
-          ...updatedRights[existingIndex],
-          [rights]: value,
-        };
-        return updatedRights;
-      } else {
-        return [
-          ...prevState,
-          {
-            menu_id,
+      // Helper: get current rights for a menu
+      const getRights = (id: number) => {
+        const found = updated.find((r) => r.menu_id === id);
+        return (
+          found || {
             can_view: false,
             can_create: false,
             can_edit: false,
             can_delete: false,
-            [rights]: value,
-          },
-        ];
+          }
+        );
+      };
+
+      // Helper: update or add entry
+      const updateMenu = (id: number, updates: Partial<MenuRightsTypes>) => {
+        const index = updated.findIndex((r) => r.menu_id === id);
+        const current = getRights(id);
+        const newEntry = { ...current, menu_id: id, ...updates };
+
+        const hasAnyRight =
+          newEntry.can_view ||
+          newEntry.can_create ||
+          newEntry.can_edit ||
+          newEntry.can_delete;
+
+        if (!hasAnyRight && index !== -1) {
+          updated.splice(index, 1);
+        } else if (hasAnyRight) {
+          if (index !== -1) {
+            updated[index] = newEntry as MenuRightsTypes;
+          } else {
+            updated.push(newEntry as MenuRightsTypes);
+          }
+        }
+      };
+
+      // 1. Update the clicked menu (child or parent)
+      updateMenu(menu_id, { [rights]: value });
+
+      // 2. Agar child hai → parent ko bhi update karo
+      const parentId = childToParentMap.get(menu_id);
+      if (parentId) {
+        const childIds = parentToChildrenMap.get(parentId) || [];
+        const anyChildHasRight = childIds.some((id) => {
+          if (id === menu_id) return value;
+          return getRights(id)[rights];
+        });
+
+        updateMenu(parentId, { [rights]: anyChildHasRight });
       }
+
+      return updated;
     });
   };
 
@@ -738,6 +786,28 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
   };
 
   // Submit Form
+  // const onSubmit = (data: UserSchemaType) => {
+  //   if (menuRights.length === 0) {
+  //     toast.error("Please assign at least one right to proceed.");
+  //     return;
+  //   }
+
+  //   const finalData = {
+  //     username: data.username.toLocaleLowerCase().replace(" ", ""),
+  //     fullname: data.fullname,
+  //     email: data.email,
+  //     phone: data.phone,
+  //     password: data.password,
+  //     user_type: data.user_type,
+  //     is_active: data.is_active,
+  //     menu_rights: menuRights,
+  //     redirection_url: data.redirection_url,
+  //     ...(data.image && { image: data.image }),
+  //   };
+  //   addUserMutation.mutate(finalData);
+  // };
+
+  // 3. onSubmit mein phone field bhi add kar do (missing tha)
   const onSubmit = (data: UserSchemaType) => {
     if (menuRights.length === 0) {
       toast.error("Please assign at least one right to proceed.");
@@ -745,22 +815,23 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
     }
 
     const finalData = {
-      username: data.username.toLocaleLowerCase().replace(" ", ""),
+      username: data.username.toLowerCase().replace(/\s+/g, ""),
       fullname: data.fullname,
       email: data.email,
-      phone: data.phone,
+      phone: data.phone || "", // ← yeh add kiya
       password: data.password,
       user_type: data.user_type,
       is_active: data.is_active,
       menu_rights: menuRights,
-      redirection_url: data.redirection_url,
+      redirection_url: data.redirection_url || null,
       ...(data.image && { image: data.image }),
     };
+
     addUserMutation.mutate(finalData);
   };
 
   const defaultAccordionValues = useMemo(() => {
-    return allMenus ? allMenus.map(item => String(item.menu_id)) : [];
+    return allMenus ? allMenus.map((item) => String(item.menu_id)) : [];
   }, [allMenus]);
 
   return (
@@ -993,7 +1064,11 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
           <div>
             <h3 className="font-semibold text-xl">Menu Rights</h3>
           </div>
-          <Accordion type="multiple" className="w-full space-y-3" defaultValue={defaultAccordionValues}>
+          <Accordion
+            type="multiple"
+            className="w-full space-y-3"
+            defaultValue={defaultAccordionValues}
+          >
             {allMenus?.map((item) => {
               const Icon = item.icon
                 ? (Icons[item.icon as keyof typeof Icons] as React.ElementType)

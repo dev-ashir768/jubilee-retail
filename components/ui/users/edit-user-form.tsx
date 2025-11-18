@@ -76,7 +76,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
       if (singleUser.image) {
         setUploadedImage("Current Profile Image");
       }
-      if (singleUser.rights?.length > 0) {
+      if (singleUser.rights?.length) {
         const existingRights = singleUser.rights.map((right) => ({
           menu_id: right.menu_id,
           can_view: right.can_view,
@@ -89,6 +89,25 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
       setIsAccordionReady(true);
     }
   }, [singleUser, allMenus]);
+
+  // 1. Yeh maps add kar do (allMenus ke neeche, useMemo mein)
+  const { childToParentMap, parentToChildrenMap } = useMemo(() => {
+    const childToParent = new Map<number, number>();
+    const parentToChildren = new Map<number, number[]>();
+
+    allMenus?.forEach((menu) => {
+      if (menu.childs && menu.childs.length > 0) {
+        const childIds = menu.childs.map((c) => c.id);
+        parentToChildren.set(menu.menu_id, childIds);
+        childIds.forEach((id) => childToParent.set(id, menu.menu_id));
+      }
+    });
+
+    return {
+      childToParentMap: childToParent,
+      parentToChildrenMap: parentToChildren,
+    };
+  }, [allMenus]);
 
   // form
   const {
@@ -167,6 +186,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
     }
   };
 
+  // 2. Purana handleRights delete karo aur yeh naya laga do
   const handleRights = ({
     menu_id,
     right,
@@ -176,31 +196,62 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
     right: RightsType;
     value: boolean;
   }) => {
-    setMenuRights((prevState) => {
-      const existingIndex = prevState.findIndex(
-        (entry) => entry.menu_id === menu_id
-      );
+    setMenuRights((prev) => {
+      const updated = [...prev];
 
-      if (existingIndex !== -1) {
-        const updatedRights = [...prevState];
-        updatedRights[existingIndex] = {
-          ...updatedRights[existingIndex],
-          [right]: value,
-        };
-        return updatedRights;
-      } else {
-        return [
-          ...prevState,
-          {
-            menu_id,
+      // Helper: get current rights for a menu (default false)
+      const getRights = (id: number) => {
+        const found = updated.find((r) => r.menu_id === id);
+        if (!found) {
+          return {
             can_view: false,
             can_create: false,
             can_edit: false,
             can_delete: false,
-            [right]: value,
-          },
-        ];
+          };
+        }
+        return found;
+      };
+
+      // Helper: update or add entry (and remove if all false)
+      const updateMenu = (id: number, updates: Partial<MenuRightsTypes>) => {
+        const index = updated.findIndex((r) => r.menu_id === id);
+        const current = getRights(id);
+        const newEntry = { ...current, menu_id: id, ...updates };
+
+        const hasAnyRight =
+          newEntry.can_view ||
+          newEntry.can_create ||
+          newEntry.can_edit ||
+          newEntry.can_delete;
+
+        if (!hasAnyRight && index !== -1) {
+          updated.splice(index, 1);
+        } else if (hasAnyRight) {
+          if (index !== -1) {
+            updated[index] = newEntry as MenuRightsTypes;
+          } else {
+            updated.push(newEntry as MenuRightsTypes);
+          }
+        }
+      };
+
+      // 1. Update the clicked menu (child or parent)
+      updateMenu(menu_id, { [right]: value });
+
+      // 2. Agar child hai → parent ko update karo
+      const parentId = childToParentMap.get(menu_id);
+      if (parentId) {
+        const childIds = parentToChildrenMap.get(parentId) || [];
+        const anyChildHasRight = childIds.some((id) => {
+          if (id === menu_id) return value;
+          return getRights(id)[right];
+        });
+
+        updateMenu(parentId, { [right]: anyChildHasRight });
       }
+
+      return updated;
     });
   };
 
@@ -291,11 +342,21 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
     editUserMutation.mutate(finalData);
   };
 
+  // 3. defaultAccordionValues ko thoda fix karo (existing rights ke basis pe open ho)
   const defaultAccordionValues = useMemo(() => {
-    return menuRights.length > 0
-      ? menuRights.map((item) => String(item.menu_id))
-      : [];
-  }, [menuRights]);
+    const parentIdsWithRights = new Set<number>();
+
+    menuRights.forEach((right) => {
+      const parentId = childToParentMap.get(right.menu_id);
+      if (parentId) {
+        parentIdsWithRights.add(parentId);
+      } else {
+        parentIdsWithRights.add(right.menu_id);
+      }
+    });
+
+    return Array.from(parentIdsWithRights).map(String);
+  }, [menuRights, childToParentMap]);
 
   return (
     <>

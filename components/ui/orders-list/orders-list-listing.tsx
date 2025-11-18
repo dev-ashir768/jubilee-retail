@@ -46,6 +46,7 @@ import {
 } from "../shadcn/dropdown-menu";
 import { OrderVerifyManuallyResponseTypes } from "@/types/orderVerifyManuallyTypes";
 import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 const OrdersListListing = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -327,7 +328,7 @@ const OrdersListListing = () => {
         ),
         cell: ({ row }) => {
           const date = new Date(row.original.create_date);
-          return <div>{date.toLocaleDateString()}</div>;
+          return <div>{format(new Date(date), "MMM dd, yyyy")}</div>;
         },
       },
       {
@@ -335,7 +336,11 @@ const OrdersListListing = () => {
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Premium" />
         ),
-        cell: ({ row }) => <div>{row.original.premium || "N/A"}</div>,
+        accessorFn: (row) => row?.premium,
+        cell: ({ row }) => {
+          const amount = row.original.premium;
+          return <div>{amount ? formatNumberCell(amount) : "N/A"}</div>;
+        },
       },
       {
         accessorKey: "customer_name",
@@ -522,7 +527,6 @@ const OrdersListListing = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
-        
       />
 
       {isLoading ? (
