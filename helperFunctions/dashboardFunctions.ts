@@ -39,27 +39,20 @@ export const fetchPolicyStats = async ({
   }
 };
 
-export const fetchMonthlyPolicyNOrders = async ({
-  startDate,
-  endDate,
-}: dashboardFunctionProps): Promise<MonthlyPolicyNOrdersResponse | null> => {
-  const payload = {
-    date: `${startDate} to ${endDate}`,
+export const fetchMonthlyPolicyNOrders =
+  async (): Promise<MonthlyPolicyNOrdersResponse | null> => {
+    try {
+      const response = await axiosFunction({
+        method: "POST",
+        urlPath: "/dashboard/monthly-orders-and-policies",
+      });
+
+      return response;
+    } catch (err) {
+      console.error("Error fetching monthly orders and policies:", err);
+      return null;
+    }
   };
-
-  try {
-    const response = await axiosFunction({
-      method: "POST",
-      urlPath: "/dashboard/monthly-orders-and-policies",
-      data: payload,
-    });
-
-    return response;
-  } catch (err) {
-    console.error("Error fetching monthly orders and policies:", err);
-    return null;
-  }
-};
 
 export const fetchProductsDetailWise = async ({
   startDate,

@@ -78,7 +78,11 @@ const MonthlyPoliciesTrend: React.FC<MonthlyPoliciesTrendProps> = ({
       }));
   };
 
-  const monthlyData = aggregateMonthly(payload);
+  // 1. Poora data aggregate karein
+  const fullMonthlyData = aggregateMonthly(payload);
+  
+  // 2. Data ko slice kar ke aakhri 6 entries hi rakhein
+  const monthlyData = fullMonthlyData.slice(-6);
 
   const customTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length && label !== undefined) {
@@ -132,11 +136,30 @@ const MonthlyPoliciesTrend: React.FC<MonthlyPoliciesTrendProps> = ({
   if (isError) {
     return renderError();
   }
+  
+  // 3. FIX: Agar 2 se kam data points hain, toh trend nahi dikhayen.
+  if (monthlyData.length < 2) {
+    return (
+      <Card className="w-full shadow-none border-none">
+        <CardHeader>
+          <CardTitle>Monthly Orders vs Policies Trend</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80 w-full flex items-center justify-center">
+            <p className="text-center text-muted-foreground p-4">
+              Not enough data available to show a trend. Found only {monthlyData.length} month{monthlyData.length > 1 ? "s" : null} of data.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
 
   return (
     <Card className="w-full shadow-none border-none">
       <CardHeader>
-        <CardTitle>Monthly Orders vs Policies Trend</CardTitle>
+        <CardTitle>Monthly Orders vs Policies Trend (Last {monthlyData.length} Months)</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-80 w-full">
@@ -156,7 +179,6 @@ const MonthlyPoliciesTrend: React.FC<MonthlyPoliciesTrendProps> = ({
                 angle={360}
                 textAnchor="start"
                 height={70}
-                interval={Math.floor(monthlyData.length / 12)}
               />
               <YAxis
                 tickFormatter={(value) => value.toLocaleString()}

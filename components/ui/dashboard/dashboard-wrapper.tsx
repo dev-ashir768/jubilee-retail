@@ -90,13 +90,9 @@ export function DashboardWrapper() {
   } = useQuery<MonthlyPolicyNOrdersResponse | null>({
     queryKey: [
       "policy-monthly-orders-and-policies",
-      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
     ],
     queryFn: () =>
-      fetchMonthlyPolicyNOrders({
-        startDate,
-        endDate,
-      }),
+      fetchMonthlyPolicyNOrders(),
   });
 
   const {
