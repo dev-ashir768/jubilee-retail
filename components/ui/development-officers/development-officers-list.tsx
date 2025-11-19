@@ -1,6 +1,8 @@
 "use client";
 
-import { fetchDevelopmentOfficerList } from "@/helperFunctions/developmentOfficerFunction";
+import {
+  fetchAllDevelopmentOfficerList,
+} from "@/helperFunctions/developmentOfficerFunction";
 import {
   DevelopmentOfficerPayloadTypes,
   DevelopmentOfficerResponseTypes,
@@ -30,8 +32,6 @@ import SubNav from "../foundations/sub-nav";
 import useDevelopmentOfficerIdStore from "@/hooks/useDevelopmentOfficerStore";
 import DevelopmentOfficerDatatable from "./development-officer-datatable";
 import LoadingState from "../foundations/loading-state";
-import { DateRange } from "react-day-picker";
-import { format, startOfMonth } from "date-fns";
 import DeleteDialog from "../common/delete-dialog";
 import {
   handleDeleteMutation,
@@ -43,15 +43,6 @@ const DevelopmentOfficersList = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { setDevelopmentOfficerId } = useDevelopmentOfficerIdStore();
-  
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: startOfMonth(new Date()),
-    to: new Date(),
-  });
-  const startDate = dateRange?.from
-    ? format(dateRange?.from, "yyyy-MM-dd")
-    : "";
-  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -64,17 +55,6 @@ const DevelopmentOfficersList = () => {
     return getRights(pathname);
   }, [pathname]);
 
-  // Fetch branch list data using react-query
-  // const {
-  //   data: branchListResponse,
-  //   isLoading: branchListLoading,
-  //   isError: branchListIsError,
-  //   error: branchListError,
-  // } = useQuery<BranchResponseType | null>({
-  //   queryKey: ["all-branch-list"],
-  //   queryFn: fetchAllBranchList,
-  // });
-
   // Fetch development officer list data using react-query
   const {
     data: developmentOfficerListResponse,
@@ -82,25 +62,9 @@ const DevelopmentOfficersList = () => {
     isError: developmentOfficerListIsError,
     error: developmentOfficerListError,
   } = useQuery<DevelopmentOfficerResponseTypes | null>({
-    queryKey: [
-      "development-officers-list",
-      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-    ],
-    queryFn: () =>
-      fetchDevelopmentOfficerList({
-        startDate,
-        endDate,
-      }),
+    queryKey: ["development-officers-list"],
+    queryFn: fetchAllDevelopmentOfficerList,
   });
-
-  // Create a branch ID to name mapping
-  // const branchNameMap = useMemo(() => {
-  //   const map = new Map<number, string>();
-  //   branchListResponse?.payload.forEach((item) => {
-  //     map.set(item.id, item.name);
-  //   });
-  //   return map;
-  // }, [branchListResponse?.payload]);
 
   // Column filter options
   const nameFilterOptions = useMemo(() => {
@@ -263,10 +227,7 @@ const DevelopmentOfficersList = () => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: [
-              "development-officers-list",
-              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-            ],
+            queryKey: ["development-officers-list"],
           });
           setSelectedRecordId(null);
         },
@@ -283,10 +244,7 @@ const DevelopmentOfficersList = () => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: [
-              "development-officers-list",
-              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-            ],
+            queryKey: ["development-officers-list"],
           });
         },
       }
@@ -294,8 +252,8 @@ const DevelopmentOfficersList = () => {
   };
 
   // ======== RENDER LOGIC ========
-  const isLoading =  developmentOfficerListLoading;
-  const isError =  developmentOfficerListIsError;
+  const isLoading = developmentOfficerListLoading;
+  const isError = developmentOfficerListIsError;
   const onError = developmentOfficerListError?.message;
 
   useEffect(() => {
@@ -346,10 +304,6 @@ const DevelopmentOfficersList = () => {
         title="Development Officer List"
         addBtnTitle="Add Development Officer"
         urlPath="/agents-dos/add-development-officers"
-        datePicker={true}
-        dateRange={dateRange}
-        setDateRange={setDateRange}
-        
       />
 
       {renderPageContent()}

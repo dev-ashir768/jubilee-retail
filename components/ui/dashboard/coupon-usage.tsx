@@ -15,16 +15,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/shadcn/table";
+import { cn } from "@/lib/utils";
 
 const numberFormatter = (num: number | string, currency?: string): string => {
-  const value = typeof num === 'string' ? parseFloat(num) : num;
-  if (isNaN(value)) return '0';
-  
-  const sign = value < 0 ? '-' : '';
-  const absFormatted = Math.abs(value).toLocaleString('en-US');
-  
-  return currency 
-    ? `${sign}${currency} ${absFormatted}` 
+  const value = typeof num === "string" ? parseFloat(num) : num;
+  if (isNaN(value)) return "0";
+
+  const sign = value < 0 ? "-" : "";
+  const absFormatted = Math.abs(value).toLocaleString("en-US");
+
+  return currency
+    ? `${sign}${currency} ${absFormatted}`
     : `${sign}${absFormatted}`;
 };
 
@@ -104,15 +105,15 @@ const CouponUsage: React.FC<CouponUsageProps> = ({
                   {coupon.coupon_code}
                 </TableCell>
                 <TableCell>{coupon.coupon_name}</TableCell>
-                <TableCell>{numberFormatter(coupon.total_uses)}</TableCell>
+                <TableCell className="text-center">{numberFormatter(coupon.total_uses)}</TableCell>
                 <TableCell
-                  className={
+                  className={cn("text-center",
                     parseFloat(coupon.total_discount_amount) < 0
                       ? "text-destructive"
-                      : "text-green-600"
-                  }
+                      : ""
+                  )}
                 >
-                  {numberFormatter(coupon.total_discount_amount, 'PKR')}
+                  {numberFormatter(coupon.total_discount_amount, "PKR")}
                 </TableCell>
               </TableRow>
             ))}

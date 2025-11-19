@@ -43,16 +43,16 @@ const ApiUsersByPolicyAmount: React.FC<ApiUsersByPolicyAmountProps> = ({
                 <TableHead>
                   <Skeleton className="h-4 w-24" />
                 </TableHead>
-                <TableHead className="text-right">
+                <TableHead>
                   <Skeleton className="h-4 w-20" />
                 </TableHead>
-                <TableHead className="text-right">
+                <TableHead>
                   <Skeleton className="h-4 w-20" />
                 </TableHead>
-                <TableHead className="text-right">
+                <TableHead>
                   <Skeleton className="h-4 w-20" />
                 </TableHead>
-                <TableHead className="text-right">
+                <TableHead>
                   <Skeleton className="h-4 w-20" />
                 </TableHead>
               </TableRow>
@@ -66,16 +66,16 @@ const ApiUsersByPolicyAmount: React.FC<ApiUsersByPolicyAmountProps> = ({
                   <TableCell>
                     <Skeleton className="h-4 w-48" />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     <Skeleton className="h-4 w-16" />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     <Skeleton className="h-4 w-16" />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     <Skeleton className="h-4 w-16" />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     <Skeleton className="h-4 w-16" />
                   </TableCell>
                 </TableRow>
@@ -120,12 +120,10 @@ const ApiUsersByPolicyAmount: React.FC<ApiUsersByPolicyAmountProps> = ({
                 <TableRow className="bg-gray-50 sticky top-0">
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead className="text-right">
-                    Total Valid Policies
-                  </TableHead>
-                  <TableHead className="text-right">Policy Amount</TableHead>
-                  <TableHead className="text-right">Order Amount</TableHead>
-                  <TableHead className="text-right">Total Orders</TableHead>
+                  <TableHead>Total Valid Policies</TableHead>
+                  <TableHead>Policy Amount</TableHead>
+                  <TableHead>Order Amount</TableHead>
+                  <TableHead>Total Orders</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -138,16 +136,16 @@ const ApiUsersByPolicyAmount: React.FC<ApiUsersByPolicyAmountProps> = ({
                         </div>
                       </TableCell>
                       <TableCell>{item.api_user_email || "N/A"}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         {item.total_valid_policies || "N/A"}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         {formatNumberCell(item.policy_amount || "N/A")}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         {formatNumberCell(item.order_amount || "N/A")}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         {formatNumberCell(item.total_orders || "N/A")}
                       </TableCell>
                     </TableRow>

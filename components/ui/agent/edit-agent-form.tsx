@@ -104,16 +104,7 @@ const EditAgentForm: React.FC<EditAgentFormProps> = ({
       toast.success(message);
       reset();
       queryClient.invalidateQueries({ queryKey: ["single-agent", agentId] });
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const queryKey = query.queryKey;
-          return (
-            typeof queryKey[0] === "string" &&
-            (queryKey[0].startsWith("agents-list") ||
-              queryKey[0] === "all-agents-list")
-          );
-        },
-      });
+      queryClient.invalidateQueries({ queryKey: ["all-agents-list"] });
       router.push(LISTING_ROUTE);
     },
   });

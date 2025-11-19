@@ -39,6 +39,7 @@ import {
   handleDeleteMutation,
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
+import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
 
 const MotorInfoList = () => {
@@ -294,8 +295,9 @@ const MotorInfoList = () => {
       header: ({ column }) => (
         <DatatableColumnHeader column={column} title="Vehicle Value" />
       ),
+      accessorFn: (row)=> row?.vehicle_value,
       cell: ({ row }) => {
-        return <div>{row.getValue("vehicle_value")}</div>;
+        return <div>{formatNumberCell(row.original?.vehicle_value || "N/A")}</div>;
       },
       filterFn: "multiSelect",
       meta: {
@@ -307,7 +309,7 @@ const MotorInfoList = () => {
     {
       accessorKey: "status",
       header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="Vehicle Value" />
+        <DatatableColumnHeader column={column} title="Motor Info Status" />
       ),
       cell: ({ row }) => {
         const { status, id } = row.original;

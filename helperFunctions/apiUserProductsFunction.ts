@@ -2,8 +2,8 @@ import { ApiUserProductsResponseType } from "@/types/apiUserProductsTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
 interface fetchApiUserProductsListProps {
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
   api_user_id: number[];
 }
 
@@ -12,7 +12,17 @@ export const fetchApiUserProductsList = async <T>({
   endDate,
   api_user_id,
 }: fetchApiUserProductsListProps): Promise<ApiUserProductsResponseType | null> => {
-  const payload = { date: `${startDate} to ${endDate}`, api_user_id };
+
+  const payload: {
+    date?: string;
+    api_user_id: number[];
+  } = {
+    api_user_id,
+  };
+
+  if (startDate && endDate) {
+    payload.date = `${startDate} to ${endDate}`;
+  }
 
   try {
     const response = await axiosFunction({

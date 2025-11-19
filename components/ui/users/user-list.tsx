@@ -3,7 +3,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import SubNav from "../foundations/sub-nav";
 import { useQuery } from "@tanstack/react-query";
-import { fetchUserList } from "@/helperFunctions/userFunction";
+import {
+  fetchAllUserList,
+} from "@/helperFunctions/userFunction";
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import {
   UsersListPayloadType,
@@ -30,8 +32,6 @@ import Link from "next/link";
 import useUserIdStore from "@/hooks/useAddUserIdStore";
 import UserDatatable from "./user-datatable";
 import LoadingState from "../foundations/loading-state";
-import { DateRange } from "react-day-picker";
-import { format, startOfMonth } from "date-fns";
 import DeleteDialog from "../common/delete-dialog";
 import {
   handleDeleteMutation,
@@ -45,15 +45,6 @@ const UserList = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { setUserId } = useUserIdStore();
-  
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: startOfMonth(new Date()),
-    to: new Date(),
-  });
-  const startDate = dateRange?.from
-    ? format(dateRange?.from, "yyyy-MM-dd")
-    : "";
-  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -74,15 +65,8 @@ const UserList = () => {
     isError: userListIsError,
     error: userListError,
   } = useQuery<UsersListResponseType | null>({
-    queryKey: [
-      "users-list",
-      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-    ],
-    queryFn: () =>
-      fetchUserList<UsersListResponseType>({
-        startDate,
-        endDate,
-      }),
+    queryKey: ["users-list"],
+    queryFn: fetchAllUserList,
   });
 
   // ======== PAYLOADS DATA ========
@@ -283,10 +267,7 @@ const UserList = () => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: [
-              "users-list",
-              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-            ],
+            queryKey: ["users-list"],
           });
           setSelectedRecordId(null);
         },
@@ -303,10 +284,7 @@ const UserList = () => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: [
-              "users-list",
-              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-            ],
+            queryKey: ["users-list"],
           });
         },
       }
@@ -363,10 +341,6 @@ const UserList = () => {
         title="User Management"
         addBtnTitle="Add User"
         urlPath={ADD_ROUTE}
-        datePicker={true}
-        dateRange={dateRange}
-        setDateRange={setDateRange}
-        
       />
 
       {renderPageContent()}

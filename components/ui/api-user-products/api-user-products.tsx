@@ -31,8 +31,6 @@ import ApiUserProductsDatatable from "./api-user-products-datatable";
 import { createFilterOptions } from "@/utils/filterOptions";
 import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ApiUsersResponseType } from "@/types/usersTypes";
-import { DateRange } from "react-day-picker";
-import { format, startOfMonth } from "date-fns";
 import ApiUserProductsFilters from "../filters/api-user-products";
 import { apiUserProductsFilterState } from "@/hooks/apiUserProductsFilterState";
 import DeleteDialog from "../common/delete-dialog";
@@ -41,7 +39,6 @@ import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
-
 
 const ApiUserProductsList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -55,17 +52,9 @@ const ApiUserProductsList = () => {
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { mutate: deleteMutate } = handleDeleteMutation();
-  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
   const queryClient = useQueryClient();
-  
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: startOfMonth(new Date()),
-    to: new Date(),
-  });
-  const startDate = dateRange?.from
-    ? format(dateRange?.from, "yyyy-MM-dd")
-    : "";
-  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -79,16 +68,10 @@ const ApiUserProductsList = () => {
     isError: apiUserProductsListIsError,
     error: apiUserProductsListError,
   } = useQuery<ApiUserProductsResponseType | null>({
-    queryKey: [
-      "api-user-products-list",
-      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-      ...(filterValue ? [filterValue] : []),
-    ],
+    queryKey: ["api-user-products-list", ...(filterValue ? [filterValue] : [])],
     queryFn: () =>
       fetchApiUserProductsList({
-        startDate,
-        endDate,
-        api_user_id: filterValue!
+        api_user_id: filterValue!,
       }),
   });
 
@@ -195,11 +178,9 @@ const ApiUserProductsList = () => {
         const id = row.original?.id;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`
-            }
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
             onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
-           
           >
             {status}
           </Badge>
@@ -242,12 +223,10 @@ const ApiUserProductsList = () => {
               )}
               {rights?.can_delete === "1" && (
                 <DropdownMenuItem
-                  onClick={
-                    () => {
-                      setDeleteDialogOpen(true);
-                      setSelectedRecordId(record.id);
-                    }
-                  }
+                  onClick={() => {
+                    setDeleteDialogOpen(true);
+                    setSelectedRecordId(record.id);
+                  }}
                 >
                   <Trash className="h-4 w-4 mr-1" />
                   Delete
@@ -273,7 +252,6 @@ const ApiUserProductsList = () => {
           queryClient.invalidateQueries({
             queryKey: [
               "api-user-products-list",
-              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
               ...(filterValue ? [filterValue] : []),
             ],
           });
@@ -294,7 +272,6 @@ const ApiUserProductsList = () => {
           queryClient.invalidateQueries({
             queryKey: [
               "api-user-products-list",
-              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
               ...(filterValue ? [filterValue] : []),
             ],
           });
@@ -349,10 +326,6 @@ const ApiUserProductsList = () => {
         title="Api User Products List"
         addBtnTitle="Add User Product"
         urlPath={ADD_ROUTE}
-        datePicker={true}
-        dateRange={dateRange}
-        setDateRange={setDateRange}
-        
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}

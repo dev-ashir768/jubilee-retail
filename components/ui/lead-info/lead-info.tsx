@@ -358,7 +358,7 @@ const LeadInfoList = () => {
     {
       accessorKey: "status",
       header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="Vehicle Value" />
+        <DatatableColumnHeader column={column} title="Lead Info Status" />
       ),
       cell: ({ row }) => {
         const { status, id } = row.original;

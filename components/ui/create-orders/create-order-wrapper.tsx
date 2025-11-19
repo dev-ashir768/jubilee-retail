@@ -313,20 +313,20 @@ const CreateOrderWrapper = () => {
       ),
       cell: ({ row }) => <div>{row.original.message || "N/A"}</div>,
     },
-    {
-      accessorKey: "orderId",
-      header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="Order ID" />
-      ),
-      cell: ({ row }) => <div>{row.original.orderId || "N/A"}</div>,
-    },
-    {
-      accessorKey: "policyId",
-      header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="Policy ID" />
-      ),
-      cell: ({ row }) => <div>{row.original.policyId || "N/A"}</div>,
-    },
+    // {
+    //   accessorKey: "orderId",
+    //   header: ({ column }) => (
+    //     <DatatableColumnHeader column={column} title="Order ID" />
+    //   ),
+    //   cell: ({ row }) => <div>{row.original.orderId || "N/A"}</div>,
+    // },
+    // {
+    //   accessorKey: "policyId",
+    //   header: ({ column }) => (
+    //     <DatatableColumnHeader column={column} title="Policy ID" />
+    //   ),
+    //   cell: ({ row }) => <div>{row.original.policyId || "N/A"}</div>,
+    // },
   ];
 
   // ======== FAILED COLUMNS ========

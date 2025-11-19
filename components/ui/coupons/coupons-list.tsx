@@ -22,8 +22,6 @@ import Error from "../foundations/error";
 import Empty from "../foundations/empty";
 import SubNav from "../foundations/sub-nav";
 import CouponsDatatable from "./coupons-datatable";
-import { format, startOfMonth } from "date-fns";
-import { DateRange } from "react-day-picker";
 import { couponFilterState } from "@/hooks/couponFilterState";
 import { ProductsResponseTypes } from "@/types/productsTypes";
 import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
@@ -50,14 +48,7 @@ const CouponsList = () => {
   const { mutate: deleteMutate } = handleDeleteMutation();
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: startOfMonth(new Date()),
-    to: new Date(),
-  });
-  const startDate = dateRange?.from
-    ? format(dateRange?.from, "yyyy-MM-dd")
-    : "";
-  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+  
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -73,13 +64,10 @@ const CouponsList = () => {
   } = useQuery<CouponsResponseType | null>({
     queryKey: [
       "coupons-list",
-      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
       ...(filterValue?.product_id ? [filterValue?.product_id] : []),
     ],
     queryFn: () =>
       fetchCouponsList({
-        startDate,
-        endDate,
         product_id: filterValue?.product_id || null,
       }),
   });
@@ -118,7 +106,6 @@ const CouponsList = () => {
           queryClient.invalidateQueries({
             queryKey: [
               "coupons-list",
-              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
               ...(filterValue?.product_id ? [filterValue?.product_id] : []),
             ],
           });
@@ -140,7 +127,6 @@ const CouponsList = () => {
             queryClient.invalidateQueries({
               queryKey: [
                 "coupons-list",
-                ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
                 ...(filterValue?.product_id ? [filterValue?.product_id] : []),
               ],
             });
@@ -148,7 +134,7 @@ const CouponsList = () => {
         }
       );
     },
-    [statusMutate, endDate, filterValue?.product_id, queryClient, startDate]
+    [statusMutate, filterValue?.product_id, queryClient]
   );
 
   // ======== COLUMN DEFINITIONS ========
@@ -313,9 +299,6 @@ const CouponsList = () => {
         title="Coupons List"
         addBtnTitle="Add Coupon"
         urlPath={ADD_ROUTE}
-        datePicker={true}
-        dateRange={dateRange}
-        setDateRange={setDateRange}
         
         filter={true}
         isFilterOpen={isFilterOpen}

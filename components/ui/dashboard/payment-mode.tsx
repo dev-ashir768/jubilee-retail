@@ -40,16 +40,16 @@ const PaymentMode: React.FC<PaymentModeProps> = ({
                 <TableHead>
                   <Skeleton className="h-4 w-20" />
                 </TableHead>
-                <TableHead className="text-right">
+                <TableHead>
                   <Skeleton className="h-4 w-20" />
                 </TableHead>
-                <TableHead className="text-right">
+                <TableHead>
                   <Skeleton className="h-4 w-28" />
                 </TableHead>
-                <TableHead className="text-right">
+                <TableHead>
                   <Skeleton className="h-4 w-24" />
                 </TableHead>
-                <TableHead className="text-right">
+                <TableHead>
                   <Skeleton className="h-4 w-24" />
                 </TableHead>
               </TableRow>
@@ -60,16 +60,16 @@ const PaymentMode: React.FC<PaymentModeProps> = ({
                   <TableCell>
                     <Skeleton className="h-4 w-32" />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     <Skeleton className="h-4 w-16" />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     <Skeleton className="h-4 w-16" />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     <Skeleton className="h-4 w-16" />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     <Skeleton className="h-4 w-16" />
                   </TableCell>
                 </TableRow>
@@ -112,14 +112,14 @@ const PaymentMode: React.FC<PaymentModeProps> = ({
               <TableHeader>
                 <TableRow className="bg-gray-50 sticky top-0">
                   <TableHead>Payment Mode</TableHead>
-                  <TableHead className="text-right">Total Orders</TableHead>
-                  <TableHead className="text-right">
+                  <TableHead>Total Orders</TableHead>
+                  <TableHead>
                     Total Received Amount
                   </TableHead>
-                  <TableHead className="text-right">
+                  <TableHead>
                     Valid Policies Count
                   </TableHead>
-                  <TableHead className="text-right">
+                  <TableHead>
                     Total Discount Given
                   </TableHead>
                 </TableRow>
@@ -133,16 +133,16 @@ const PaymentMode: React.FC<PaymentModeProps> = ({
                           {item.payment_mode?.replace("_", " ") || "N/A"}
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         {formatNumberCell(item.total_orders) || "N/A"}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         {formatNumberCell(+item.total_received_amount) || "N/A"}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         {formatNumberCell(item.valid_policies_count) || "N/A"}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         {formatNumberCell(+item.total_discount_given) || "N/A"}
                       </TableCell>
                     </TableRow>

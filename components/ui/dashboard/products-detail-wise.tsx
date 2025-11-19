@@ -41,16 +41,16 @@ const ProductsDetailWise: React.FC<ProductsDetailWiseProps> = ({
                 <TableHead>
                   <Skeleton className="h-4 w-24" />
                 </TableHead>
-                <TableHead className="text-right">
+                <TableHead>
                   <Skeleton className="h-4 w-20" />
                 </TableHead>
-                <TableHead className="text-right">
+                <TableHead>
                   <Skeleton className="h-4 w-20" />
                 </TableHead>
-                <TableHead className="text-right">
+                <TableHead>
                   <Skeleton className="h-4 w-20" />
                 </TableHead>
-                <TableHead className="text-right">
+                <TableHead>
                   <Skeleton className="h-4 w-20" />
                 </TableHead>
               </TableRow>
@@ -61,16 +61,16 @@ const ProductsDetailWise: React.FC<ProductsDetailWiseProps> = ({
                   <TableCell>
                     <Skeleton className="h-4 w-32" />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     <Skeleton className="h-4 w-16" />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     <Skeleton className="h-4 w-16" />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     <Skeleton className="h-4 w-16" />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">
                     <Skeleton className="h-4 w-16" />
                   </TableCell>
                 </TableRow>
@@ -115,12 +115,12 @@ const ProductsDetailWise: React.FC<ProductsDetailWiseProps> = ({
               <TableHeader>
                 <TableRow className="bg-gray-50 sticky top-0">
                   <TableHead>Product Name</TableHead>
-                  <TableHead className="text-right">Order Amount</TableHead>
-                  <TableHead className="text-right">Policy Amount</TableHead>
-                  <TableHead className="text-right">
+                  <TableHead>Order Amount</TableHead>
+                  <TableHead>Policy Amount</TableHead>
+                  <TableHead>
                     Total Valid Policies
                   </TableHead>
-                  <TableHead className="text-right">Total Orders</TableHead>
+                  <TableHead>Total Orders</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -132,16 +132,16 @@ const ProductsDetailWise: React.FC<ProductsDetailWiseProps> = ({
                           {item.product_name?.replace("_", " ") || "N/A"}
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         {formatNumberCell(item.order_amount) || "N/A"}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         {formatNumberCell(item.policy_amount) || "N/A"}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         {formatNumberCell(item.total_valid_policies) || "N/A"}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         {formatNumberCell(item.total_orders) || "N/A"}
                       </TableCell>
                     </TableRow>

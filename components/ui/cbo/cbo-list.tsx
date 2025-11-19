@@ -79,7 +79,7 @@ const CboList = () => {
     isError: apiUserListIsError,
     error: apiUserListError,
   } = useQuery<ApiUsersResponseType | null>({
-    queryKey: ["api-user-list"],
+    queryKey: ["all-api-user-list"],
     queryFn: fetchAllApiUserList,
   });
 

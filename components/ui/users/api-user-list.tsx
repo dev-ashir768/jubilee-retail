@@ -2,10 +2,10 @@
 
 import { getRights } from "@/utils/getRights";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import SubNav from "../foundations/sub-nav";
 import { useMutation } from "@tanstack/react-query";
-import { fetchApiUserList } from "@/helperFunctions/userFunction";
+import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import Error from "../foundations/error";
 import { ApiUsersPayloadType, ApiUsersResponseType } from "@/types/usersTypes";
 import { ColumnDef } from "@tanstack/react-table";
@@ -28,30 +28,18 @@ import { axiosFunction } from "@/utils/axiosFunction";
 import { toast } from "sonner";
 import ApiUserDatatable from "./api-user-datatable";
 import LoadingState from "../foundations/loading-state";
-import { DateRange } from "react-day-picker";
-import { format, startOfMonth } from "date-fns";
-import {
-  handleStatusMutation,
-} from "@/helperFunctions/commonFunctions";
+import { handleStatusMutation } from "@/helperFunctions/commonFunctions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-
 
 const ApiUserList = () => {
   // ======== CONSTANTS AND HOOKS ========
-  
+
   const router = useRouter();
   const queryClient = useQueryClient();
   const pathname = usePathname();
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: startOfMonth(new Date()),
-    to: new Date(),
-  });
-  const startDate = dateRange?.from
-    ? format(dateRange?.from, "yyyy-MM-dd")
-    : "";
-  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
-  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -65,15 +53,8 @@ const ApiUserList = () => {
     isError: apiUserIsError,
     error: apiUserError,
   } = useQuery<ApiUsersResponseType | null>({
-    queryKey: [
-      "api-user-list",
-      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-    ],
-    queryFn: () =>
-      fetchApiUserList<ApiUsersResponseType>({
-        startDate,
-        endDate,
-      }),
+    queryKey: ["all-api-user-list"],
+    queryFn: fetchAllApiUserList,
   });
 
   // update api user mutation
@@ -100,7 +81,7 @@ const ApiUserList = () => {
     onSuccess: (data) => {
       const message = data.message;
       toast.success(message);
-      queryClient.invalidateQueries({ queryKey: ["api-user-list"] });
+      queryClient.invalidateQueries({ queryKey: ["all-api-user-list"] });
     },
   });
 
@@ -204,8 +185,7 @@ const ApiUserList = () => {
         const id = row.original?.id;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`
-            }
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
             onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
@@ -260,10 +240,7 @@ const ApiUserList = () => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: [
-              "api-user-list",
-              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-            ],
+            queryKey: ["all-api-user-list"],
           });
         },
       }
@@ -316,11 +293,9 @@ const ApiUserList = () => {
 
   return (
     <>
-      <SubNav title="Api User List" datePicker={true}  setDateRange={setDateRange} dateRange={dateRange} />
+      <SubNav title="Api User List" />
 
       {renderPageContent()}
-
-      
     </>
   );
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchAgentList } from "@/helperFunctions/agentFunction";
+import { fetchAllAgentList } from "@/helperFunctions/agentFunction";
 import useAgentIdStore from "@/hooks/useAgentIdStore";
 import { AgentPayloadTypes, AgentResponseTypes } from "@/types/agentTypes";
 import { getRights } from "@/utils/getRights";
@@ -27,8 +27,6 @@ import Link from "next/link";
 import SubNav from "../foundations/sub-nav";
 import AgentDatatable from "./agent-datatable";
 import LoadingState from "../foundations/loading-state";
-import { format, startOfMonth } from "date-fns";
-import { DateRange } from "react-day-picker";
 import DeleteDialog from "../common/delete-dialog";
 import {
   handleDeleteMutation,
@@ -46,36 +44,8 @@ const AgentList = () => {
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { mutate: deleteMutate } = handleDeleteMutation();
-  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
-  
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: startOfMonth(new Date()),
-    to: new Date(),
-  });
-  const startDate = dateRange?.from
-    ? format(dateRange?.from, "yyyy-MM-dd")
-    : "";
-  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
-
-  // Fetch development officer list data using react-query
-  // const {
-  //   data: developmentOfficerListResponse,
-  //   isLoading: developmentOfficerListLoading,
-  //   isError: developmentOfficerListIsError,
-  //   error: developmentOfficerListError,
-  // } = useQuery<DevelopmentOfficerResponseTypes | null>({
-  //   queryKey: ["all-development-officers-list"],
-  //   queryFn: fetchAllDevelopmentOfficerList,
-  // });
-
-  // Create a development officer ID to name mapping
-  // const developmentOfficerNameMap = useMemo(() => {
-  //   const map = new Map<number, string>();
-  //   developmentOfficerListResponse?.payload.forEach((item) => {
-  //     map.set(item.id, item.name);
-  //   });
-  //   return map;
-  // }, [developmentOfficerListResponse]);
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
 
   // Fetch agent list data using react-query
   const {
@@ -84,11 +54,8 @@ const AgentList = () => {
     isError: agentListIsError,
     error: agentListError,
   } = useQuery<AgentResponseTypes | null>({
-    queryKey: ["agents-list", ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),],
-    queryFn: () => fetchAgentList({
-      startDate,
-      endDate
-    }),
+    queryKey: ["all-agents-list"],
+    queryFn: fetchAllAgentList,
   });
 
   // Column filter options
@@ -184,21 +151,6 @@ const AgentList = () => {
         filterPlaceholder: "Filter IGIS agent code...",
       } as ColumnMeta,
     },
-    // {
-    //   accessorKey: "development_officer_id",
-    //   header: ({ column }) => (
-    //     <DatatableColumnHeader column={column} title="Development Officer ID" />
-    //   ),
-    //   accessorFn: (row) =>
-    //     developmentOfficerNameMap.get(row.development_officer_id) || row.development_officer_id,
-    //   cell: ({ row }) => <div>{row.getValue("development_officer_id" )|| "N/A"}</div>,
-    //   filterFn: "multiSelect",
-    //   meta: {
-    //     filterType: "multiselect",
-    //     filterOptions: developmentOfficerIdFilterOptions,
-    //     filterPlaceholder: "Filter development officer ID...",
-    //   } as ColumnMeta,
-    // },
     {
       accessorKey: "is_active",
       header: ({ column }) => (
@@ -210,8 +162,7 @@ const AgentList = () => {
         const id = row.original?.id;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`
-            }
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
             onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
@@ -255,12 +206,10 @@ const AgentList = () => {
               )}
               {rights?.can_delete === "1" && (
                 <DropdownMenuItem
-                  onClick={
-                    () => {
-                      setDeleteDialogOpen(true);
-                      setSelectedRecordId(record.id);
-                    }
-                  }
+                  onClick={() => {
+                    setDeleteDialogOpen(true);
+                    setSelectedRecordId(record.id);
+                  }}
                 >
                   <Trash className="h-4 w-4 mr-1" />
                   Delete
@@ -289,7 +238,7 @@ const AgentList = () => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: ["agents-list", ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),],
+            queryKey: ["all-agents-list"],
           });
           setSelectedRecordId(null);
         },
@@ -306,7 +255,7 @@ const AgentList = () => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: ["agents-list", ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),],
+            queryKey: ["all-agents-list"],
           });
         },
       }
@@ -314,10 +263,9 @@ const AgentList = () => {
   };
 
   // ======== RENDER LOGIC ========
-  const isLoading = agentListLoading
-  const isError = agentListIsError 
-  const onError =
-    agentListError?.message
+  const isLoading = agentListLoading;
+  const isError = agentListIsError;
+  const onError = agentListError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -346,7 +294,10 @@ const AgentList = () => {
       return <Error err={onError} />;
     }
 
-    if (!agentListResponse?.payload || agentListResponse?.payload.length === 0) {
+    if (
+      !agentListResponse?.payload ||
+      agentListResponse?.payload.length === 0
+    ) {
       return <Empty title="Not Found" description="Not Found" />;
     }
 
@@ -360,15 +311,7 @@ const AgentList = () => {
 
   return (
     <>
-      <SubNav
-        title="Agent List"
-        addBtnTitle="Add Agent"
-        urlPath={ADD_ROUTES}
-        datePicker={true}
-        dateRange={dateRange}
-        setDateRange={setDateRange}
-        
-      />
+      <SubNav title="Agent List" addBtnTitle="Add Agent" urlPath={ADD_ROUTES} />
 
       {renderPageContent()}
 

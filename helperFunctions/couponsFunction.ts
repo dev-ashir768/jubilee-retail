@@ -2,8 +2,8 @@ import { CouponsResponseType } from "@/types/couponsTypes";
 import { axiosFunction } from "@/utils/axiosFunction";
 
 interface fetchCouponsListProps {
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
   product_id: number[] | null;
 }
 
@@ -12,7 +12,14 @@ export const fetchCouponsList = async ({
   endDate,
   product_id,
 }: fetchCouponsListProps): Promise<CouponsResponseType | null> => {
-  const payload = { date: `${startDate} to ${endDate}`, product_id };
+  const payload: {
+    date?: string;
+    product_id: number[] | null;
+  } = { product_id };
+
+  if (startDate && endDate) {
+    payload.date = `${startDate} to ${endDate}`;
+  }
 
   try {
     const response = await axiosFunction({
