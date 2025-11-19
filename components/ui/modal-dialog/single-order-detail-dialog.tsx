@@ -21,12 +21,20 @@ import {
 } from "@/types/singleOrderType";
 import { format } from "date-fns";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
+import { Button } from "../shadcn/button";
 
 const formatDate = (dateString: string | null | undefined) => {
   if (!dateString) return null;
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return null;
   return format(new Date(date), "MMM dd, yyyy");
+};
+
+// Utility function to validate URL content
+const isUrlValid = (url: string | null | undefined): boolean => {
+  if (!url) return false;
+  const trimmedUrl = url.trim();
+  return trimmedUrl !== "" && trimmedUrl.toUpperCase() !== "N/A";
 };
 
 interface OrderDetailDialogProps {
@@ -103,6 +111,9 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
   };
   const tabListColsClass = getTabListClass();
 
+  const qrDocUrl = mainPolicy?.qr_doc_url;
+  const showCertificateButton = isUrlValid(qrDocUrl);
+
   // --- END NAYA LOGIC ---
 
   return (
@@ -119,16 +130,35 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                   Order #{orderSingleData.order_code}
                 </p>
               </div>
-              <Badge
-                variant={
-                  orderSingleData.status.toLowerCase() as
-                    | "accepted"
-                    | "cancelled"
-                    | "pendingcbo"
-                }
-              >
-                {orderSingleData.status}
-              </Badge>
+              <div className="flex items-center space-x-1">
+                {/* Policy Certificate Button */}
+                {showCertificateButton && (
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="text-primary hover:text-primary/90"
+                    asChild
+                  >
+                    <a
+                      href={qrDocUrl as string}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Policy Certificate
+                    </a>
+                  </Button>
+                )}
+                <Badge
+                  variant={
+                    orderSingleData.status.toLowerCase() as
+                      | "accepted"
+                      | "cancelled"
+                      | "pendingcbo"
+                  }
+                >
+                  {orderSingleData.status}
+                </Badge>
+              </div>
             </div>
           </DialogHeader>
 
@@ -636,7 +666,9 @@ const InfoField: React.FC<InfoFieldProps> = ({ label, value, highlight }) => {
       <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
         {label}
       </Label>
-      <p className={`mt-2 font-medium text-foreground whitespace-break-spaces capitalize`}>
+      <p
+        className={`mt-2 font-medium text-foreground whitespace-break-spaces capitalize`}
+      >
         {displayValue}
       </p>
     </div>
