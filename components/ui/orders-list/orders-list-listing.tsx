@@ -324,7 +324,7 @@ const OrdersListListing = () => {
       {
         accessorKey: "create_date",
         header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Created At" />
+          <DatatableColumnHeader column={column} title="Created Date" />
         ),
         cell: ({ row }) => {
           const date = new Date(row.original.create_date);
@@ -339,7 +339,7 @@ const OrdersListListing = () => {
         accessorFn: (row) => row?.premium,
         cell: ({ row }) => {
           const amount = row.original.premium;
-          return <div>{amount ? formatNumberCell(amount) : "N/A"}</div>;
+          return <div className="text-center">{amount ? formatNumberCell(amount) : "N/A"}</div>;
         },
       },
       {
@@ -382,7 +382,7 @@ const OrdersListListing = () => {
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Payment Code" />
         ),
-        cell: ({ row }) => <div>{row.original.payment_code || "N/A"}</div>,
+        cell: ({ row }) => <div className="text-center">{row.original.payment_code || "N/A"}</div>,
       },
       {
         accessorKey: "api_user_name",

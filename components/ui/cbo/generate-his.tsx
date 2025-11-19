@@ -139,7 +139,7 @@ const GenerateHis: React.FC<GenerateHisProps> = ({
                   <SelectValue placeholder="Select File Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value=".xlsx">Excel File</SelectItem>
+                  {/* <SelectItem value=".xlsx">Excel File</SelectItem> */}
                   <SelectItem value=".txt">Text File</SelectItem>
                 </SelectContent>
               </Select>

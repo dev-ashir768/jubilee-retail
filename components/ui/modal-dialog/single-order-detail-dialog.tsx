@@ -308,28 +308,22 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
               )}
             </TabsContent>
 
-            {/* --- TAB 2: POLICY DETAILS (DESTRUCTURED) --- */}
+            {/* --- TAB 2: POLICY DETAILS --- */}
             <TabsContent
               value="policy"
               className="space-y-4 max-h-[70vh] overflow-y-auto pr-3"
             >
-              {/* Har "Type" ke liye alag Card render hoga (Customer ko chhor kar)
-                Yahan hum .filter() use kar rahe hain
-              */}
               {policyDetailsByType &&
                 Object.entries(policyDetailsByType)
                   .filter(([type]) => type.toUpperCase() !== "CUSTOMER")
                   .map(([type, details]) => {
-                    // Ab 'details' ek array hai (e.g., 2 beneficiaries).
-                    // Hum table ke bajaye InfoFields use kareinge.
-
                     return (
                       <Card
                         key={type}
                         className="w-full shadow-none border-none bg-gray-50"
                       >
                         <CardHeader className="border-b gap-0">
-                          <CardTitle>
+                          <CardTitle className="capitalize">
                             {type}
                             {details.length > 1 ? "s" : ""} Details
                           </CardTitle>

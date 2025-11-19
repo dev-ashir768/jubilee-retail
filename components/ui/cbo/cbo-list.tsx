@@ -224,6 +224,13 @@ const CboList = () => {
   const columns: ColumnDef<CboPayloadType>[] = useMemo(
     () => [
       {
+        accessorKey: "order_code",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Order #" />
+        ),
+        cell: ({ row }) => <div>{row.original.order_code || "N/A"}</div>,
+      },
+      {
         accessorKey: "policy_number",
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Policy #" />
@@ -231,30 +238,17 @@ const CboList = () => {
         cell: ({ row }) => <div>{row.original.policy_number || "N/A"}</div>,
       },
       {
-        accessorKey: "customer_name",
+        accessorKey: "create_date",
         header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Customer Name" />
+          <DatatableColumnHeader column={column} title="Create Date" />
         ),
-        cell: ({ row }) => <div>{row.original.customer_name || "N/A"}</div>,
-      },
-      {
-        accessorKey: "product",
-        header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Product" />
-        ),
-        cell: ({ row }) => (
-          <div className="truncate w-40">{row.original.product || "N/A"}</div>
-        ),
-      },
-      {
-        accessorKey: "premium",
-        header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Premium" />
-        ),
-        accessorFn: (row) => row?.premium,
         cell: ({ row }) => {
-          const amount = row.original.premium;
-          return <div>{amount ? formatNumberCell(amount) : "N/A"}</div>;
+          if (!row.original.create_date) return <div>N/A</div>;
+          return (
+            <div>
+              {format(new Date(row.original.create_date), "MMM dd, yyyy")}
+            </div>
+          );
         },
       },
       {
@@ -270,6 +264,123 @@ const CboList = () => {
             </div>
           );
         },
+      },
+      {
+        accessorKey: "expiry_date",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Expiry Date" />
+        ),
+        cell: ({ row }) => {
+          if (!row.original.expiry_date) return <div>N/A</div>;
+          return (
+            <div>
+              {format(new Date(row.original.expiry_date), "MMM dd, yyyy")}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "premium",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Premium" />
+        ),
+        accessorFn: (row) => row?.premium,
+        cell: ({ row }) => {
+          const amount = row.original.premium;
+          return <div className="text-center">{amount ? formatNumberCell(amount) : "N/A"}</div>;
+        },
+      },
+      {
+        accessorKey: "customer_name",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Customer Name" />
+        ),
+        cell: ({ row }) => <div>{row.original.customer_name || "N/A"}</div>,
+      },
+      {
+        accessorKey: "customer_contact",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Customer Contact" />
+        ),
+        cell: ({ row }) => <div>{row.original.customer_contact || "N/A"}</div>,
+      },
+      {
+        accessorKey: "branch_name",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Branch Name" />
+        ),
+        cell: ({ row }) => (
+          <div className="truncate w-40">
+            {row.original.branch_name || "N/A"}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "product",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Product" />
+        ),
+        cell: ({ row }) => (
+          <div className="line-clamp-2 w-[300px] whitespace-break-spaces">{row.original.product || "N/A"}</div>
+        ),
+      },
+      {
+        accessorKey: "no_of_persons_covered",
+        header: ({ column }) => (
+          <DatatableColumnHeader
+            column={column}
+            title="No of Persons Covered"
+          />
+        ),
+        cell: ({ row }) => (
+          <div className="truncate text-center w-40">
+            {row.original.no_of_persons_covered || "N/A"}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "payment_mode",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Payment Mode" />
+        ),
+        cell: ({ row }) => (
+          <div className="truncate w-40">
+            {row.original.payment_mode || "N/A"}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "policy_category",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Policy Category" />
+        ),
+        cell: ({ row }) => (
+          <div className="truncate text-center w-40">
+            {row.original.policy_category || "N/A"}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "pec_coverage",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="PEC Coverage" />
+        ),
+        cell: ({ row }) => (
+          <div className="truncate text-center w-40">
+            {row.original.pec_coverage || "N/A"}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "renewal_number",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Renewal Number" />
+        ),
+        cell: ({ row }) => (
+          <div className="truncate text-center w-40">
+            {row.original.renewal_number || "N/A"}
+          </div>
+        ),
       },
       {
         accessorKey: "policy_status",

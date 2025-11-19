@@ -226,38 +226,18 @@ const RenewalPolicyList = () => {
   const columns: ColumnDef<RenewalPolicyPayloadType>[] = useMemo(
     () => [
       {
+        accessorKey: "order_code",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Order #" />
+        ),
+        cell: ({ row }) => <div>{row.original.order_code || "N/A"}</div>,
+      },
+      {
         accessorKey: "policy_number",
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Policy #" />
         ),
         cell: ({ row }) => <div>{row.original.policy_number || "N/A"}</div>,
-      },
-      {
-        accessorKey: "customer_name",
-        header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Customer Name" />
-        ),
-        cell: ({ row }) => <div>{row.original.customer_name || "N/A"}</div>,
-      },
-      {
-        accessorKey: "product",
-        header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Product" />
-        ),
-        cell: ({ row }) => (
-          <div className="truncate w-40">{row.original.product || "N/A"}</div>
-        ),
-      },
-      {
-        accessorKey: "premium",
-        header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Premium" />
-        ),
-        accessorFn: (row) => row?.premium,
-        cell: ({ row }) => {
-          const amount = row.original.premium;
-          return <div>{amount ? formatNumberCell(amount) : "N/A"}</div>;
-        },
       },
       {
         accessorKey: "issue_date",
@@ -272,6 +252,78 @@ const RenewalPolicyList = () => {
             </div>
           );
         },
+      },
+      {
+        accessorKey: "expiry_date",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Expiry Date" />
+        ),
+        cell: ({ row }) => {
+          if (!row.original.expiry_date) return <div>N/A</div>;
+          return (
+            <div>
+              {format(new Date(row.original.expiry_date), "MMM dd, yyyy")}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "premium",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Premium" />
+        ),
+        accessorFn: (row) => row?.premium,
+        cell: ({ row }) => {
+          const amount = row.original.premium;
+          return <div>{amount ? formatNumberCell(amount) : "N/A"}</div>;
+        },
+      },
+      {
+        accessorKey: "customer_name",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Customer Name" />
+        ),
+        cell: ({ row }) => <div>{row.original.customer_name || "N/A"}</div>,
+      },
+      {
+        accessorKey: "customer_contact",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Customer Contact" />
+        ),
+        cell: ({ row }) => (
+          <div className="truncate w-40">
+            {row.original.customer_contact || "N/A"}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "branch_name",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Branch Name" />
+        ),
+        cell: ({ row }) => (
+          <div className="truncate w-40">
+            {row.original.branch_name || "N/A"}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "product",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Product" />
+        ),
+        cell: ({ row }) => (
+          <div className="w-[300px] whitespace-break-spaces line-clamp-2">
+            {row.original.product || "N/A"}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "payment_code",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Payment Code" />
+        ),
+        cell: ({ row }) => <div>{row.original.payment_code || "N/A"}</div>,
       },
       {
         accessorKey: "policy_status",
