@@ -72,14 +72,14 @@ const CreateOrderWrapper = () => {
     setIsRiderDialogOpen(true);
   };
 
-  const handleTemplateDownload = ()=> {
-    const link = document.createElement("a");
-    link.href = "/templates/template.xlsx";
-    link.download = "template";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
+  const handleTemplateDownload = () => {
+    const a = document.createElement("a");
+    a.href = "/templates/template.xlsx";
+    a.download = "template";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
 
   // HANDLE MUTATION
   const createBulkOrderMutation = useMutation<
@@ -364,8 +364,13 @@ const CreateOrderWrapper = () => {
         <>
           <div className="flex md:flex-row flex-col justify-between items-center">
             <SubNav title="Create Order" />
-            <Button size="lg" className="min-w-[150px]" type="button" onClick={handleTemplateDownload}>
-            Template
+            <Button
+              size="lg"
+              className="min-w-[150px]"
+              type="button"
+              onClick={handleTemplateDownload}
+            >
+              Template
             </Button>
           </div>
           <Card className="w-full h-full shadow-none border-none">

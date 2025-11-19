@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +32,8 @@ import {
 import { policyListFilterState } from "@/hooks/policyListFilterState";
 import { renewalPolicyFilterState } from "@/hooks/renewalPolicyFilterState";
 import { cboListFilterState } from "@/hooks/cboListFilterState";
+import { userInfoTypes } from "@/types/verifyOtpTypes";
+import { getCookie } from "cookies-next";
 
 interface ordersFiltersProps {
   isFilterOpen: boolean;
@@ -52,6 +54,10 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
 }) => {
   // ======== CONSTANT AND HOOKS ========
   const pathname = usePathname();
+  const userInfoFromCookie: userInfoTypes = useMemo(() => {
+    return JSON.parse(getCookie("userInfo")?.toString() || "{}");
+  }, []);
+
   let resetFilterValue, setFilterValue, filterValue;
 
   switch (pathname) {
@@ -302,138 +308,144 @@ const OrdersFilters: React.FC<ordersFiltersProps> = ({
                   </div>
                 </div>
               )}
-              {/* API User */}
-              <div className="space-y-2">
-                <Label htmlFor="api_user_id">API User</Label>
-                <Controller
-                  name="api_user_id"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      id="api_user_id"
-                      options={apiUsersOptions}
-                      value={apiUsersOptions.filter(
-                        (opt) => (field.value || []).includes(opt.value) ?? null
+              {userInfoFromCookie?.userType === "dashboard_user" && (
+                <>
+                  {/* API User */}
+                  <div className="space-y-2">
+                    <Label htmlFor="api_user_id">API User</Label>
+                    <Controller
+                      name="api_user_id"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          id="api_user_id"
+                          options={apiUsersOptions}
+                          value={apiUsersOptions.filter(
+                            (opt) =>
+                              (field.value || []).includes(opt.value) ?? null
+                          )}
+                          onChange={(opt) => {
+                            const values = opt?.map((item) => item.value) ?? [];
+                            return field.onChange(
+                              values.length === 0 ? null : values
+                            );
+                          }}
+                          isClearable
+                          isMulti
+                          placeholder="Select API User"
+                          styles={multiSelectStyle}
+                          className="w-full"
+                        />
                       )}
-                      onChange={(opt) => {
-                        const values = opt?.map((item) => item.value) ?? [];
-                        return field.onChange(
-                          values.length === 0 ? null : values
-                        );
-                      }}
-                      isClearable
-                      isMulti
-                      placeholder="Select API User"
-                      styles={multiSelectStyle}
-                      className="w-full"
                     />
-                  )}
-                />
-                {errors.api_user_id && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.api_user_id.message}
-                  </p>
-                )}
-              </div>
-              {/* Product */}
-              <div className="space-y-2">
-                <Label htmlFor="product_id">Product</Label>
-                <Controller
-                  name="product_id"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      id="product_id"
-                      options={productsOptions}
-                      value={productsOptions.filter(
-                        (opt) => (field.value || []).includes(opt.value) ?? null
+                    {errors.api_user_id && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.api_user_id.message}
+                      </p>
+                    )}
+                  </div>
+                  {/* Product */}
+                  <div className="space-y-2">
+                    <Label htmlFor="product_id">Product</Label>
+                    <Controller
+                      name="product_id"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          id="product_id"
+                          options={productsOptions}
+                          value={productsOptions.filter(
+                            (opt) =>
+                              (field.value || []).includes(opt.value) ?? null
+                          )}
+                          onChange={(opt) => {
+                            const values = opt?.map((item) => item.value) ?? [];
+                            return field.onChange(
+                              values.length === 0 ? null : values
+                            );
+                          }}
+                          isClearable
+                          isMulti
+                          placeholder="Select Product"
+                          styles={multiSelectStyle}
+                          className="w-full"
+                        />
                       )}
-                      onChange={(opt) => {
-                        const values = opt?.map((item) => item.value) ?? [];
-                        return field.onChange(
-                          values.length === 0 ? null : values
-                        );
-                      }}
-                      isClearable
-                      isMulti
-                      placeholder="Select Product"
-                      styles={multiSelectStyle}
-                      className="w-full"
                     />
-                  )}
-                />
-                {errors.product_id && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.product_id.message}
-                  </p>
-                )}
-              </div>
-              {/* Branch */}
-              <div className="space-y-2">
-                <Label htmlFor="branch_id">Branch</Label>
-                <Controller
-                  name="branch_id"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      id="branch_id"
-                      options={branchOptions}
-                      value={branchOptions.filter((opt) =>
-                        (field.value || []).includes(opt.value)
+                    {errors.product_id && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.product_id.message}
+                      </p>
+                    )}
+                  </div>
+                  {/* Branch */}
+                  <div className="space-y-2">
+                    <Label htmlFor="branch_id">Branch</Label>
+                    <Controller
+                      name="branch_id"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          id="branch_id"
+                          options={branchOptions}
+                          value={branchOptions.filter((opt) =>
+                            (field.value || []).includes(opt.value)
+                          )}
+                          onChange={(opt) => {
+                            const values = opt?.map((item) => item.value) ?? [];
+                            return field.onChange(
+                              values.length === 0 ? null : values
+                            );
+                          }}
+                          isClearable
+                          isMulti
+                          placeholder="Select Branch"
+                          styles={multiSelectStyle}
+                          className="w-full"
+                        />
                       )}
-                      onChange={(opt) => {
-                        const values = opt?.map((item) => item.value) ?? [];
-                        return field.onChange(
-                          values.length === 0 ? null : values
-                        );
-                      }}
-                      isClearable
-                      isMulti
-                      placeholder="Select Branch"
-                      styles={multiSelectStyle}
-                      className="w-full"
                     />
-                  )}
-                />
-                {errors.branch_id && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.branch_id.message}
-                  </p>
-                )}
-              </div>
-              {/* Payment Mode */}
-              <div className="space-y-2">
-                <Label htmlFor="payment_mode_id">Payment Mode</Label>
-                <Controller
-                  name="payment_mode_id"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      id="payment_mode_id"
-                      options={paymentModesOptions}
-                      value={paymentModesOptions.filter((opt) =>
-                        (field.value || []).includes(opt.value)
+                    {errors.branch_id && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.branch_id.message}
+                      </p>
+                    )}
+                  </div>
+                  {/* Payment Mode */}
+                  <div className="space-y-2">
+                    <Label htmlFor="payment_mode_id">Payment Mode</Label>
+                    <Controller
+                      name="payment_mode_id"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          id="payment_mode_id"
+                          options={paymentModesOptions}
+                          value={paymentModesOptions.filter((opt) =>
+                            (field.value || []).includes(opt.value)
+                          )}
+                          onChange={(opt) => {
+                            const values = opt?.map((item) => item.value) ?? [];
+                            return field.onChange(
+                              values.length === 0 ? null : values
+                            );
+                          }}
+                          isClearable
+                          isMulti
+                          placeholder="Select Payment Mode"
+                          styles={multiSelectStyle}
+                          className="w-full"
+                        />
                       )}
-                      onChange={(opt) => {
-                        const values = opt?.map((item) => item.value) ?? [];
-                        return field.onChange(
-                          values.length === 0 ? null : values
-                        );
-                      }}
-                      isClearable
-                      isMulti
-                      placeholder="Select Payment Mode"
-                      styles={multiSelectStyle}
-                      className="w-full"
                     />
-                  )}
-                />
-                {errors.payment_mode_id && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.payment_mode_id.message}
-                  </p>
-                )}
-              </div>
+                    {errors.payment_mode_id && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.payment_mode_id.message}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
               {/* Month */}
               <div className="space-y-2">
                 <Label htmlFor="month">Month</Label>
