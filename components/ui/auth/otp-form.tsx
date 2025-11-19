@@ -98,13 +98,14 @@ const OtpForm = () => {
       });
     },
     onMutate: () => {
-      toast.info("Verifying Otp...");
+      toast.loading("Verifying Otp...", {id: "verifying-otp"})
     },
     onError: (err) => {
       toast.error(err.response?.data?.message);
       console.log("Verify Otp Mutation Error:", err);
     },
     onSuccess: (data) => {
+      toast.dismiss("verifying-otp")
       toast.success("Otp Verified Successfully!");
       setCookie("jubilee-retail-token", data.payload[0].token);
       setCookie("userInfo", JSON.stringify(data.payload[0].user_info));

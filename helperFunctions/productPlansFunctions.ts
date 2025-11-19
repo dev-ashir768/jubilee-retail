@@ -6,7 +6,7 @@ export const fetchProductPlansList =
     try {
       const response = await axiosFunction({
         method: "POST",
-        urlPath: "/api-user-products/single/External",
+        urlPath: "/api-user-products/single/Internal",
       });
 
       return response;
