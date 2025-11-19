@@ -34,15 +34,20 @@ const PolicyStatusBreakdown: React.FC<PolicyStatusBreakdownProps> = ({
   error,
 }) => {
   const chartData = payload.map((entry) => ({
-    name: entry.status_group,
+    name:
+      entry.status_group === "Valid"
+        ? "Converted"
+        : entry.status_group === "Invalid"
+        ? "Pending"
+        : entry.status_group,
     value: entry.count,
   }));
 
   const getColor = (name: string) => {
     switch (name) {
-      case "Valid":
+      case "Converted":
         return "#10b981"; // green
-      case "Invalid":
+      case "Pending":
         return "#ef4444"; // red
       default:
         return "#8884d8"; // default
@@ -114,10 +119,7 @@ const PolicyStatusBreakdown: React.FC<PolicyStatusBreakdownProps> = ({
                 label={renderLabel}
               >
                 {chartData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={getColor(entry.name)}
-                  />
+                  <Cell key={`cell-${index}`} fill={getColor(entry.name)} />
                 ))}
               </Pie>
               <Tooltip
