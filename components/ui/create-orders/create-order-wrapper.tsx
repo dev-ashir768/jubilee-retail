@@ -31,6 +31,7 @@ import { axiosFunction } from "@/utils/axiosFunction";
 import { AxiosError } from "axios";
 import { Badge } from "../shadcn/badge";
 import { toast } from "sonner";
+import Link from "next/link";
 
 const CreateOrderWrapper = () => {
   const { jsonResult, setJsonResult } = createBulkOrderState();
@@ -313,20 +314,6 @@ const CreateOrderWrapper = () => {
       ),
       cell: ({ row }) => <div>{row.original.message || "N/A"}</div>,
     },
-    // {
-    //   accessorKey: "orderId",
-    //   header: ({ column }) => (
-    //     <DatatableColumnHeader column={column} title="Order ID" />
-    //   ),
-    //   cell: ({ row }) => <div>{row.original.orderId || "N/A"}</div>,
-    // },
-    // {
-    //   accessorKey: "policyId",
-    //   header: ({ column }) => (
-    //     <DatatableColumnHeader column={column} title="Policy ID" />
-    //   ),
-    //   cell: ({ row }) => <div>{row.original.policyId || "N/A"}</div>,
-    // },
   ];
 
   // ======== FAILED COLUMNS ========
@@ -364,14 +351,25 @@ const CreateOrderWrapper = () => {
         <>
           <div className="flex md:flex-row flex-col justify-between items-center">
             <SubNav title="Create Order" />
-            <Button
-              size="lg"
-              className="min-w-[150px]"
-              type="button"
-              onClick={handleTemplateDownload}
-            >
-              Template
-            </Button>
+            <div className="flex gap-4 flex-wrap">
+              <Button
+                size="lg"
+                className="min-w-[150px]"
+                type="button"
+                variant="secondary"
+                asChild
+              >
+                <Link href="/product-plans" target="_blank">Product Plan</Link>
+              </Button>
+              <Button
+                size="lg"
+                className="min-w-[150px]"
+                type="button"
+                onClick={handleTemplateDownload}
+              >
+                Template
+              </Button>
+            </div>
           </div>
           <Card className="w-full h-full shadow-none border-none">
             <CardHeader className="border-b">
