@@ -47,6 +47,7 @@ import {
 import { OrderVerifyManuallyResponseTypes } from "@/types/orderVerifyManuallyTypes";
 import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
+import Link from "next/link";
 
 const OrdersListListing = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -339,7 +340,11 @@ const OrdersListListing = () => {
         accessorFn: (row) => row?.premium,
         cell: ({ row }) => {
           const amount = row.original.premium;
-          return <div className="text-center">{amount ? formatNumberCell(amount) : "N/A"}</div>;
+          return (
+            <div className="text-center">
+              {amount ? formatNumberCell(amount) : "N/A"}
+            </div>
+          );
         },
       },
       {
@@ -368,7 +373,22 @@ const OrdersListListing = () => {
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="CN Number" />
         ),
-        cell: ({ row }) => <div>{row.original.cnno || "N/A"}</div>,
+        cell: ({ row }) => {
+          const cnno = row.original.cnno;
+          if (cnno && cnno.trim() !== "" && cnno !== "N/A") {
+            return (
+              <Link
+                href={`https://www.blue-ex.com/tracking?trackno=${cnno}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              className="hover:underline font-medium"
+              >
+                {cnno}
+              </Link>
+            );
+          }
+          return <span className="text-muted-foreground text-sm">N/A</span>;
+        },
       },
       {
         accessorKey: "payment_mode",
@@ -382,7 +402,11 @@ const OrdersListListing = () => {
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Payment Code" />
         ),
-        cell: ({ row }) => <div className="text-center">{row.original.payment_code || "N/A"}</div>,
+        cell: ({ row }) => (
+          <div className="text-center">
+            {row.original.payment_code || "N/A"}
+          </div>
+        ),
       },
       {
         accessorKey: "api_user_name",

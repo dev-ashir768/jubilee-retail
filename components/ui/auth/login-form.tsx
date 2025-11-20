@@ -57,15 +57,11 @@ const LoginForm = () => {
         isServer: true,
       });
     },
-    onMutate: () => {
-      toast.loading("Sending otp", { id: "send-otp" });
-    },
     onError: (err) => {
       toast.error(err.response?.data?.message);
       console.log("Send Otp Mutation Error:", err);
     },
     onSuccess: () => {
-      toast.dismiss("send-otp");
       toast.success("Otp Sent Successfully!");
       router.push("/otp");
     },
@@ -105,6 +101,8 @@ const LoginForm = () => {
       });
     },
   });
+
+  const isPending = useSendOtpMutation?.isPending || useLoginMutation.isPending;
 
   return (
     <div className={cn("flex flex-col gap-6")}>
@@ -153,10 +151,10 @@ const LoginForm = () => {
           type="submit"
           className="w-full cursor-pointer"
           size="lg"
-          disabled={useLoginMutation.isPending}
+          disabled={isPending}
         >
           Login
-          {useLoginMutation.isPending && (
+          {isPending && (
             <span className="animate-spin">
               <Loader2 />
             </span>

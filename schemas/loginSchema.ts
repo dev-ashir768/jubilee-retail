@@ -16,7 +16,7 @@ export const loginSchema = z.object({
   password: z
     .string({ required_error: "Password is required" })
     .trim()
-    .min(8, { message: "Password should be at least 8 characters" })
+    .min(1, { message: "Password is required" })
     .refine((val) => !forbiddenCodeRegex.test(val), {
       message: "Invalid input: Code-like content is not allowed",
     }),

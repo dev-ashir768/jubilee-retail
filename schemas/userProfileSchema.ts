@@ -49,19 +49,7 @@ export const UserProfileSchema = z.object({
         z.literal(""),
         z
           .string()
-          .min(8, { message: "Password must be at least 8 characters long" })
-          .regex(/[A-Z]/, {
-            message: "Password must contain at least one uppercase letter",
-          })
-          .regex(/[0-9]/, {
-            message: "Password must contain at least one number",
-          })
-          .regex(/[!@#$%^&*]/, {
-            message: "Password must contain at least one special character",
-          })
-          .refine((val) => !forbiddenCodeRegex.test(val), {
-            message: "Invalid input: Code-like content is not allowed",
-          }),
+          .min(1, { message: "Password is required" })
       ])
     ),
 });

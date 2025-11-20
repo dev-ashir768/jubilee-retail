@@ -51,6 +51,7 @@ import { ClientResponseType } from "@/types/clientTypes";
 import { fetchAllClientList } from "@/helperFunctions/clientFunction";
 import { fetchAllAgentList } from "@/helperFunctions/agentFunction";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
+import Link from "next/link";
 
 const PoliciesList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -310,8 +311,25 @@ const PoliciesList = () => {
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="CN #" />
         ),
-        accessorFn: (row) => row.cnno || "N/A",
-        cell: ({ row }) => <div>{row.original.cnno}</div>,
+        cell: ({ row }) => {
+          const cnno = row.original.cnno;
+
+          if (cnno && cnno.trim() !== "" && cnno !== "N/A") {
+            return (
+              <Link
+                href={`https://www.blue-ex.com/tracking?trackno=${cnno}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline font-medium"
+              >
+                {cnno}
+              </Link>
+            );
+          }
+
+          // Agar data nahi hai
+          return <span className="text-muted-foreground text-sm">N/A</span>;
+        },
       },
       {
         accessorKey: "premium",
