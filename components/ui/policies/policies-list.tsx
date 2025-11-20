@@ -51,7 +51,6 @@ import { ClientResponseType } from "@/types/clientTypes";
 import { fetchAllClientList } from "@/helperFunctions/clientFunction";
 import { fetchAllAgentList } from "@/helperFunctions/agentFunction";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
-import Link from "next/link";
 
 const PoliciesList = () => {
   // ======== CONSTANTS & HOOKS ========
