@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -12,20 +12,18 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { axiosFunction } from "@/utils/axiosFunction";
 import { AxiosError } from "axios";
-import { Button } from "../shadcn/button";
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { toast } from "sonner";
 import { useForm, Controller } from "react-hook-form";
 import { otpSchema, OtpSchemaType } from "@/schemas/otpSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { sendOtpResponseType } from "@/types/sendOtpTypes";
 import { userInfoTypes, verifyOtpResponseType } from "@/types/verifyOtpTypes";
 
 const OtpForm = () => {
-  const [step, setStep] = useState(1);
+  // const [step, setStep] = useState(2);
   const router = useRouter();
-  const [sendOtpOption, setSendOtpOption] = useState("");
+  // const [sendOtpOption, setSendOtpOption] = useState("");
 
   // UserInfo from cookies
   const userInfoFromCookie: userInfoTypes = useMemo(() => {
@@ -33,36 +31,37 @@ const OtpForm = () => {
   }, []);
 
   // Send Otp
-  const useSendOtpMutation = useMutation<
-    sendOtpResponseType,
-    AxiosError<sendOtpResponseType>,
-    { username: string; type: string }
-  >({
-    mutationFn: (record) => {
-      return axiosFunction({
-        method: "POST",
-        urlPath: "/users/send-otp",
-        data: record,
-        isServer: true,
-      });
-    },
-    onError: (err) => {
-      toast.error(err.response?.data?.message);
-      console.log("Send Otp Mutation Error:", err);
-    },
-    onSuccess: () => {
-      toast.success("Otp Sent Successfully!");
-      setStep((prevState) => prevState + 1);
-    },
-  });
+  // const useSendOtpMutation = useMutation<
+  //   sendOtpResponseType,
+  //   AxiosError<sendOtpResponseType>,
+  //   { username: string; type: string }
+  // >({
+  //   mutationFn: (record) => {
+  //     return axiosFunction({
+  //       method: "POST",
+  //       urlPath: "/users/send-otp",
+  //       data: record,
+  //       isServer: true,
+  //     });
+  //   },
+  //   onError: (err) => {
+  //     toast.error(err.response?.data?.message);
+  //     console.log("Send Otp Mutation Error:", err);
+  //   },
+  //   onSuccess: () => {
+  //     toast.success("Otp Sent Successfully!");
+  //     // setStep((prevState) => prevState + 1);
+  //   },
+  // });
 
-  const handleSendOtp = (type: string) => {
-    useSendOtpMutation.mutate({
-      username: userInfoFromCookie.username,
-      type,
-    });
-    setSendOtpOption(type);
-  };
+
+  // const handleSendOtp = (type: string) => {
+  //   useSendOtpMutation.mutate({
+  //     username: userInfoFromCookie.username,
+  //     type: "email",
+  //   });
+  //   setSendOtpOption("email");
+  // };
 
   // Verify Otp
 
@@ -98,14 +97,14 @@ const OtpForm = () => {
       });
     },
     onMutate: () => {
-      toast.loading("Verifying Otp...", {id: "verifying-otp"})
+      toast.loading("Verifying Otp...", { id: "verifying-otp" });
     },
     onError: (err) => {
       toast.error(err.response?.data?.message);
       console.log("Verify Otp Mutation Error:", err);
     },
     onSuccess: (data) => {
-      toast.dismiss("verifying-otp")
+      toast.dismiss("verifying-otp");
       toast.success("Otp Verified Successfully!");
       setCookie("jubilee-retail-token", data.payload[0].token);
       setCookie("userInfo", JSON.stringify(data.payload[0].user_info));
@@ -121,7 +120,7 @@ const OtpForm = () => {
 
   return (
     <>
-      {step === 1 && (
+      {/* {step === 1 && (
         <div className={cn("flex flex-col gap-6")}>
           <div className="flex flex-col items-center gap-2 text-center">
             <h1 className="text-4xl font-bold">Send Your Otp</h1>
@@ -152,14 +151,14 @@ const OtpForm = () => {
             </Button>
           </div>
         </div>
-      )}
+      )} */}
 
-      {step === 2 && (
+      {/* {step === 2 && ( */}
         <form className={cn("flex flex-col gap-6")}>
           <div className="flex flex-col items-center gap-2 text-center">
             <h1 className="text-4xl font-bold">Enter Verification Code</h1>
             <p className="text-muted-foreground text-md text-balance">
-              A 6-digit code has been sent to your {sendOtpOption}.
+              A 6-digit code has been sent to your email.
             </p>
           </div>
 
@@ -206,7 +205,7 @@ const OtpForm = () => {
             />
           </div>
         </form>
-      )}
+      {/* )} */}
     </>
   );
 };

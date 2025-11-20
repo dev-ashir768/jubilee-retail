@@ -291,11 +291,11 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                 </CardContent>
               </Card>
 
-              {/* Card for Policy Holder (Customer) */}
+              {/* Card for Customer Details */}
               {customerPolicyData && (
                 <Card className="w-full shadow-none border-none bg-gray-50">
                   <CardHeader className="border-b gap-0">
-                    <CardTitle>Policy Holder (Customer)</CardTitle>
+                    <CardTitle>Customer Details</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -1,44 +1,76 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react'
+import React, { useState } from "react";
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/shadcn/button'
-import { Input } from '../shadcn/input'
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
+import { Input } from "../shadcn/input";
 
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { loginSchema, LoginSchemaType } from '@/schemas/loginSchema'
-import { useMutation } from '@tanstack/react-query'
-import { axiosFunction } from '@/utils/axiosFunction'
-import { AxiosError } from 'axios'
-import { toast } from 'sonner'
-import { setCookie } from 'cookies-next'
-import { useRouter } from 'next/navigation'
-import { LoginResponseType } from '@/types/loginTypes'
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, LoginSchemaType } from "@/schemas/loginSchema";
+import { useMutation } from "@tanstack/react-query";
+import { axiosFunction } from "@/utils/axiosFunction";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
+import { setCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
+import { LoginResponseType } from "@/types/loginTypes";
+import { sendOtpResponseType } from "@/types/sendOtpTypes";
 
 const LoginForm = () => {
-
   // hooks
   const [toggleEye, setToggleEye] = useState(false);
   const router = useRouter();
 
   // login form
-  const { handleSubmit: handleLoginSubmit, formState: { errors }, register } = useForm<LoginSchemaType>({
+  const {
+    handleSubmit: handleLoginSubmit,
+    formState: { errors },
+    register,
+  } = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: '',
-      password: ''
-    }
+      username: "",
+      password: "",
+    },
   });
 
   const submitLogin = (data: LoginSchemaType) => {
-    useLoginMutation.mutate(data)
-  }
+    useLoginMutation.mutate(data);
+  };
 
   // login mutation
+
+  const useSendOtpMutation = useMutation<
+    sendOtpResponseType,
+    AxiosError<sendOtpResponseType>,
+    { username: string; type: string }
+  >({
+    mutationFn: (record) => {
+      return axiosFunction({
+        method: "POST",
+        urlPath: "/users/send-otp",
+        data: record,
+        isServer: true,
+      });
+    },
+    onMutate: () => {
+      toast.loading("Sending otp", { id: "send-otp" });
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message);
+      console.log("Send Otp Mutation Error:", err);
+    },
+    onSuccess: () => {
+      toast.dismiss("send-otp");
+      toast.success("Otp Sent Successfully!");
+      router.push("/otp");
+    },
+  });
+
   const useLoginMutation = useMutation<
     LoginResponseType,
     AxiosError<LoginResponseType>,
@@ -46,28 +78,33 @@ const LoginForm = () => {
   >({
     mutationFn: (record) => {
       return axiosFunction({
-        method: 'POST',
-        urlPath: '/users/login',
+        method: "POST",
+        urlPath: "/users/login",
         data: record,
-        isServer: true
-      })
+        isServer: true,
+      });
     },
     onError: (err) => {
-      const message = err.response?.data?.message
-      toast.error(message)
-      console.log("Login Mutation Error:", err)
+      const message = err.response?.data?.message;
+      toast.error(message);
+      console.log("Login Mutation Error:", err);
     },
     onSuccess: (data) => {
-      toast.success("User Authenticated Successfully")
-      setCookie("userInfo", JSON.stringify({
-        username: data.payload[0].username
-      }))
-      setCookie('otp-session', true, {
-        maxAge: 300, // 5 minutes
-      })
-      router.push('/otp')
-    }
-  })
+      setCookie(
+        "userInfo",
+        JSON.stringify({
+          username: data.payload[0].username,
+        })
+      );
+      setCookie("otp-session", true, {
+        maxAge: 300,
+      });
+      useSendOtpMutation.mutate({
+        username: data.payload[0].username,
+        type: "email",
+      });
+    },
+  });
 
   return (
     <div className={cn("flex flex-col gap-6")}>
@@ -79,28 +116,55 @@ const LoginForm = () => {
       </div>
 
       <form onSubmit={handleLoginSubmit(submitLogin)} className="grid gap-6">
-        <div className='grid gap-2'>
-          <Input id="email" type="text" {...register('username')} placeholder="Username" />
-          {errors.username && <p className='text-red-500 text-sm'>{errors.username.message}</p>}
+        <div className="grid gap-2">
+          <Input
+            id="email"
+            type="text"
+            {...register("username")}
+            placeholder="Username"
+          />
+          {errors.username && (
+            <p className="text-red-500 text-sm">{errors.username.message}</p>
+          )}
         </div>
-        <div className='grid gap-2'>
-          <div className='relative'>
-            <Input id="password" type={toggleEye ? "text" : "password"} {...register('password')} placeholder='Password' />
+        <div className="grid gap-2">
+          <div className="relative">
+            <Input
+              id="password"
+              type={toggleEye ? "text" : "password"}
+              {...register("password")}
+              placeholder="Password"
+            />
             <Button
-              type='button'
-              variant="ghost" size="sm" className='absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer' onClick={() => setToggleEye((prevState) => !prevState)}>
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer"
+              onClick={() => setToggleEye((prevState) => !prevState)}
+            >
               {toggleEye ? <Eye /> : <EyeOff />}
             </Button>
           </div>
-          {errors.password && <p className='text-red-500 text-sm'>{errors.password.message}</p>}
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password.message}</p>
+          )}
         </div>
-        <Button type="submit" className="w-full cursor-pointer" size="lg" disabled={useLoginMutation.isPending}>
+        <Button
+          type="submit"
+          className="w-full cursor-pointer"
+          size="lg"
+          disabled={useLoginMutation.isPending}
+        >
           Login
-          {useLoginMutation.isPending && <span className="animate-spin"><Loader2 /></span>}
+          {useLoginMutation.isPending && (
+            <span className="animate-spin">
+              <Loader2 />
+            </span>
+          )}
         </Button>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default LoginForm
+export default LoginForm;
