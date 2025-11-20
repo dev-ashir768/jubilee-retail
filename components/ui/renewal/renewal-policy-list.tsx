@@ -295,6 +295,16 @@ const RenewalPolicyList = () => {
             {row.original.customer_contact || "N/A"}
           </div>
         ),
+      },{
+        accessorKey: "customer_cnic",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Customer Cnic" />
+        ),
+        cell: ({ row }) => (
+          <div className="truncate w-40">
+            {row.original.customer_cnic || "N/A"}
+          </div>
+        ),
       },
       {
         accessorKey: "branch_name",

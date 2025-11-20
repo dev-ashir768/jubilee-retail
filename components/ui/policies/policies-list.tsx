@@ -307,31 +307,6 @@ const PoliciesList = () => {
         },
       },
       {
-        accessorKey: "cnno",
-        header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="CN #" />
-        ),
-        cell: ({ row }) => {
-          const cnno = row.original.cnno;
-
-          if (cnno && cnno.trim() !== "" && cnno !== "N/A") {
-            return (
-              <Link
-                href={`https://www.blue-ex.com/tracking?trackno=${cnno}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline font-medium"
-              >
-                {cnno}
-              </Link>
-            );
-          }
-
-          // Agar data nahi hai
-          return <span className="text-muted-foreground text-sm">N/A</span>;
-        },
-      },
-      {
         accessorKey: "premium",
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Premium" />
@@ -357,6 +332,13 @@ const PoliciesList = () => {
         ),
         accessorFn: (row) => row.customer_contact || "N/A",
         cell: ({ row }) => <div>{row.original.customer_contact}</div>,
+      },{
+        accessorKey: "customer_cnic",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Customer Cnic" />
+        ),
+        accessorFn: (row) => row.customer_cnic || "N/A",
+        cell: ({ row }) => <div>{row.original.customer_cnic}</div>,
       },
       {
         accessorKey: "branch_name",

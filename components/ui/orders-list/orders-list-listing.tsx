@@ -360,6 +360,16 @@ const OrdersListListing = () => {
           <DatatableColumnHeader column={column} title="Contact" />
         ),
         cell: ({ row }) => <div>{row.original.customer_contact || "N/A"}</div>,
+      },  {
+        accessorKey: "customer_cnic",
+        header: ({ column }) => (
+          <DatatableColumnHeader column={column} title="Cnic" />
+        ),
+        cell: ({ row }) => (
+          <div className="text-center">
+            {row.original.customer_cnic || "N/A"}
+          </div>
+        ),
       },
       {
         accessorKey: "branch_name",
@@ -396,17 +406,6 @@ const OrdersListListing = () => {
           <DatatableColumnHeader column={column} title="Payment Mode" />
         ),
         cell: ({ row }) => <div>{row.original.payment_mode || "N/A"}</div>,
-      },
-      {
-        accessorKey: "payment_code",
-        header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Payment Code" />
-        ),
-        cell: ({ row }) => (
-          <div className="text-center">
-            {row.original.payment_code || "N/A"}
-          </div>
-        ),
       },
       {
         accessorKey: "api_user_name",
