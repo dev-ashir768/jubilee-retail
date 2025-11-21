@@ -1,14 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",     
   images: {
     remotePatterns: [
       {
-        protocol: "http",
-        hostname: "162.211.84.202",
-        port: "3003",
+        protocol: "https",
+        hostname: "dev-retail.jubileegeneral.com.pk",
         pathname: "/uploads/**",
-        search: "",
       },
     ],
   },
