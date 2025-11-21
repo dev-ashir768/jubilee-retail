@@ -6,11 +6,15 @@ import { RenewalPolicyPayloadType } from "@/types/renewalPolicyTypes";
 interface RenewalPolicyDatatableProps {
   columns: ColumnDef<RenewalPolicyPayloadType>[];
   payload: RenewalPolicyPayloadType[] | undefined;
+  isRefetching: boolean;
+  handleRefetch: () => void;
 }
 
 const RenewalPolicyDatatable: React.FC<RenewalPolicyDatatableProps> = ({
   columns,
   payload,
+  isRefetching,
+  handleRefetch,
 }) => {
   return (
     <>
@@ -18,6 +22,9 @@ const RenewalPolicyDatatable: React.FC<RenewalPolicyDatatableProps> = ({
         columns={columns}
         data={payload!}
         title="List of all renewal policy in the system"
+        showRefetch={true}
+        isRefetching={isRefetching}
+        handleRefetch={handleRefetch}
       />
     </>
   );

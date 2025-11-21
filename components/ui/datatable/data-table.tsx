@@ -34,6 +34,10 @@ import {
   CardHeader,
   CardTitle,
 } from "../shadcn/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../shadcn/tooltip";
+import { Button } from "../shadcn/button";
+import { RefreshCw } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -45,6 +49,9 @@ interface DataTableProps<TData, TValue> {
   enablePagination?: boolean; // Optional prop to enable pagination
   enableColumnVisibility?: boolean; // Optional prop to enable column visibility
   title: string; // Title for the data table
+  showRefetch?: boolean;
+  isRefetching?: boolean;
+  handleRefetch?: () => void;
 }
 
 // Custom filter function for multi-select
@@ -64,6 +71,9 @@ const DataTable = <TData, TValue>({
   enablePagination = true,
   enableColumnVisibility = true,
   title = "Data Table",
+  showRefetch = true,
+  isRefetching,
+  handleRefetch,
 }: DataTableProps<TData, TValue>) => {
   // State management for sorting, column filters, visibility, and row selection
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -110,6 +120,28 @@ const DataTable = <TData, TValue>({
               {enableGlobalFilter && <DataTableGlobalFilter table={table} />}
             </div>
             <div className="flex items-center gap-3">
+              {showRefetch && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="ml-auto hidden h-8 lg:flex"
+                      aria-label="Toggle column visibility"
+                      type="button"
+                      onClick={handleRefetch}
+                    >
+                      <RefreshCw
+                        size={26}
+                        className={cn(isRefetching && "animate-spin")}
+                      />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {isRefetching ? <p>Refetching...</p> : <p>Refetch Data</p>}
+                  </TooltipContent>
+                </Tooltip>
+              )}
               {enableColumnVisibility && (
                 <DataTableColumnVisibility table={table} />
               )}

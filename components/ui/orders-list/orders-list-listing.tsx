@@ -119,6 +119,8 @@ const OrdersListListing = () => {
     isLoading: ordersListListingLoading,
     isError: ordersListListingIsError,
     error: ordersListListingError,
+    isRefetching: ordersListListingIsRefetching,
+    refetch: ordersListListingRefetch,
   } = useQuery<OrdersListResponseType | null>({
     queryKey: [
       "orders-list-linting",
@@ -312,6 +314,10 @@ const OrdersListListing = () => {
     [orderRepushMutation]
   );
 
+  const handleRefetch = () => {
+    ordersListListingRefetch();
+  };
+
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<OrdersListPayloadType>[] = useMemo(
     () => [
@@ -360,7 +366,8 @@ const OrdersListListing = () => {
           <DatatableColumnHeader column={column} title="Contact" />
         ),
         cell: ({ row }) => <div>{row.original.customer_contact || "N/A"}</div>,
-      },  {
+      },
+      {
         accessorKey: "customer_cnic",
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Cnic" />
@@ -391,7 +398,7 @@ const OrdersListListing = () => {
                 href={`https://www.blue-ex.com/tracking?trackno=${cnno}`}
                 target="_blank"
                 rel="noopener noreferrer"
-              className="hover:underline font-medium"
+                className="hover:underline font-medium"
               >
                 {cnno}
               </Link>
@@ -557,7 +564,12 @@ const OrdersListListing = () => {
       ) : isError ? (
         <Error err={onError} />
       ) : (
-        <OrdersListDatatable columns={columns} payload={ordersListListing} />
+        <OrdersListDatatable
+          columns={columns}
+          payload={ordersListListing}
+          isRefetching={ordersListListingIsRefetching}
+          handleRefetch={handleRefetch}
+        />
       )}
 
       <OrdersFilters

@@ -118,6 +118,8 @@ const CboList = () => {
     isLoading: cboListIsLoading,
     isError: cboListIsError,
     error: cboListError,
+    isRefetching: cboListIsRefetching,
+    refetch: cboListRefetch,
   } = useQuery<CboResponseType | null>({
     queryKey: [
       "cbo-list",
@@ -220,6 +222,10 @@ const CboList = () => {
     [setStatusDialogOpen, setIsPolicyId]
   );
 
+  const handleRefetch = () => {
+    cboListRefetch();
+  };
+
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<CboPayloadType>[] = useMemo(
     () => [
@@ -287,7 +293,11 @@ const CboList = () => {
         accessorFn: (row) => row?.premium,
         cell: ({ row }) => {
           const amount = row.original.premium;
-          return <div className="text-center">{amount ? formatNumberCell(amount) : "N/A"}</div>;
+          return (
+            <div className="text-center">
+              {amount ? formatNumberCell(amount) : "N/A"}
+            </div>
+          );
         },
       },
       {
@@ -321,7 +331,9 @@ const CboList = () => {
           <DatatableColumnHeader column={column} title="Product" />
         ),
         cell: ({ row }) => (
-          <div className="line-clamp-2 w-[300px] whitespace-break-spaces">{row.original.product || "N/A"}</div>
+          <div className="line-clamp-2 w-[300px] whitespace-break-spaces">
+            {row.original.product || "N/A"}
+          </div>
         ),
       },
       {
@@ -519,7 +531,12 @@ const CboList = () => {
       ) : isError ? (
         <Error err={onError} />
       ) : (
-        <CboDatatable columns={columns} payload={cboList} />
+        <CboDatatable
+          columns={columns}
+          payload={cboList}
+          isRefetching={cboListIsRefetching}
+          handleRefetch={handleRefetch}
+        />
       )}
 
       <OrdersFilters

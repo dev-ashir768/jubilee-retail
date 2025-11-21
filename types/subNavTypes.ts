@@ -1,3 +1,4 @@
+import { CalendarProps } from "@/components/ui/foundations/date-range-picker";
 import { DateRange } from "react-day-picker";
 
 export type subNavTypes = {
@@ -13,4 +14,5 @@ export type subNavTypes = {
   setDateRange?: (date: DateRange | undefined) => void;
   isExportZipOpen?: boolean;
   setIsExportZipOpen?: (isExportZipOpen: boolean) => void;
+  disabledDates?: CalendarProps["disabled"]
 };

@@ -123,6 +123,8 @@ const PoliciesList = () => {
     isLoading: policiesListIsLoading,
     isError: policiesListIsError,
     error: policiesListError,
+    refetch: policiesListRefetch,
+    isRefetching: policiesListIsRefetching,
   } = useQuery<PoliciesResponseType | null>({
     queryKey: [
       "policies-list",
@@ -258,6 +260,10 @@ const PoliciesList = () => {
     [setStatusDialogOpen, setIsPolicyId]
   );
 
+  const handleRefetch = () => {
+    policiesListRefetch();
+  };
+
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<PoliciesPayloadType>[] = useMemo(
     () => [
@@ -331,7 +337,8 @@ const PoliciesList = () => {
         ),
         accessorFn: (row) => row.customer_contact || "N/A",
         cell: ({ row }) => <div>{row.original.customer_contact}</div>,
-      },{
+      },
+      {
         accessorKey: "customer_cnic",
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Customer Cnic" />
@@ -515,7 +522,12 @@ const PoliciesList = () => {
       ) : isError ? (
         <Error err={onError} />
       ) : (
-        <PoliciesDatatable columns={columns} payload={policiesList} />
+        <PoliciesDatatable
+          columns={columns}
+          payload={policiesList}
+          handleRefetch={handleRefetch}
+          isRefetching={policiesListIsRefetching}
+        />
       )}
 
       <OrdersFilters

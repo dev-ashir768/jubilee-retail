@@ -20,7 +20,7 @@ import {
   RenewalPolicyResponseType,
 } from "@/types/renewalPolicyTypes";
 import { DateRange } from "react-day-picker";
-import { format, startOfMonth } from "date-fns";
+import { addDays, format, startOfMonth } from "date-fns";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ProductsResponseTypes } from "@/types/productsTypes";
@@ -57,8 +57,8 @@ const RenewalPolicyList = () => {
   const [orderSingleData, setSingleOrderData] =
     useState<SingleOrderPayloadTypes | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: startOfMonth(new Date()),
-    to: new Date(),
+    from: new Date(),
+    to: addDays(new Date(), 30),
   });
   const startDate = dateRange?.from
     ? format(dateRange?.from, "yyyy-MM-dd")
@@ -116,6 +116,8 @@ const RenewalPolicyList = () => {
     isLoading: renewalPolicyListIsLoading,
     isError: renewalPolicyListIsError,
     error: renewalPolicyListError,
+    refetch: renewalPolicyListRefetch,
+    isRefetching: renewalPolicyListIsRefetching,
   } = useQuery<RenewalPolicyResponseType | null>({
     queryKey: [
       "renewal-policy-list",
@@ -222,6 +224,10 @@ const RenewalPolicyList = () => {
     []
   );
 
+  const handleRefetch = () => {
+    renewalPolicyListRefetch();
+  };
+
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<RenewalPolicyPayloadType>[] = useMemo(
     () => [
@@ -295,7 +301,8 @@ const RenewalPolicyList = () => {
             {row.original.customer_contact || "N/A"}
           </div>
         ),
-      },{
+      },
+      {
         accessorKey: "customer_cnic",
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Customer Cnic" />
@@ -456,13 +463,19 @@ const RenewalPolicyList = () => {
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}
+        disabledDates={{ before: new Date() }}
       />
       {isLoading ? (
         <LoadingState />
       ) : isError ? (
         <Error err={onError} />
       ) : (
-        <RenewalPolicyDatatable columns={columns} payload={renewalPolicyList} />
+        <RenewalPolicyDatatable
+          columns={columns}
+          payload={renewalPolicyList}
+          isRefetching={renewalPolicyListIsRefetching}
+          handleRefetch={handleRefetch}
+        />
       )}
 
       <OrdersFilters
