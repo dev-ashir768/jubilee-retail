@@ -254,7 +254,7 @@ const PlansList = () => {
     return (
       <Empty
         title="Permission Denied"
-        description="You do not have permission to view plans list."
+        description="You do not have permission to view list."
       />
     );
 
