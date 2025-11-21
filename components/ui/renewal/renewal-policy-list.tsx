@@ -20,7 +20,7 @@ import {
   RenewalPolicyResponseType,
 } from "@/types/renewalPolicyTypes";
 import { DateRange } from "react-day-picker";
-import { addDays, format, startOfMonth } from "date-fns";
+import { addDays, format } from "date-fns";
 import { ApiUsersResponseType } from "@/types/usersTypes";
 import { fetchAllApiUserList } from "@/helperFunctions/userFunction";
 import { ProductsResponseTypes } from "@/types/productsTypes";

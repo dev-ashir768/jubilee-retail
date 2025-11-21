@@ -13,12 +13,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../shadcn/dropdown-menu";
-import { Button } from "../../shadcn/button";
-import { Edit, EyeIcon, MoreHorizontal } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import DatatableColumnHeader from "../../datatable/datatable-column-header";
 import { ColumnMeta } from "@/types/dataTableTypes";
@@ -461,38 +457,38 @@ const MotorQuoteList = () => {
         filterPlaceholder: "Filter status...",
       } as ColumnMeta,
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => {
-        const record = row.original;
-        const isAssigned = record.agent_id || record.branch_id;
+    // {
+    //   id: "actions",
+    //   header: "Actions",
+    //   cell: ({ row }) => {
+    //     const record = row.original;
+    //     const isAssigned = record.agent_id || record.branch_id;
 
-        const actionText = isAssigned ? "View" : "Edit";
-        const ActionIcon = isAssigned ? EyeIcon : Edit;
+    //     const actionText = isAssigned ? "View" : "Edit";
+    //     const ActionIcon = isAssigned ? EyeIcon : Edit;
 
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {rights?.can_edit === "1" && (
-                <DropdownMenuItem>
-                  <ActionIcon className="mr-2 h-4 w-4" />
-                  {actionText}
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
+    //     return (
+    //       <DropdownMenu>
+    //         <DropdownMenuTrigger asChild>
+    //           <Button variant="ghost" className="h-8 w-8 p-0">
+    //             <span className="sr-only">Open menu</span>
+    //             <MoreHorizontal />
+    //           </Button>
+    //         </DropdownMenuTrigger>
+    //         <DropdownMenuContent align="end">
+    //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+    //           <DropdownMenuSeparator />
+    //           {rights?.can_edit === "1" && (
+    //             <DropdownMenuItem>
+    //               <ActionIcon className="mr-2 h-4 w-4" />
+    //               {actionText}
+    //             </DropdownMenuItem>
+    //           )}
+    //         </DropdownMenuContent>
+    //       </DropdownMenu>
+    //     );
+    //   },
+    // },
   ];
 
   // ======== HANDLE ========

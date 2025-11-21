@@ -161,7 +161,8 @@ export function DateRangePicker({
           end: range.to,
         });
         return datesToCheck.some(disabled);
-      } catch (e) {
+      } catch (error: unknown) {
+        console.log(error)
         return true; // Invalid interval
       }
     }
