@@ -30,7 +30,7 @@ const AddWebAppMappers = () => {
 
   // ======== REDIRECTION EFFECT ========
   useEffect(() => {
-    if (rights.can_create !== "1") {
+    if (rights!.can_create !== "1") {
       const timer = setTimeout(() => {
         router.push('/');
       }, 1500);

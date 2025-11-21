@@ -173,7 +173,7 @@ const UserList = () => {
       header: ({ column }) => (
         <DatatableColumnHeader column={column} title="User Type" />
       ),
-      cell: ({ row }) => <div>{row.getValue("user_type")}</div>,
+      cell: ({ row }) => <div className="capitalize">{row.original.user_type.replace("_", " ")}</div>,
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",

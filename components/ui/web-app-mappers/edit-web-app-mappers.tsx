@@ -34,7 +34,7 @@ const EditWebAppMappers = () => {
 
   // ======== REDIRECTION EFFECT ========
   useEffect(() => {
-    if (rights.can_create !== "1" || !webAppMapperId) {
+    if (rights!.can_create !== "1" || !webAppMapperId) {
       const timer = setTimeout(() => {
         router.push('/');
       }, 1500);

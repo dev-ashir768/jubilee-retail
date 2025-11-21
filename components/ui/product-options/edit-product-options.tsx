@@ -30,7 +30,7 @@ const EditProductOptions = () => {
 
   // ======== REDIRECTION EFFECT ========
   useEffect(() => {
-    if (rights.can_edit !== "1" || !productOptionsId) {
+    if (rights!.can_edit !== "1" || !productOptionsId) {
       const timer = setTimeout(() => {
         router.push('/');
       }, 1500);
