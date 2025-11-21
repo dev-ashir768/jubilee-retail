@@ -31,6 +31,8 @@ import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
+import { UserResponseType } from "@/types/usersTypes";
+import { fetchAllUserList } from "@/helperFunctions/userFunction";
 
 const PlansList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -62,8 +64,31 @@ const PlansList = () => {
     queryFn: fetchPlansList,
   });
 
+  const {
+    data: usersListResponse,
+    isLoading: usersListLoading,
+    isError: usersListIsError,
+    error: usersListError,
+  } = useQuery<UserResponseType | null>({
+    queryKey: ["all-users-list"],
+    queryFn: fetchAllUserList,
+  });
+
   // ======== PAYLOADS DATA ========
   const planList = useMemo(() => planListData?.payload || [], [planListData]);
+
+  const usersList = useMemo(
+    () => usersListResponse?.payload || [],
+    [usersListResponse]
+  );
+
+  const usersMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    usersList.forEach((user) => {
+      map[user.id] = user.fullname;
+    });
+    return map;
+  }, [usersList]);
 
   // ======== FILTER OPTIONS ========
   const nameFilterOptions = useMemo(() => {
@@ -95,10 +120,13 @@ const PlansList = () => {
       header: ({ column }) => (
         <DatatableColumnHeader column={column} title="Created by" />
       ),
-      accessorFn: (row) => row.created_by,
+      accessorFn: (row) => {
+        return row?.created_by;
+      },
       cell: ({ row }) => {
-        const user_id = row.original.created_by;
-        return <div>{user_id}</div>;
+        const creatorId = row.original.created_by;
+        const creatorName = usersMap[creatorId] ?? "N/A";
+        return <div>{creatorName}</div>;
       },
     },
     {
@@ -206,9 +234,9 @@ const PlansList = () => {
   };
 
   // ======== RENDER LOGIC ========
-  const isLoading = planListLoading;
-  const isError = planListIsError ;
-  const onError = planListError?.message ;
+  const isLoading = planListLoading || usersListLoading;
+  const isError = planListIsError || usersListIsError;
+  const onError = planListError?.message || usersListError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {

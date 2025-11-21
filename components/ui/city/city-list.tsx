@@ -1,37 +1,45 @@
 "use client";
 
-import { fetchCityList } from '@/helperFunctions/cityFunction';
-import { useQuery } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
-import React, { useMemo, useState } from 'react';
-import Error from '../foundations/error';
-import Empty from '../foundations/empty';
-import DatatableColumnHeader from '../datatable/datatable-column-header';
-import { ColumnDef } from '@tanstack/react-table';
-import { ColumnMeta } from '@/types/dataTableTypes';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../shadcn/dropdown-menu';
-import { MoreHorizontal, Edit, Trash } from 'lucide-react';
-import { Button } from '../shadcn/button';
-import Link from 'next/link';
-import SubNav from '../foundations/sub-nav';
-import { CityResponseType, CityPayloadType } from '@/types/cityTypes';
-import CityDatatable from './city-datatable';
-import { getRights } from '@/utils/getRights';
-import { Badge } from '../shadcn/badge';
-import LoadingState from '../foundations/loading-state';
-import useCityIdStore from '@/hooks/useCityIdStore';
+import { fetchCityList } from "@/helperFunctions/cityFunction";
+import { useQuery } from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useMemo, useState } from "react";
+import Error from "../foundations/error";
+import Empty from "../foundations/empty";
+import DatatableColumnHeader from "../datatable/datatable-column-header";
+import { ColumnDef } from "@tanstack/react-table";
+import { ColumnMeta } from "@/types/dataTableTypes";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../shadcn/dropdown-menu";
+import { MoreHorizontal, Edit, Trash } from "lucide-react";
+import { Button } from "../shadcn/button";
+import Link from "next/link";
+import SubNav from "../foundations/sub-nav";
+import { CityResponseType, CityPayloadType } from "@/types/cityTypes";
+import CityDatatable from "./city-datatable";
+import { getRights } from "@/utils/getRights";
+import { Badge } from "../shadcn/badge";
+import LoadingState from "../foundations/loading-state";
+import useCityIdStore from "@/hooks/useCityIdStore";
 import DeleteDialog from "../common/delete-dialog";
 import {
   handleDeleteMutation,
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
+import { UserResponseType } from "@/types/usersTypes";
+import { fetchAllUserList } from "@/helperFunctions/userFunction";
 
 const CityList = () => {
-
   // Constants
-  const ADD_URL = '/cites-couiers/add-cities'
-  const EDIT_URL = '/cites-couiers/edit-cities'
+  const ADD_URL = "/cites-couiers/add-cities";
+  const EDIT_URL = "/cites-couiers/edit-cities";
 
   const router = useRouter();
   const pathname = usePathname();
@@ -41,17 +49,34 @@ const CityList = () => {
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { mutate: deleteMutate } = handleDeleteMutation();
-  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
 
   // Fetch city list data using react-query
-  const { data: cityListResponse, isLoading: cityListLoading, isError: cityListIsError, error: cityListError } = useQuery<CityResponseType | null>({
-    queryKey: ['city-list'],
+  const {
+    data: cityListResponse,
+    isLoading: cityListLoading,
+    isError: cityListIsError,
+    error: cityListError,
+  } = useQuery<CityResponseType | null>({
+    queryKey: ["city-list"],
     queryFn: fetchCityList,
   });
 
+   const {
+      data: usersListResponse,
+      isLoading: usersListLoading,
+      isError: usersListIsError,
+      error: usersListError,
+    } = useQuery<UserResponseType | null>({
+      queryKey: ["all-users-list"],
+      queryFn: fetchAllUserList,
+    });
+
   // Column filter options
   const cityNameFilterOptions = useMemo(() => {
-    const allNames = cityListResponse?.payload?.map((item) => item.city_name) || [];
+    const allNames =
+      cityListResponse?.payload?.map((item) => item.city_name) || [];
     const uniqueNames = Array.from(new Set(allNames));
     return uniqueNames.map((name) => ({
       label: name,
@@ -59,40 +84,28 @@ const CityList = () => {
     }));
   }, [cityListResponse]);
 
-  // const igisCityCodeFilterOptions = useMemo(() => {
-  //   const allIgisCityCodes = cityListResponse?.payload?.map((item) => item.igis_city_code) || [];
-  //   const uniqueIgisCityCodes = Array.from(new Set(allIgisCityCodes));
-  //   return uniqueIgisCityCodes.map((igis_city_code) => ({
-  //     label: igis_city_code,
-  //     value: igis_city_code,
-  //   }));
-  // }, [cityListResponse]);
+  // ======== PAYLOADS DATA ========
 
-  const createdByFilterOptions = useMemo(() => {
-    const allCreatedBy = cityListResponse?.payload?.map((item) => item.created_by.toString()) || [];
-    const uniqueCreatedBy = Array.from(new Set(allCreatedBy));
-    return uniqueCreatedBy.map((created_by) => ({
-      label: created_by,
-      value: created_by,
-    }));
-  }, [cityListResponse]);
+  const usersList = useMemo(
+    () => usersListResponse?.payload || [],
+    [usersListResponse]
+  );
+
+  const usersMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    usersList.forEach((user) => {
+      map[user.id] = user.fullname;
+    });
+    return map;
+  }, [usersList]);
 
   // Define columns for the data table
   const columns: ColumnDef<CityPayloadType>[] = [
-    // {
-    //   accessorKey: 'igis_city_code',
-    //   header: ({ column }) => <DatatableColumnHeader column={column} title="IGIS City Code" />,
-    //   cell: ({ row }) => <div>{row.getValue("igis_city_code")}</div>,
-    //   filterFn: "multiSelect",
-    //   meta: {
-    //     filterType: "multiselect",
-    //     filterOptions: igisCityCodeFilterOptions,
-    //     filterPlaceholder: "Filter IGIS city code...",
-    //   } as ColumnMeta,
-    // },
     {
-      accessorKey: 'city_name',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="City Name" />,
+      accessorKey: "city_name",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="City Name" />
+      ),
       cell: ({ row }) => <div>{row.getValue("city_name")}</div>,
       filterFn: "multiSelect",
       meta: {
@@ -102,27 +115,31 @@ const CityList = () => {
       } as ColumnMeta,
     },
     {
-      accessorKey: 'created_by',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Created By" />,
-      cell: ({ row }) => <div>{row.getValue("created_by")}</div>,
-      filterFn: "multiSelect",
-      meta: {
-        filterType: "multiselect",
-        filterOptions: createdByFilterOptions,
-        filterPlaceholder: "Filter created by...",
-      } as ColumnMeta,
+      id: "created_by",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Created by" />
+      ),
+      accessorFn: (row) => {
+        return row?.created_by;
+      },
+      cell: ({ row }) => {
+        const creatorId = row.original.created_by;
+        const creatorName = usersMap[creatorId] ?? "N/A";
+        return <div>{creatorName}</div>;
+      },
     },
     {
-      accessorKey: 'is_active',
-      header: ({ column }) => <DatatableColumnHeader column={column} title="Status" />,
+      accessorKey: "is_active",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Status" />
+      ),
       accessorFn: (row) => (row.is_active ? "active" : "inactive"),
       cell: ({ row }) => {
         const status = row.getValue("is_active") as string;
         const id = row.original?.id;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`
-            }
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
             onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
@@ -135,13 +152,13 @@ const CityList = () => {
         filterType: "multiselect",
         filterOptions: [
           { label: "Active", value: "active" },
-          { label: "Inactive", value: "inactive" }
+          { label: "Inactive", value: "inactive" },
         ],
         filterPlaceholder: "Filter status...",
       } as ColumnMeta,
     },
     {
-      id: 'actions',
+      id: "actions",
       header: "Actions",
       cell: ({ row }) => {
         const record = row.original;
@@ -166,12 +183,10 @@ const CityList = () => {
               )}
               {rights?.can_delete === "1" && (
                 <DropdownMenuItem
-                  onClick={
-                    () => {
-                      setDeleteDialogOpen(true);
-                      setSelectedRecordId(record.id);
-                    }
-                  }
+                  onClick={() => {
+                    setDeleteDialogOpen(true);
+                    setSelectedRecordId(record.id);
+                  }}
                 >
                   <Trash className="h-4 w-4 mr-1" />
                   Delete
@@ -195,7 +210,7 @@ const CityList = () => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: ['city-list'],
+            queryKey: ["city-list"],
           });
           setSelectedRecordId(null);
         },
@@ -212,7 +227,7 @@ const CityList = () => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: ['city-list'],
+            queryKey: ["city-list"],
           });
         },
       }
@@ -228,17 +243,22 @@ const CityList = () => {
     setTimeout(() => {
       router.back();
     }, 1500);
-    return <Empty title="Permission Denied" description="You do not have permission to view city listing." />;
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have permission to view city listing."
+      />
+    );
   }
 
   // Loading state
-  if (cityListLoading) {
+  if (cityListLoading || usersListLoading) {
     return <LoadingState />;
   }
 
   // Error state
-  if (cityListIsError) {
-    return <Error err={cityListError?.message} />;
+  if (cityListIsError || usersListIsError) {
+    return <Error err={cityListError?.message || usersListError?.message} />;
   }
 
   // Empty state
@@ -249,7 +269,10 @@ const CityList = () => {
   return (
     <>
       <SubNav title="City List" addBtnTitle="Add City" urlPath={ADD_URL} />
-      <CityDatatable columns={columns} payload={cityListResponse?.payload || []} />
+      <CityDatatable
+        columns={columns}
+        payload={cityListResponse?.payload || []}
+      />
       <DeleteDialog
         isDialogOpen={deleteDialogOpen}
         setIsDialogOpen={setDeleteDialogOpen}
