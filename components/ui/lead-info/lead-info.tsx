@@ -45,7 +45,7 @@ const LeadInfoList = () => {
 
   const LISTING_ROUTE = "/leads/lead-info";
   const router = useRouter();
-  
+
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -153,6 +153,8 @@ const LeadInfoList = () => {
     isLoading: LeadInfoListLoading,
     error: LeadInfoListError,
     isError: LeadInfoListIsError,
+    isRefetching: leadInfoListIsRefetching,
+    refetch: LeadInfoListRefetch,
   } = useQuery<LeadInfoResponseTypes | null>({
     queryKey: [
       "lead-info-list",
@@ -498,6 +500,10 @@ const LeadInfoList = () => {
     );
   };
 
+  const handleRefetch = () => {
+    LeadInfoListRefetch();
+  };
+
   // ======== RENDER LOGIC ========
   const isLoading = LeadInfoListLoading;
   const isError = LeadInfoListIsError;
@@ -534,7 +540,14 @@ const LeadInfoList = () => {
       return <Empty title="Not Found" description="Not Found" />;
     }
 
-    return <LeadInfoDatatable columns={columns} payload={leadInfoList} />;
+    return (
+      <LeadInfoDatatable
+        columns={columns}
+        payload={leadInfoList}
+        isRefetching={leadInfoListIsRefetching}
+        handleRefetch={handleRefetch}
+      />
+    );
   };
 
   return (
@@ -544,7 +557,6 @@ const LeadInfoList = () => {
         datePicker={true}
         dateRange={dateRange}
         setDateRange={setDateRange}
-        
       />
 
       {renderPageContent()}
