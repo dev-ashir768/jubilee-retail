@@ -314,9 +314,41 @@ const OrdersListListing = () => {
     [orderRepushMutation]
   );
 
-  const handleRefetch = () => {
-    ordersListListingRefetch();
-  };
+  const handleRefetch = useCallback(async () => {
+    const toastId = "order-list-refetch-toast";
+
+    toast.loading("Refetching...", { id: toastId });
+
+    try {
+      const { isSuccess } = await ordersListListingRefetch();
+
+      if (isSuccess) {
+        toast.success("Fetched Successfully!", { id: toastId });
+      } else {
+        toast.error("Failed to fetch data.", { id: toastId });
+      }
+    } catch (error) {
+toast.error(`${error}: An error occurred.`, { id: toastId });
+    }
+  }, [ordersListListingRefetch]);
+
+  // const handleRefetch = useCallback(async () => {
+  //   const toastId = "order-list-refetch-toast";
+
+  //   toast.loading("Refetching...", { id: toastId });
+
+  //   try {
+  //     const { isError } = await ordersListListingRefetch();
+
+  //     if (isError) {
+  //       toast.error("Failed to fetch data.", { id: toastId });
+  //     } else {
+  //       toast.success("Fetched Successfully!", { id: toastId });
+  //     }
+  //   } catch (error) {
+  //     toast.error("An error occurred.", { id: toastId });
+  //   }
+  // }, [ordersListListingRefetch]);
 
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<OrdersListPayloadType>[] = useMemo(

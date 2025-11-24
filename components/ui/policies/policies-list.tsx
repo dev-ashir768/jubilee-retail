@@ -260,9 +260,23 @@ const PoliciesList = () => {
     [setStatusDialogOpen, setIsPolicyId]
   );
 
-  const handleRefetch = () => {
-    policiesListRefetch();
-  };
+  const handleRefetch = useCallback(async () => {
+    const toastId = "policy-list-refetch-toast";
+
+    toast.loading("Refetching...", { id: toastId });
+
+    try {
+      const { isSuccess } = await policiesListRefetch();
+
+      if (isSuccess) {
+        toast.success("Fetched Successfully!", { id: toastId });
+      } else {
+        toast.error("Failed to fetch data.", { id: toastId });
+      }
+    } catch (error) {
+toast.error(`${error}: An error occurred.`, { id: toastId });
+    }
+  }, [policiesListRefetch]);
 
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<PoliciesPayloadType>[] = useMemo(

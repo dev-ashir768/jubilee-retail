@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ColumnDef, //
   ColumnFiltersState,
@@ -38,7 +38,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../shadcn/tooltip";
 import { Button } from "../shadcn/button";
 import { RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -82,15 +81,6 @@ const DataTable = <TData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [globalFilter, setGlobalFilter] = useState<string>("");
-
-  useEffect(() => {
-    const toastId = "refetch-toast";
-    if (isRefetching) {
-      toast.loading("Refetching...", { id: toastId });
-    } else {
-      toast.success("Fetched Successfully!", { id: toastId });
-    }
-  }, [isRefetching]);
 
   // Initialize the table with the provided data and columns
   // and the state management functions for sorting, filtering, visibility, and selection

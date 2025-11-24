@@ -222,9 +222,23 @@ const CboList = () => {
     [setStatusDialogOpen, setIsPolicyId]
   );
 
-  const handleRefetch = () => {
-    cboListRefetch();
-  };
+  const handleRefetch = useCallback(async () => {
+    const toastId = "cbo-list-refetch-toast";
+
+    toast.loading("Refetching...", { id: toastId });
+
+    try {
+      const { isSuccess } = await cboListRefetch();
+
+      if (isSuccess) {
+        toast.success("Refetched Successfully!", { id: toastId });
+      } else {
+        toast.error("Failed to fetch data.", { id: toastId });
+      }
+    } catch (error) {
+      toast.error(`${error}: An error occurred.`, { id: toastId });
+    }
+  }, [cboListRefetch]);
 
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<CboPayloadType>[] = useMemo(

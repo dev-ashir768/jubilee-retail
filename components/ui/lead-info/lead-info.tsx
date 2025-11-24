@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import SubNav from "../foundations/sub-nav";
 import { useRouter } from "next/navigation";
 import { getRights } from "@/utils/getRights";
@@ -500,9 +500,23 @@ const LeadInfoList = () => {
     );
   };
 
-  const handleRefetch = () => {
-    LeadInfoListRefetch();
-  };
+  const handleRefetch = useCallback(async () => {
+    const toastId = "lead-info-list-refetch-toast";
+
+    toast.loading("Refetching...", { id: toastId });
+
+    try {
+      const { isSuccess } = await LeadInfoListRefetch();
+
+      if (isSuccess) {
+        toast.success("Refetched Successfully!", { id: toastId });
+      } else {
+        toast.error("Failed to fetch data.", { id: toastId });
+      }
+    } catch (error) {
+      toast.error(`${error}: An error occurred.`, { id: toastId });
+    }
+  }, [LeadInfoListRefetch]);
 
   // ======== RENDER LOGIC ========
   const isLoading = LeadInfoListLoading;

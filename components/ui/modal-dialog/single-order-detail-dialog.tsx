@@ -150,8 +150,9 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
 
   // Check validity for both sections
   const hasGeneralDetails = generalDetailsList.some((val) => isValidValue(val));
-  const hasShippingDetails = shippingDetailsList.some((val) => isValidValue(val));
-
+  const hasShippingDetails = shippingDetailsList.some((val) =>
+    isValidValue(val)
+  );
 
   // 3. Tab Calculation
   let visibleTabs = 1; // Overview always visible
@@ -162,12 +163,18 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
 
   const getTabListClass = () => {
     switch (visibleTabs) {
-      case 1: return "grid-cols-1";
-      case 2: return "grid-cols-2";
-      case 3: return "grid-cols-3";
-      case 4: return "grid-cols-4";
-      case 5: return "grid-cols-5";
-      default: return "grid-cols-5";
+      case 1:
+        return "grid-cols-1";
+      case 2:
+        return "grid-cols-2";
+      case 3:
+        return "grid-cols-3";
+      case 4:
+        return "grid-cols-4";
+      case 5:
+        return "grid-cols-5";
+      default:
+        return "grid-cols-5";
     }
   };
   const tabListColsClass = getTabListClass();
@@ -249,15 +256,39 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <InfoField label="Order Number" value={orderSingleData.order_code} />
-                    <InfoField label="Policy Number" value={mainPolicy?.policy_code} />
-                    <InfoField label="Premium" value={`PKR ${formatNumberCell(orderSingleData.payment)}`} />
-                    <InfoField label="Discount" value={formatNumberCell(orderSingleData.discount_amount)} />
-                    <InfoField label="Product Name" value={productInfo?.product_name} />
+                    <InfoField
+                      label="Order Number"
+                      value={orderSingleData.order_code}
+                    />
+                    <InfoField
+                      label="Policy Number"
+                      value={mainPolicy?.policy_code}
+                    />
+                    <InfoField
+                      label="Premium"
+                      value={`PKR ${formatNumberCell(orderSingleData.payment)}`}
+                    />
+                    <InfoField
+                      label="Discount"
+                      value={formatNumberCell(orderSingleData.discount_amount)}
+                    />
+                    <InfoField
+                      label="Product Name"
+                      value={productInfo?.product_name}
+                    />
                     <InfoField label="Plan Name" value={planInfo?.name} />
-                    <InfoField label="Issue Date" value={formatDate(mainPolicy?.issue_date)} />
-                    <InfoField label="Expiry Date" value={formatDate(mainPolicy?.expiry_date)} />
-                    <InfoField label="Order Create Date" value={formatDate(orderSingleData.create_date)} />
+                    <InfoField
+                      label="Issue Date"
+                      value={formatDate(mainPolicy?.issue_date)}
+                    />
+                    <InfoField
+                      label="Expiry Date"
+                      value={formatDate(mainPolicy?.expiry_date)}
+                    />
+                    <InfoField
+                      label="Order Create Date"
+                      value={formatDate(orderSingleData.create_date)}
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -270,47 +301,97 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <InfoField label="Agent" value={orderSingleData.agent_name} />
-                      <InfoField label="Branch" value={orderSingleData.branch_name} />
+                      <InfoField
+                        label="Agent"
+                        value={orderSingleData.agent_name}
+                      />
+                      <InfoField
+                        label="Branch"
+                        value={orderSingleData.branch_name}
+                      />
                       <InfoField
                         label="Client"
-                        value={orderSingleData.client_id ? `Client ${orderSingleData.client_id}` : null}
+                        value={
+                          orderSingleData.client_id
+                            ? `Client ${orderSingleData.client_id}`
+                            : null
+                        }
                       />
                       <InfoField
                         label="Development Office (DO)"
-                        value={orderSingleData.development_office_id ? `DO ${orderSingleData.development_office_id}` : null}
+                        value={
+                          orderSingleData.development_office_id
+                            ? `DO ${orderSingleData.development_office_id}`
+                            : null
+                        }
                       />
-                      <InfoField label="Referred By" value={orderSingleData.referred_by} />
-                      <InfoField label="Coupon" value={orderSingleData.coupon?.coupon_code} />
-                      <InfoField label="Transaction ID" value={orderSingleData.cc_transaction_id} />
-                      <InfoField label="Approval Code" value={orderSingleData.cc_approval_code} />
+                      <InfoField
+                        label="Referred By"
+                        value={orderSingleData.referred_by}
+                      />
+                      <InfoField
+                        label="Coupon"
+                        value={orderSingleData.coupon?.coupon_code}
+                      />
+                      <InfoField
+                        label="Transaction ID"
+                        value={orderSingleData.cc_transaction_id}
+                      />
+                      <InfoField
+                        label="Approval Code"
+                        value={orderSingleData.cc_approval_code}
+                      />
                     </div>
                   </CardContent>
                 </Card>
               )}
 
-               {/* --- NEW SECTION: Shipping Details --- */}
-               {hasShippingDetails && (
+              {/* --- NEW SECTION: Shipping Details --- */}
+              {hasShippingDetails && (
                 <Card className="w-full shadow-none border-none bg-gray-50">
                   <CardHeader className="border-b gap-0">
                     <CardTitle>Shipping Information</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                       {/* New Fields */}
-                      <InfoField label="Shipping Name" value={orderSingleData.shipping_name} />
-                      <InfoField label="Phone" value={orderSingleData.shipping_phone} />
-                      <InfoField label="Email" value={orderSingleData.shipping_email?.toLowerCase()} />
-                      
+                      {/* New Fields */}
+                      <InfoField
+                        label="Shipping Name"
+                        value={orderSingleData.shipping_name}
+                      />
+                      <InfoField
+                        label="Phone"
+                        value={orderSingleData.shipping_phone}
+                      />
+                      <InfoField
+                        label="Email"
+                        value={orderSingleData.shipping_email?.toLowerCase()}
+                      />
+
                       <div className="lg:col-span-3">
-                        <InfoField label="Shipping Address" value={orderSingleData.shipping_address} />
+                        <InfoField
+                          label="Shipping Address"
+                          value={orderSingleData.shipping_address}
+                        />
                       </div>
 
                       {/* Existing Fields */}
-                      <InfoField label="Shipping Method" value={orderSingleData.shipping_method} />
-                      <InfoField label="Tracking Number (CN)" value={orderSingleData.tracking_number} />
-                      <InfoField label="Courier Status" value={orderSingleData.courier_status} />
-                      <InfoField label="Delivery Date" value={formatDate(orderSingleData.delivery_date)} />
+                      <InfoField
+                        label="Shipping Method"
+                        value={orderSingleData.shipping_method}
+                      />
+                      <InfoField
+                        label="Tracking Number (CN)"
+                        value={orderSingleData.tracking_number}
+                      />
+                      <InfoField
+                        label="Courier Status"
+                        value={orderSingleData.courier_status}
+                      />
+                      <InfoField
+                        label="Delivery Date"
+                        value={formatDate(orderSingleData.delivery_date)}
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -328,15 +409,36 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <InfoField label="Name" value={mainApplicantData.name} />
                       <InfoField label="CNIC" value={mainApplicantData.cnic} />
-                      <InfoField label="Passport No." value={mainApplicantData.passport_no} />
-                      <InfoField label="DOB" value={formatDate(mainApplicantData.dob)} />
+                      <InfoField
+                        label="Passport No."
+                        value={mainApplicantData.passport_no}
+                      />
+                      <InfoField
+                        label="DOB"
+                        value={formatDate(mainApplicantData.dob)}
+                      />
                       <InfoField label="Age" value={mainApplicantData.age} />
-                      <InfoField label="Gender" value={mainApplicantData.gender} />
-                      <InfoField label="CNIC Issue Date" value={formatDate(mainApplicantData.cnic_issue_date)} />
-                      <InfoField label="Phone" value={mainApplicantData.contact_number} />
-                      <InfoField label="Email" value={mainApplicantData.email?.toLowerCase()} />
+                      <InfoField
+                        label="Gender"
+                        value={mainApplicantData.gender}
+                      />
+                      <InfoField
+                        label="CNIC Issue Date"
+                        value={formatDate(mainApplicantData.cnic_issue_date)}
+                      />
+                      <InfoField
+                        label="Phone"
+                        value={mainApplicantData.contact_number}
+                      />
+                      <InfoField
+                        label="Email"
+                        value={mainApplicantData.email?.toLowerCase()}
+                      />
                       <div className="lg:col-span-3">
-                        <InfoField label="Address" value={mainApplicantData.address} />
+                        <InfoField
+                          label="Address"
+                          value={mainApplicantData.address}
+                        />
                       </div>
                     </div>
                   </CardContent>
@@ -378,16 +480,37 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
                                 )}
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                   <InfoField label="Name" value={item.name} />
-                                  <InfoField label="Relation" value={item.relation} />
+                                  <InfoField
+                                    label="Relation"
+                                    value={item.relation}
+                                  />
                                   <InfoField label="CNIC" value={item.cnic} />
-                                  <InfoField label="Phone" value={item.contact_number} />
-                                  <InfoField label="DOB" value={formatDate(item.dob)} />
+                                  <InfoField
+                                    label="Phone"
+                                    value={item.contact_number}
+                                  />
+                                  <InfoField
+                                    label="DOB"
+                                    value={formatDate(item.dob)}
+                                  />
                                   <InfoField label="Age" value={item.age} />
-                                  <InfoField label="Gender" value={item.gender} />
-                                  <InfoField label="Passport No." value={item.passport_no} />
-                                  <InfoField label="CNIC Issue Date" value={formatDate(item.cnic_issue_date)} />
+                                  <InfoField
+                                    label="Gender"
+                                    value={item.gender}
+                                  />
+                                  <InfoField
+                                    label="Passport No."
+                                    value={item.passport_no}
+                                  />
+                                  <InfoField
+                                    label="CNIC Issue Date"
+                                    value={formatDate(item.cnic_issue_date)}
+                                  />
                                   <div className="lg:col-span-3">
-                                    <InfoField label="Address" value={item.address} />
+                                    <InfoField
+                                      label="Address"
+                                      value={item.address}
+                                    />
                                   </div>
                                 </div>
                               </div>
@@ -401,46 +524,131 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
 
             {/* --- OTHER TABS --- */}
             {hasTravelInfo && (
-              <TabsContent value="travel" className="space-y-4 max-h-[70vh] overflow-y-auto pr-3">
-                 <Card className="w-full shadow-none border-none bg-gray-50">
-                  <CardHeader className="border-b gap-0"><CardTitle>Travel Information</CardTitle></CardHeader>
+              <TabsContent
+                value="travel"
+                className="space-y-4 max-h-[70vh] overflow-y-auto pr-3"
+              >
+                <Card className="w-full shadow-none border-none bg-gray-50">
+                  <CardHeader className="border-b gap-0">
+                    <CardTitle>Travel Information</CardTitle>
+                  </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <InfoField label="Destination" value={travelInfo?.destination} />
-                      <InfoField label="Travel Purpose" value={travelInfo?.travel_purpose} />
-                      <InfoField label="Travel From" value={travelInfo?.travel_from} />
-                      <InfoField label="No. of Days" value={travelInfo?.no_of_days} />
-                      <InfoField label="Travel Start Date" value={formatDate(travelInfo?.travel_start_date)} />
-                      <InfoField label="Travel End Date" value={formatDate(travelInfo?.travel_end_date)} />
-                      <InfoField label="Institute" value={travelInfo?.institute} />
+                      <InfoField
+                        label="Destination"
+                        value={travelInfo?.destination}
+                      />
+                      <InfoField
+                        label="Travel Purpose"
+                        value={travelInfo?.travel_purpose}
+                      />
+                      <InfoField
+                        label="Travel From"
+                        value={travelInfo?.travel_from}
+                      />
+                      <InfoField
+                        label="No. of Days"
+                        value={travelInfo?.no_of_days}
+                      />
+                      <InfoField
+                        label="Travel Start Date"
+                        value={formatDate(travelInfo?.travel_start_date)}
+                      />
+                      <InfoField
+                        label="Travel End Date"
+                        value={formatDate(travelInfo?.travel_end_date)}
+                      />
+                      <InfoField
+                        label="Institute"
+                        value={travelInfo?.institute}
+                      />
                       <InfoField label="Program" value={travelInfo?.program} />
-                      <InfoField label="Program Duration" value={travelInfo?.program_duration} />
+                      <InfoField
+                        label="Program Duration"
+                        value={travelInfo?.program_duration}
+                      />
                       <InfoField label="Sponsor" value={travelInfo?.sponsor} />
-                      <InfoField label="Sponsor Contact" value={travelInfo?.sponsor_contact} />
-                      <div className="lg:col-span-3"><InfoField label="Sponsor Address" value={travelInfo?.sponsor_address} /></div>
+                      <InfoField
+                        label="Sponsor Contact"
+                        value={travelInfo?.sponsor_contact}
+                      />
+                      <div className="lg:col-span-3">
+                        <InfoField
+                          label="Sponsor Address"
+                          value={travelInfo?.sponsor_address}
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
               </TabsContent>
             )}
 
-             {hasPurchaseProtectionInfo && (
-              <TabsContent value="purchase" className="space-y-4 max-h-[70vh] overflow-y-auto pr-3">
+            {hasPurchaseProtectionInfo && (
+              <TabsContent
+                value="purchase"
+                className="space-y-4 max-h-[70vh] overflow-y-auto pr-3"
+              >
                 {purchaseProtectionData.map((item, index) => (
-                  <Card key={item.id || index} className="w-full shadow-none border-none bg-gray-50 mb-4 last:mb-0">
-                    <CardHeader className="border-b gap-0"><CardTitle>Purchase Protection Item {purchaseProtectionData.length > 1 ? index + 1 : ""}</CardTitle></CardHeader>
+                  <Card
+                    key={item.id || index}
+                    className="w-full shadow-none border-none bg-gray-50 mb-4 last:mb-0"
+                  >
+                    <CardHeader className="border-b gap-0">
+                      <CardTitle>
+                        Purchase Protection Item{" "}
+                        {purchaseProtectionData.length > 1 ? index + 1 : ""}
+                      </CardTitle>
+                    </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div className="lg:col-span-2"><InfoField label="Item Name" value={item.name} /></div>
-                        <InfoField label="SKU / Retailer SKU" value={item.retailer_sku} />
-                        <InfoField label="Serial Number" value={item.serial_number} />
+                        <div className="lg:col-span-2">
+                          <InfoField label="Item Name" value={item.name} />
+                        </div>
+                        <InfoField
+                          label="SKU / Retailer SKU"
+                          value={item.retailer_sku}
+                        />
+                        <InfoField
+                          label="Serial Number"
+                          value={item.serial_number}
+                        />
                         <InfoField label="IMEI" value={item.imei} />
                         <InfoField label="Quantity" value={item.quantity} />
-                        <InfoField label="Sum Insured" value={item.sum_insured ? `PKR ${item.sum_insured}` : null} />
-                        <InfoField label="Item Price" value={item.item_price ? `PKR ${item.item_price}` : null} />
-                        <InfoField label="Total Price" value={item.total_price ? `PKR ${item.total_price}` : null} />
-                        <InfoField label="Duration" value={item.duration ? `${item.duration} ${item.duration_type || ""}` : null} />
-                        <InfoField label="Received Premium" value={item.received_premium ? `PKR ${item.received_premium}` : null} />
+                        <InfoField
+                          label="Sum Insured"
+                          value={
+                            item.sum_insured ? `PKR ${item.sum_insured}` : null
+                          }
+                        />
+                        <InfoField
+                          label="Item Price"
+                          value={
+                            item.item_price ? `PKR ${item.item_price}` : null
+                          }
+                        />
+                        <InfoField
+                          label="Total Price"
+                          value={
+                            item.total_price ? `PKR ${item.total_price}` : null
+                          }
+                        />
+                        <InfoField
+                          label="Duration"
+                          value={
+                            item.duration
+                              ? `${item.duration} ${item.duration_type || ""}`
+                              : null
+                          }
+                        />
+                        <InfoField
+                          label="Received Premium"
+                          value={
+                            item.received_premium
+                              ? `PKR ${item.received_premium}`
+                              : null
+                          }
+                        />
                       </div>
                     </CardContent>
                   </Card>
@@ -449,21 +657,71 @@ const SingleOrderDetailDialog: React.FC<OrderDetailDialogProps> = ({
             )}
 
             {hasHomeInsuranceInfo && (
-              <TabsContent value="home" className="space-y-4 max-h-[70vh] overflow-y-auto pr-3">
+              <TabsContent
+                value="home"
+                className="space-y-4 max-h-[70vh] overflow-y-auto pr-3"
+              >
                 {homeInsuranceData.map((item, index) => (
-                  <Card key={item.id || index} className="w-full shadow-none border-none bg-gray-50 mb-4 last:mb-0">
-                    <CardHeader className="border-b gap-0"><CardTitle>Home Details {homeInsuranceData.length > 1 ? index + 1 : ""}</CardTitle></CardHeader>
+                  <Card
+                    key={item.id || index}
+                    className="w-full shadow-none border-none bg-gray-50 mb-4 last:mb-0"
+                  >
+                    <CardHeader className="border-b gap-0">
+                      <CardTitle>
+                        Home Details{" "}
+                        {homeInsuranceData.length > 1 ? index + 1 : ""}
+                      </CardTitle>
+                    </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <InfoField label="Ownership Status" value={item.ownership_status} />
-                        <InfoField label="Structure Type" value={item.structure_type} />
+                        <InfoField
+                          label="Ownership Status"
+                          value={item.ownership_status}
+                        />
+                        <InfoField
+                          label="Structure Type"
+                          value={item.structure_type}
+                        />
                         <InfoField label="Plot Area" value={item.plot_area} />
                         <InfoField label="City" value={item.city} />
-                        <InfoField label="Building Coverage" value={parseFloat(item.building) > 0 ? `PKR ${item.building}` : null} />
-                        <InfoField label="Loss of Rent" value={parseFloat(item.rent) > 0 ? `PKR ${item.rent}` : null} />
-                        <InfoField label="Content Coverage" value={parseFloat(item.content) > 0 ? `PKR ${item.content}` : null} />
-                        <InfoField label="Jewelry Coverage" value={parseFloat(item.jewelry) > 0 ? `PKR ${item.jewelry}` : null} />
-                        <div className="lg:col-span-3"><InfoField label="Insured Address" value={item.address} /></div>
+                        <InfoField
+                          label="Building Coverage"
+                          value={
+                            parseFloat(item.building) > 0
+                              ? `PKR ${item.building}`
+                              : null
+                          }
+                        />
+                        <InfoField
+                          label="Loss of Rent"
+                          value={
+                            parseFloat(item.rent) > 0
+                              ? `PKR ${item.rent}`
+                              : null
+                          }
+                        />
+                        <InfoField
+                          label="Content Coverage"
+                          value={
+                            parseFloat(item.content) > 0
+                              ? `PKR ${item.content}`
+                              : null
+                          }
+                        />
+                        <InfoField
+                          label="Jewelry Coverage"
+                          value={
+                            parseFloat(item.jewelry) > 0
+                              ? `PKR ${item.jewelry}`
+                              : null
+                          }
+                        />
+                        <div className="lg:col-span-3">
+                          <InfoField
+                            label="Insured Address"
+                            value={item.address}
+                          />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -503,6 +761,9 @@ const InfoField: React.FC<InfoFieldProps> = ({ label, value, highlight }) => {
     }
   }
 
+  const isEmail =
+    typeof displayValue === "string" && displayValue.includes("@");
+
   return (
     <div
       className={
@@ -515,7 +776,9 @@ const InfoField: React.FC<InfoFieldProps> = ({ label, value, highlight }) => {
         {label}
       </Label>
       <p
-        className={`mt-2 font-medium text-foreground whitespace-break-spaces capitalize`}
+        className={`mt-2 font-medium text-foreground whitespace-break-spaces ${
+          isEmail ? "" : "capitalize"
+        }`}
       >
         {displayValue}
       </p>

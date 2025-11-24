@@ -224,9 +224,23 @@ const RenewalPolicyList = () => {
     []
   );
 
-  const handleRefetch = () => {
-    renewalPolicyListRefetch();
-  };
+  const handleRefetch = useCallback(async () => {
+    const toastId = "renewal-list-refetch-toast";
+
+    toast.loading("Refetching...", { id: toastId });
+
+    try {
+      const { isSuccess } = await renewalPolicyListRefetch();
+
+      if (isSuccess) {
+        toast.success("Refetched Successfully!", { id: toastId });
+      } else {
+        toast.error("Failed to fetch data.", { id: toastId });
+      }
+    } catch (error) {
+      toast.error(`${error}: An error occurred.`, { id: toastId });
+    }
+  }, [renewalPolicyListRefetch]);
 
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<RenewalPolicyPayloadType>[] = useMemo(
