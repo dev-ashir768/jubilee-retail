@@ -64,6 +64,10 @@ const RenewalPolicyList = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+  const defaultRange = {
+    from: new Date(),
+    to: addDays(new Date(), 30),
+  };
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -473,6 +477,7 @@ const RenewalPolicyList = () => {
         title="Renewal Policy List"
         datePicker={true}
         dateRange={dateRange}
+        defaultDate={defaultRange}
         setDateRange={setDateRange}
         filter={true}
         isFilterOpen={isFilterOpen}

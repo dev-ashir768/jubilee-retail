@@ -30,7 +30,8 @@ const SubNav: React.FC<subNavTypes> = ({
   setIsExportZipOpen,
   filter = false,
   exportZip = false,
-  disabledDates
+  disabledDates,
+  defaultDate
 }) => {
   // HOOKS AND CONSTANTS
   const pathname = usePathname();
@@ -130,6 +131,7 @@ const SubNav: React.FC<subNavTypes> = ({
             date={dateRange}
             setDate={setDateRange}
             disabledDates={disabledDates}
+            defaultDate={defaultDate}
           />
         )}
       </div>

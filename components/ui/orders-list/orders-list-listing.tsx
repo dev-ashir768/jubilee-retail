@@ -67,6 +67,10 @@ const OrdersListListing = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+  const defaultRange = {
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  };
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -328,7 +332,7 @@ const OrdersListListing = () => {
         toast.error("Failed to fetch data.", { id: toastId });
       }
     } catch (error) {
-toast.error(`${error}: An error occurred.`, { id: toastId });
+      toast.error(`${error}: An error occurred.`, { id: toastId });
     }
   }, [ordersListListingRefetch]);
 
@@ -588,6 +592,7 @@ toast.error(`${error}: An error occurred.`, { id: toastId });
         setIsFilterOpen={setIsFilterOpen}
         datePicker={true}
         dateRange={dateRange}
+        defaultDate={defaultRange}
         setDateRange={setDateRange}
       />
 

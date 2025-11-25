@@ -54,8 +54,9 @@ const ProductList = () => {
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { mutate: deleteMutate } = handleDeleteMutation();
-  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
-  
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
+
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfMonth(new Date()),
     to: new Date(),
@@ -64,6 +65,10 @@ const ProductList = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+  const defaultRange = {
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  };
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -256,8 +261,7 @@ const ProductList = () => {
         const id = row.original?.id;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`
-            }
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
             onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
@@ -304,12 +308,10 @@ const ProductList = () => {
               )}
               {rights?.can_delete === "1" && (
                 <DropdownMenuItem
-                  onClick={
-                    () => {
-                      setDeleteDialogOpen(true);
-                      setSelectedRecordId(record.id);
-                    }
-                  }
+                  onClick={() => {
+                    setDeleteDialogOpen(true);
+                    setSelectedRecordId(record.id);
+                  }}
                 >
                   <Trash className="h-4 w-4 mr-1" />
                   Delete
@@ -415,8 +417,8 @@ const ProductList = () => {
         urlPath={ADD_ROUTE}
         datePicker={true}
         dateRange={dateRange}
+        defaultDate={defaultRange}
         setDateRange={setDateRange}
-        
       />
 
       {renderPageContent()}

@@ -32,11 +32,8 @@ import { format, startOfMonth } from "date-fns";
 import { DateRange } from "react-day-picker";
 import MotorQuotesFilters from "../../filters/motor-quotes";
 import { motorQuotesFilterState } from "@/hooks/motorQuotesFilterState";
-import {
-  handleStatusMutation,
-} from "@/helperFunctions/commonFunctions";
+import { handleStatusMutation } from "@/helperFunctions/commonFunctions";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
-
 
 const MotorQuoteList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -45,7 +42,8 @@ const MotorQuoteList = () => {
   const router = useRouter();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterValue } = motorQuotesFilterState();
-  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfMonth(new Date()),
     to: new Date(),
@@ -54,7 +52,11 @@ const MotorQuoteList = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
-
+  const defaultRange = {
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  };
+  
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(pathname);
@@ -281,7 +283,9 @@ const MotorQuoteList = () => {
         <DatatableColumnHeader column={column} title="Premium Value" />
       ),
       accessorFn: (row) => row.premium_value || "N/A",
-      cell: ({ row }) => <div>{formatNumberCell(row.getValue("premium_value"))}</div>,
+      cell: ({ row }) => (
+        <div>{formatNumberCell(row.getValue("premium_value"))}</div>
+      ),
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
@@ -363,7 +367,9 @@ const MotorQuoteList = () => {
         <DatatableColumnHeader column={column} title="Vehicle Value" />
       ),
       accessorFn: (row) => row.vehicle_value || "N/A",
-      cell: ({ row }) => <div>{formatNumberCell(row.getValue("vehicle_value"))}</div>,
+      cell: ({ row }) => (
+        <div>{formatNumberCell(row.getValue("vehicle_value"))}</div>
+      ),
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
@@ -438,8 +444,7 @@ const MotorQuoteList = () => {
         const id = row.original?.id;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`
-            }
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
             onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
@@ -562,8 +567,8 @@ const MotorQuoteList = () => {
         title="Manage Motor Quote List"
         datePicker={true}
         dateRange={dateRange}
+        defaultDate={defaultRange}
         setDateRange={setDateRange}
-        
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}

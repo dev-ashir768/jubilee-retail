@@ -71,7 +71,11 @@ const PoliciesList = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
-
+  const defaultRange = {
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  };
+  
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE);
@@ -274,7 +278,7 @@ const PoliciesList = () => {
         toast.error("Failed to fetch data.", { id: toastId });
       }
     } catch (error) {
-toast.error(`${error}: An error occurred.`, { id: toastId });
+      toast.error(`${error}: An error occurred.`, { id: toastId });
     }
   }, [policiesListRefetch]);
 
@@ -374,11 +378,7 @@ toast.error(`${error}: An error occurred.`, { id: toastId });
           <DatatableColumnHeader column={column} title="Product" />
         ),
         accessorFn: (row) => row.product || "N/A",
-        cell: ({ row }) => (
-          <div className="line-clamp-2 max-w-[300px] whitespace-break-spaces">
-            {row.original.product}
-          </div>
-        ),
+        cell: ({ row }) => <div>{row.original.product}</div>,
       },
       {
         accessorKey: "payment_code",
@@ -525,6 +525,7 @@ toast.error(`${error}: An error occurred.`, { id: toastId });
         title="Policies List"
         datePicker={true}
         dateRange={dateRange}
+        defaultDate={defaultRange}
         setDateRange={setDateRange}
         filter={true}
         isFilterOpen={isFilterOpen}

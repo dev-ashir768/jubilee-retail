@@ -43,11 +43,12 @@ const BranchList = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const { mutate: deleteMutate } = handleDeleteMutation();
-  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
   const router = useRouter();
   const { setBranchId } = useBranchIdStore();
   const pathname = usePathname();
-  
+
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfMonth(new Date()),
     to: new Date(),
@@ -56,6 +57,10 @@ const BranchList = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+  const defaultRange = {
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  };
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -438,8 +443,8 @@ const BranchList = () => {
         urlPath={ADD_URL}
         datePicker={true}
         dateRange={dateRange}
+        defaultDate={defaultRange}
         setDateRange={setDateRange}
-        
       />
 
       {renderPageContent()}

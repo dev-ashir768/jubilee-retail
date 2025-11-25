@@ -32,6 +32,7 @@ interface DateRangePickerProps extends React.HTMLAttributes<HTMLDivElement> {
   setDate: (date: DateRange | undefined) => void;
   align?: "end" | "center" | "start";
   disabledDates?: CalendarProps["disabled"];
+  defaultDate?: DateRange;
 }
 
 export function DateRangePicker({
@@ -40,6 +41,7 @@ export function DateRangePicker({
   setDate,
   align = "end",
   disabledDates,
+  defaultDate,
 }: DateRangePickerProps) {
   // Local state to hold the date selection before applying
   const [localDate, setLocalDate] = useState<DateRange | undefined>(date);
@@ -129,12 +131,16 @@ export function DateRangePicker({
   };
 
   const handleReset = () => {
-    setLocalDate(date);
-    setDate(date);
+    if (defaultDate) {
+      setLocalDate(defaultDate);
+      setDate(defaultDate);
+    } else {
+      setLocalDate(date);
+      setDate(date);
+    }
     setIsOpen(false);
   };
 
-  // Format selected range for display
   const selectedRangeText =
     localDate?.from && localDate?.to
       ? `${format(localDate.from, "MMM dd, yyyy")} - ${format(
@@ -162,32 +168,31 @@ export function DateRangePicker({
         });
         return datesToCheck.some(disabled);
       } catch (error: unknown) {
-        console.log(error)
+        console.log(error);
         return true; // Invalid interval
       }
     }
 
     // Case 2: Disabled prop is an object (e.g., { before: Date })
     if (typeof disabled === "object") {
-        
       // Check for 'before' constraint (e.g., disabling past dates)
-      if ('before' in disabled && disabled.before instanceof Date) {
-          const beforeDate = disabled.before;
-          // If the range starts BEFORE the disabled date, it's invalid.
-          // We check the 'from' date of the range.
-          if (range.from < beforeDate && !isSameDay(range.from, beforeDate)) {
-              return true;
-          }
+      if ("before" in disabled && disabled.before instanceof Date) {
+        const beforeDate = disabled.before;
+        // If the range starts BEFORE the disabled date, it's invalid.
+        // We check the 'from' date of the range.
+        if (range.from < beforeDate && !isSameDay(range.from, beforeDate)) {
+          return true;
+        }
       }
-      
+
       // Check for 'after' constraint (e.g., disabling future dates)
-      if ('after' in disabled && disabled.after instanceof Date) {
-          const afterDate = disabled.after;
-          // If the range ends AFTER the disabled date, it's invalid.
-          // We check the 'to' date of the range.
-          if (range.to > afterDate && !isSameDay(range.to, afterDate)) {
-              return true;
-          }
+      if ("after" in disabled && disabled.after instanceof Date) {
+        const afterDate = disabled.after;
+        // If the range ends AFTER the disabled date, it's invalid.
+        // We check the 'to' date of the range.
+        if (range.to > afterDate && !isSameDay(range.to, afterDate)) {
+          return true;
+        }
       }
     }
 
@@ -197,7 +202,8 @@ export function DateRangePicker({
 
   const isRangeContainsDisabledDate = isRangeInvalid(localDate, disabledDates);
 
-  const isApplyDisabled = isRangeContainsDisabledDate || !localDate?.from || !localDate?.to;
+  const isApplyDisabled =
+    isRangeContainsDisabledDate || !localDate?.from || !localDate?.to;
 
   return (
     <div className={cn("", className)}>

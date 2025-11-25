@@ -14,5 +14,6 @@ export type subNavTypes = {
   setDateRange?: (date: DateRange | undefined) => void;
   isExportZipOpen?: boolean;
   setIsExportZipOpen?: (isExportZipOpen: boolean) => void;
-  disabledDates?: CalendarProps["disabled"]
+  disabledDates?: CalendarProps["disabled"];
+  defaultDate?: DateRange;
 };

@@ -53,7 +53,7 @@ const ClientList = () => {
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
   const { filterValue } = clientFilterState();
-  
+
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfMonth(new Date()),
     to: new Date(),
@@ -62,7 +62,11 @@ const ClientList = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
-  console.log(startDate, endDate);
+  const defaultRange = {
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  };
+  
   // Zustand
   const { setClientId } = useClientIdStore();
 
@@ -403,8 +407,8 @@ const ClientList = () => {
         urlPath={ADD_URL}
         datePicker={true}
         dateRange={dateRange}
+        defaultDate={defaultRange}
         setDateRange={setDateRange}
-        
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}

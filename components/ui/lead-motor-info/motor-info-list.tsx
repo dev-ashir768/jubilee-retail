@@ -41,18 +41,18 @@ import {
 } from "@/helperFunctions/commonFunctions";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
 
-
 const MotorInfoList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/leads/lead-motor-info";
-  
+
   const router = useRouter();
-  
+
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { mutate: deleteMutate } = handleDeleteMutation();
-  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfMonth(new Date()),
     to: new Date(),
@@ -61,6 +61,10 @@ const MotorInfoList = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+    const defaultRange = {
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  };
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -295,9 +299,11 @@ const MotorInfoList = () => {
       header: ({ column }) => (
         <DatatableColumnHeader column={column} title="Vehicle Value" />
       ),
-      accessorFn: (row)=> row?.vehicle_value,
+      accessorFn: (row) => row?.vehicle_value,
       cell: ({ row }) => {
-        return <div>{formatNumberCell(row.original?.vehicle_value || "N/A")}</div>;
+        return (
+          <div>{formatNumberCell(row.original?.vehicle_value || "N/A")}</div>
+        );
       },
       filterFn: "multiSelect",
       meta: {
@@ -328,13 +334,13 @@ const MotorInfoList = () => {
               <Badge
                 variant={
                   currentStatus as
-                  | "waiting"
-                  | "interested"
-                  | "not_interested"
-                  | "cancelled"
-                  | "waiting"
-                  | "callback_scheduled"
-                  | "pending"
+                    | "waiting"
+                    | "interested"
+                    | "not_interested"
+                    | "cancelled"
+                    | "waiting"
+                    | "callback_scheduled"
+                    | "pending"
                 }
               >
                 {currentStatus.replace(/_/g, " ")}
@@ -358,8 +364,7 @@ const MotorInfoList = () => {
         const id = row.original?.id;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`
-            }
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
             onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
@@ -393,12 +398,10 @@ const MotorInfoList = () => {
             <DropdownMenuContent align="end">
               {rights?.can_delete === "1" && (
                 <DropdownMenuItem
-                  onClick={
-                    () => {
-                      setDeleteDialogOpen(true);
-                      setSelectedRecordId(record.id);
-                    }
-                  }
+                  onClick={() => {
+                    setDeleteDialogOpen(true);
+                    setSelectedRecordId(record.id);
+                  }}
                 >
                   <Trash className="h-4 w-4 mr-1" />
                   Delete
@@ -452,7 +455,6 @@ const MotorInfoList = () => {
     );
   };
 
-
   // ======== RENDER LOGIC ========
   const isLoading = LeadsMotorInfoListLoading;
   const isError = LeadsMotorInfoListIsError;
@@ -500,8 +502,8 @@ const MotorInfoList = () => {
         title="Lead Motor Info List"
         datePicker={true}
         dateRange={dateRange}
+        defaultDate={defaultRange}
         setDateRange={setDateRange}
-        
       />
 
       {renderPageContent()}

@@ -50,7 +50,6 @@ const CallUsList = () => {
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
 
-  
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfMonth(new Date()),
     to: new Date(),
@@ -59,6 +58,11 @@ const CallUsList = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+
+  const defaultRange = {
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  };
 
   // Rights
   const rights = useMemo(() => {
@@ -328,8 +332,8 @@ const CallUsList = () => {
         urlPath={ADD_URL}
         datePicker={true}
         dateRange={dateRange}
+        defaultDate={defaultRange}
         setDateRange={setDateRange}
-        
       />
       {renderPageContent()}
 

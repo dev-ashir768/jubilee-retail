@@ -67,6 +67,11 @@ const CboList = () => {
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
 
+  const defaultRange = {
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  };
+
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE);
@@ -531,6 +536,7 @@ const CboList = () => {
         title="CBO List"
         datePicker={true}
         dateRange={dateRange}
+        defaultDate={defaultRange}
         setDateRange={setDateRange}
         filter={true}
         isFilterOpen={isFilterOpen}
