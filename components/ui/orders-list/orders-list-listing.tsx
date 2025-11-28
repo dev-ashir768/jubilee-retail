@@ -515,7 +515,7 @@ const OrdersListListing = () => {
                     <span>View Details</span>
                   </DropdownMenuItem>
                 )}
-                {["cc", "ol", "pp"].includes(
+                {rights?.can_edit === "1" && ["cc", "ol", "pp"].includes(
                   row?.original.payment_code.toLocaleLowerCase()
                 ) &&
                   row?.original.order_status.toLocaleLowerCase() ===
