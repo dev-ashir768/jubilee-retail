@@ -48,6 +48,20 @@ import { OrderVerifyManuallyResponseTypes } from "@/types/orderVerifyManuallyTyp
 import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
 import Link from "next/link";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/shadcn/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../shadcn/dialog";
 
 const OrdersListListing = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -57,6 +71,8 @@ const OrdersListListing = () => {
   const { filterValue } = ordersListFilterState();
   const [dialogOpen, setDialogOpen] = useState(false);
   const queryClient = useQueryClient();
+  const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
+  const [orderIdToApprove, setOrderIdToApprove] = useState<string | null>(null);
   const [orderSingleData, setSingleOrderData] =
     useState<SingleOrderPayloadTypes | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -404,28 +420,6 @@ const OrdersListListing = () => {
         cell: ({ row }) => <div>{row.original.branch_name || "N/A"}</div>,
       },
       {
-        accessorKey: "cnno",
-        header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="CN Number" />
-        ),
-        cell: ({ row }) => {
-          const cnno = row.original.cnno;
-          if (cnno && cnno.trim() !== "" && cnno !== "N/A") {
-            return (
-              <Link
-                href={`https://www.blue-ex.com/tracking?trackno=${cnno}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline font-medium"
-              >
-                {cnno}
-              </Link>
-            );
-          }
-          return <span className="text-muted-foreground text-sm">N/A</span>;
-        },
-      },
-      {
         accessorKey: "payment_mode",
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Payment Mode" />
@@ -440,12 +434,42 @@ const OrdersListListing = () => {
         cell: ({ row }) => <div>{row.original.api_user_name || "N/A"}</div>,
       },
       {
-        accessorKey: "order_status",
+        id: "order_status",
+        accessorFn: (row) => `${row.order_status} ${row.cnno ? row.cnno : ""}`,
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Status" />
         ),
         cell: ({ row }) => {
           const status = row.original.order_status.toLowerCase();
+          const cnno = row.original.cnno ? String(row.original.cnno) : "";
+
+          if (status === "pendingcod") {
+            return (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="pendingcod"
+                      className="cursor-pointer"
+                      asChild
+                    >
+                      <Link
+                        href={`https://www.blue-ex.com/tracking?trackno=${cnno}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Pending COD
+                      </Link>
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>CN: {cnno}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          }
+
           return (
             <Badge
               variant={
@@ -459,6 +483,7 @@ const OrdersListListing = () => {
                   | "pending"
               }
             >
+              {/* {row.original.order_status} */}
               {row.original.order_status}
             </Badge>
           );
@@ -496,9 +521,10 @@ const OrdersListListing = () => {
                   row?.original.order_status.toLocaleLowerCase() ===
                     "unverified" && (
                     <DropdownMenuItem
-                      onClick={() =>
-                        handleOrderVerifyManually(row.original.order_code)
-                      }
+                      onClick={() => {
+                        setOrderIdToApprove(row.original.order_code);
+                        setIsApproveDialogOpen(true);
+                      }}
                     >
                       <span>Approve Order</span>
                     </DropdownMenuItem>
@@ -518,13 +544,7 @@ const OrdersListListing = () => {
         },
       },
     ],
-    [
-      rights,
-      handleSingleOrderFetch,
-      singleOrderMutation,
-      handleOrderRepush,
-      handleOrderVerifyManually,
-    ]
+    [rights, handleSingleOrderFetch, singleOrderMutation, handleOrderRepush]
   );
 
   // ======== RENDER LOGIC ========
@@ -607,6 +627,42 @@ const OrdersListListing = () => {
         onOpenChange={setDialogOpen}
         orderSingleData={orderSingleData}
       />
+
+      <Dialog open={isApproveDialogOpen} onOpenChange={setIsApproveDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Approve Order</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to approve order #
+              <span className="font-bold text-foreground">
+                {orderIdToApprove}
+              </span>{" "}
+              manually? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsApproveDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={orderVerifyManuallyMutation.isPending}
+              onClick={() => {
+                if (orderIdToApprove) {
+                  handleOrderVerifyManually(orderIdToApprove);
+                  setIsApproveDialogOpen(false);
+                }
+              }}
+            >
+              {orderVerifyManuallyMutation.isPending
+                ? "Approving..."
+                : "Approve"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

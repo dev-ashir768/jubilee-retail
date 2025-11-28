@@ -381,12 +381,12 @@ const PoliciesList = () => {
         cell: ({ row }) => <div>{row.original.product}</div>,
       },
       {
-        accessorKey: "payment_code",
+        accessorKey: "payment_mode",
         header: ({ column }) => (
-          <DatatableColumnHeader column={column} title="Payment Code" />
+          <DatatableColumnHeader column={column} title="Payment Mode" />
         ),
-        accessorFn: (row) => row.payment_code || "N/A",
-        cell: ({ row }) => <div>{row.original.payment_code}</div>,
+        accessorFn: (row) => row.payment_mode || "N/A",
+        cell: ({ row }) => <div>{row.original.payment_mode}</div>,
       },
       {
         accessorKey: "api_user_name",

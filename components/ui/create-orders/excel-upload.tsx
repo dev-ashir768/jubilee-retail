@@ -18,7 +18,7 @@ import { createBulkOrderState } from "@/hooks/createBulkOrderState";
 import { RiderTypes, BulkPolicyDetailType } from "@/types/createBulkOrder";
 
 const ExcelUpload = () => {
-  const { setJsonResult} = createBulkOrderState();
+  const { setJsonResult, jsonResult} = createBulkOrderState();
   const [error, setError] = useState<string | null>(null);
 
   const dropzone = useDropzone({
@@ -226,7 +226,7 @@ const ExcelUpload = () => {
 
           // Assemble the final nested object
           return {
-            policy_no: row.policy_no,
+            policy_no: String(row.policy_no),
             api_user_name: row.partner_name,
             payment_mode_code: row.payment_mode.toLocaleUpperCase(),
             child_sku: row.plan,
@@ -281,6 +281,7 @@ const ExcelUpload = () => {
   const fileName = dropzone.fileStatuses[0]?.fileName;
   const isPending = dropzone.fileStatuses[0]?.status === "pending";
   const fileStatus = dropzone.fileStatuses[0]?.status;
+console.log("jsonResult", jsonResult)
 
   return (
     <>
