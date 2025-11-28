@@ -32,7 +32,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <NextTopLoader
-            color="#ce1440"
+            color="#ffffff"
             showSpinner={false}
             speed={200}
             easing="ease"
