@@ -431,7 +431,7 @@ const OrdersListListing = () => {
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="API User Name" />
         ),
-        cell: ({ row }) => <div>{row.original.api_user_name || "N/A"}</div>,
+        cell: ({ row }) => <div className="capitalize">{row.original.api_user_name || "N/A"}</div>,
       },
       {
         id: "order_status",

@@ -17,7 +17,7 @@ const NavLogo = () => {
               <Image src="/images/favicon.ico" width={32} height={32} className='w-full h-full' alt="favicon" />
             </div>
             <div className="flex aspect-square mx-auto w-28 h-12 transition-[width,height,margin] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:hidden">
-              <Image src="/images/logo.svg" width={112} height={48} className='w-full h-full' alt="logo" />
+              <Image src="/images/logo-white.svg" width={112} height={48} className='w-full h-full' alt="logo" />
             </div>
           </Link>
         </SidebarMenuButton>

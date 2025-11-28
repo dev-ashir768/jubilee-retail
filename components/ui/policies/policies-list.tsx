@@ -394,7 +394,7 @@ const PoliciesList = () => {
           <DatatableColumnHeader column={column} title="Api User Name" />
         ),
         accessorFn: (row) => row.api_user_name || "N/A",
-        cell: ({ row }) => <div>{row.original.api_user_name}</div>,
+        cell: ({ row }) => <div className="capitalize">{row.original.api_user_name}</div>,
       },
       {
         accessorKey: "policy_status",
