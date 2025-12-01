@@ -86,7 +86,7 @@ const CouponUsage: React.FC<CouponUsageProps> = ({
   return (
     <Card className="w-full shadow-none border-0">
       <CardHeader>
-        <CardTitle>Coupon Details ({data.length} total)</CardTitle>
+        <CardTitle>Coupon Details</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>

@@ -49,7 +49,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ userInfo }) => {
           >
             <Avatar className="h-[34px] w-[34px] rounded-md bg-gray-100 p-1">
               <AvatarImage
-                src={process.env.NEXT_PUBLIC_UPLOADS_BASE_URL + "/users/" + userInfo.image}
+                src={
+                  process.env.NEXT_PUBLIC_UPLOADS_BASE_URL +
+                  "/users/" +
+                  userInfo.image
+                }
                 alt="user-avatar"
               />
               <AvatarFallback className="rounded-lg">
@@ -80,7 +84,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ userInfo }) => {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-[34px] w-[34px] rounded-md bg-gray-100 p-1">
                   <AvatarImage
-                    src={process.env.NEXT_PUBLIC_UPLOADS_BASE_URL + "/users/" + userInfo?.image}
+                    src={
+                      process.env.NEXT_PUBLIC_UPLOADS_BASE_URL +
+                      "/users/" +
+                      userInfo?.image
+                    }
                     alt="user-avatar"
                   />
                   <AvatarFallback className="rounded-lg">

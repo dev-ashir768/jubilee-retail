@@ -26,11 +26,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <TanstackQueryProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <TanstackQueryProvider>
           <NextTopLoader
             color="#ffffff"
             showSpinner={false}
@@ -39,8 +39,8 @@ export default function RootLayout({
           />
           <Toaster position="bottom-right" richColors />
           {children}
-        </body>
-      </html>
-    </TanstackQueryProvider>
+        </TanstackQueryProvider>
+      </body>
+    </html>
   );
 }
