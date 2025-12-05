@@ -26,9 +26,9 @@ const Header: React.FC<HeaderProps> = ({ userInfo }) => {
 
   return (
     <>
-      <header className="flex border-b h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 px-4 sticky z-50 top-0 bg-[#1a2226]">
+      <header className="flex border-b h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 px-4 sticky z-50 top-0 bg-white">
         <div className="flex items-center gap-2">
-          <SidebarTrigger className="-ml-1 text-white" />
+          <SidebarTrigger className="-ml-1 text-black" />
           <Separator
             orientation="vertical"
             className="mr-2 data-[orientation=vertical]:h-4"
@@ -36,13 +36,13 @@ const Header: React.FC<HeaderProps> = ({ userInfo }) => {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/" className="text-white/80">Home</BreadcrumbLink>
+                <BreadcrumbLink href="/" className="text-black/80">Home</BreadcrumbLink>
               </BreadcrumbItem>
               {currentModule?.[2] && (
                 <>
                   <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
-                    <BreadcrumbPage className="capitalize text-white">
+                    <BreadcrumbPage className="capitalize text-black">
                       {currentModule[2]?.replace("-", " ")}
                     </BreadcrumbPage>
                   </BreadcrumbItem>

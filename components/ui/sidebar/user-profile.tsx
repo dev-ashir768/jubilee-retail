@@ -71,13 +71,13 @@ const UserProfile: React.FC<UserProfileProps> = ({ userInfo }) => {
             </Avatar>
             {!isMobile && (
               <>
-                <div className="grid flex-1 text-left text-sm leading-tight text-white">
+                <div className="grid flex-1 text-left text-sm leading-tight text-black">
                   <span className="truncate font-medium">
                     {userInfo.fullname}
                   </span>
                   <span className="truncate text-xs">{userInfo.email}</span>
                 </div>
-                <ChevronsUpDown className="ml-auto size-4 text-white" />
+                <ChevronsUpDown className="ml-auto size-4 text-black" />
               </>
             )}
           </Button>
