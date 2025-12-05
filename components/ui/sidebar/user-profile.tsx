@@ -20,10 +20,12 @@ import {
 import { useSidebar } from "@/components/ui/shadcn/sidebar";
 import { Button } from "@/components/ui/shadcn/button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { handleLogout } from "@/utils/handleLogout";
 import { userInfoTypes } from "@/types/verifyOtpTypes";
 import UpdatePasswordDialog from "../users/update-password-dialog";
 import { useCallback, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface UserProfileProps {
   userInfo: userInfoTypes;
@@ -32,11 +34,18 @@ interface UserProfileProps {
 const UserProfile: React.FC<UserProfileProps> = ({ userInfo }) => {
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const { isMobile } = useSidebar();
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
   // ======= HANDLER =======
   const handleUpdatePassowrdDialog = useCallback(() => {
     setIsFilterOpen(!isFilterOpen);
   }, [setIsFilterOpen, isFilterOpen]);
+
+  const handleQueryClear = () => {
+    queryClient.clear();
+    queryClient.getMutationCache().clear();
+  };
 
   return (
     <>
@@ -121,13 +130,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ userInfo }) => {
             </DropdownMenuItem>
             <DropdownMenuItem
               className="cursor-pointer"
-              onClick={handleLogout}
-              asChild
+              onClick={() => {
+                handleLogout();
+                handleQueryClear();
+                router.replace("/login");
+              }}
             >
-              <Link href="/login">
-                <LogOut />
-                Logout
-              </Link>
+              <LogOut />
+              Logout
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>

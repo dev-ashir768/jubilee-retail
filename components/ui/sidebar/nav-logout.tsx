@@ -8,10 +8,11 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/shadcn/sidebar";
 import { handleLogout } from "@/utils/handleLogout";
-import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 const NavLogout = () => {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const handleQueryClear = () => {
     queryClient.clear();
@@ -28,13 +29,11 @@ const NavLogout = () => {
           onClick={() => {
             handleLogout();
             handleQueryClear();
+            router.replace("/login");
           }}
-          asChild
         >
-          <Link href="/login">
-            <LogOut className="!w-5 !h-5 group-data-[collapsible=icon]:!w-4 group-data-[collapsible=icon]:!h-4" />
-            Logout
-          </Link>
+          <LogOut className="!w-5 !h-5 group-data-[collapsible=icon]:!w-4 group-data-[collapsible=icon]:!h-4" />
+          Logout
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>
