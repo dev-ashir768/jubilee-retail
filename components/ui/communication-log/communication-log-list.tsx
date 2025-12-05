@@ -3,8 +3,9 @@
 import {
   CommunicationLogsDataType,
   CommunicationLogsResponseType,
+  RepushCommunicationLogsResponseType,
 } from "@/types/communicationLogsTypes";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import DatatableColumnHeader from "../datatable/datatable-column-header";
@@ -18,11 +19,23 @@ import SubNav from "../foundations/sub-nav";
 import Error from "../foundations/error";
 import { formatDate } from "date-fns";
 import { Badge } from "../shadcn/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../shadcn/dropdown-menu";
+import { Button } from "../shadcn/button";
+import { MoreHorizontal, RefreshCcwDot } from "lucide-react";
+import { axiosFunction } from "@/utils/axiosFunction";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
 
 const CommunicationLogList = () => {
   // ======== CONSTANTS & HOOKS ========
-  const LISTING_ROUTE = "/communication-logs/";
+  const LISTING_ROUTE = "/communication-log";
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -39,6 +52,33 @@ const CommunicationLogList = () => {
     queryKey: ["communication-logs-list"],
     queryFn: fetchAllCommunicationLogsList,
   });
+
+  // ======== MUTATIONS ========
+  const useRepushMutation = useMutation<
+    RepushCommunicationLogsResponseType,
+    AxiosError<RepushCommunicationLogsResponseType>,
+    { communication_log_id: number }
+  >({
+    mutationFn: ({ communication_log_id }) => {
+      return axiosFunction({
+        method: "POST",
+        urlPath: "/communication-logs/repush",
+        data: { communication_log_id },
+        isServer: true,
+      });
+    },
+    onError: (err) => {
+      const message = err?.response?.data?.message;
+      console.log("Repush mutation error", err);
+      toast.error(message);
+    },
+    onSuccess: (data) => {
+      const message = data?.message;
+      queryClient.invalidateQueries({ queryKey: ["communication-logs-list"] });
+      toast.success(message);
+    },
+  });
+
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<CommunicationLogsDataType>[] = [
     {
@@ -159,6 +199,37 @@ const CommunicationLogList = () => {
       cell: ({ getValue }) => {
         const value = getValue<string | null>();
         return <div>{value || "-"}</div>;
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const record = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {rights?.can_edit === "1" && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    useRepushMutation.mutate({
+                      communication_log_id: record.id,
+                    });
+                  }}
+                >
+                  <RefreshCcwDot className="h-4 w-4 mr-1" />
+                  Repush
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
       },
     },
   ];

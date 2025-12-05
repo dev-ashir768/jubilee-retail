@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import MotorInfoDatatable from "./motor-info-datatable";
 import SubNav from "../foundations/sub-nav";
 import { useRouter } from "next/navigation";
@@ -40,6 +40,14 @@ import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
+import {
+  fetchIgisMakeList,
+  fetchIgisSubMakeList,
+} from "@/helperFunctions/igisFunction";
+import {
+  IgisMakeResponseType,
+  IgisSubMakeResponseType,
+} from "@/types/igisTypes";
 
 const MotorInfoList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -61,7 +69,7 @@ const MotorInfoList = () => {
     ? format(dateRange?.from, "yyyy-MM-dd")
     : "";
   const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
-    const defaultRange = {
+  const defaultRange = {
     from: startOfMonth(new Date()),
     to: new Date(),
   };
@@ -158,6 +166,8 @@ const MotorInfoList = () => {
     isLoading: LeadsMotorInfoListLoading,
     error: LeadsMotorInfoListError,
     isError: LeadsMotorInfoListIsError,
+    isRefetching: LeadsMotorInfoListIsRefetching,
+    refetch: LeadsMotorInfoListRefetch,
   } = useQuery<LeadMotorInfoResponseTypes | null>({
     queryKey: [
       "lead-motor-info-list",
@@ -168,6 +178,28 @@ const MotorInfoList = () => {
         startDate,
         endDate,
       }),
+  });
+
+  // Fetch IGIS make list data using react-query
+  const {
+    data: igisMakeListResponse,
+    isLoading: igisMakeListLoading,
+    isError: igisMakeListIsError,
+    error: igisMakeListError,
+  } = useQuery<IgisMakeResponseType | null>({
+    queryKey: ["igis-make-list"],
+    queryFn: fetchIgisMakeList,
+  });
+
+  // Fetch IGIS sub-make list data using react-query
+  const {
+    data: igisSubMakeListResponse,
+    isLoading: igisSubMakeListLoading,
+    isError: igisSubMakeListIsError,
+    error: igisSubMakeListError,
+  } = useQuery<IgisSubMakeResponseType | null>({
+    queryKey: ["igis-sub-make-list"],
+    queryFn: fetchIgisSubMakeList,
   });
 
   // ======== MUTATION ========
@@ -209,9 +241,42 @@ const MotorInfoList = () => {
   });
 
   // ======== PAYLOADS DATA ========
+
+  // Column filter options
+  const makeNameFilterOptions = useMemo(() => {
+    const allNames =
+      igisMakeListResponse?.payload?.map((item) => item.make_name) || [];
+    const uniqueNames = Array.from(new Set(allNames));
+    return uniqueNames.map((name) => ({
+      label: name,
+      value: name,
+    }));
+  }, [igisMakeListResponse]);
+
+  // Column filter options
+  const subMakeNameFilterOptions = useMemo(() => {
+    const allNames =
+      igisSubMakeListResponse?.payload?.map((item) => item.sub_make_name) || [];
+    const uniqueNames = Array.from(new Set(allNames));
+    return uniqueNames.map((name) => ({
+      label: name,
+      value: name,
+    }));
+  }, [igisSubMakeListResponse]);
+
   const leadsMotorInfoList = useMemo(
     () => LeadsMotorInfoListResponse?.payload || [],
     [LeadsMotorInfoListResponse]
+  );
+
+  const igisMakeList = useMemo(
+    () => igisMakeListResponse?.payload || [],
+    [igisMakeListResponse]
+  );
+
+  const igisSubMakeList = useMemo(
+    () => igisSubMakeListResponse?.payload || [],
+    [igisSubMakeListResponse]
   );
 
   // ======== FILTER OPTIONS ========
@@ -239,6 +304,24 @@ const MotorInfoList = () => {
     () => createFilterOptions(leadsMotorInfoList, "vehicle_value"),
     [leadsMotorInfoList]
   );
+
+  const handleRefetch = useCallback(async () => {
+    const toastId = "lead-motor-info-list-refetch-toast";
+
+    toast.loading("Refetching...", { id: toastId });
+
+    try {
+      const { isSuccess } = await LeadsMotorInfoListRefetch();
+
+      if (isSuccess) {
+        toast.success("Fetched Successfully!", { id: toastId });
+      } else {
+        toast.error("Failed to fetch data.", { id: toastId });
+      }
+    } catch (error) {
+      toast.error(`${error}: An error occurred.`, { id: toastId });
+    }
+  }, [LeadsMotorInfoListRefetch]);
 
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<LeadMotorInfoPayloadTypes>[] = [
@@ -279,6 +362,52 @@ const MotorInfoList = () => {
         filterType: "multiselect",
         filterOptions: emailFilterOptions,
         filterPlaceholder: "Filter by email...",
+      } as ColumnMeta,
+    },
+    {
+      id: "vehicle_make",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Vehicle Make" />
+      ),
+      accessorFn: (row) => {
+        if (!row.vehicle_make) {
+          return "N/A";
+        }
+        const makeName = igisMakeListResponse?.payload.find((item) =>
+          row.vehicle_make.includes(String(item.id))
+        )?.make_name;
+
+        return makeName || "N/A";
+      },
+      cell: ({ row }) => <div>{row.getValue("vehicle_make")}</div>,
+      filterFn: "multiSelect",
+      meta: {
+        filterType: "multiselect",
+        filterOptions: makeNameFilterOptions,
+        filterPlaceholder: "Filter by vehicle make...",
+      } as ColumnMeta,
+    },
+    {
+      id: "vehicle_submake",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Vehicle Submake" />
+      ),
+      accessorFn: (row) => {
+        if (!row.vehicle_submake) {
+          return "N/A";
+        }
+        const subMakeName = igisSubMakeListResponse?.payload.find((item) =>
+          row.vehicle_submake.includes(String(item.id))
+        )?.sub_make_name;
+
+        return subMakeName || "N/A";
+      },
+      cell: ({ row }) => <div>{row.getValue("vehicle_submake")}</div>,
+      filterFn: "multiSelect",
+      meta: {
+        filterType: "multiselect",
+        filterOptions: subMakeNameFilterOptions,
+        filterPlaceholder: "Filter by vehicle submake...",
       } as ColumnMeta,
     },
     {
@@ -456,9 +585,14 @@ const MotorInfoList = () => {
   };
 
   // ======== RENDER LOGIC ========
-  const isLoading = LeadsMotorInfoListLoading;
-  const isError = LeadsMotorInfoListIsError;
-  const onError = LeadsMotorInfoListError?.message;
+  const isLoading =
+    LeadsMotorInfoListLoading || igisMakeListLoading || igisSubMakeListLoading;
+  const isError =
+    LeadsMotorInfoListIsError || igisMakeListIsError || igisSubMakeListIsError;
+  const onError =
+    LeadsMotorInfoListError?.message ||
+    igisMakeListError?.message ||
+    igisSubMakeListError?.message;
 
   useEffect(() => {
     if (rights && rights?.can_view === "0") {
@@ -492,7 +626,12 @@ const MotorInfoList = () => {
     }
 
     return (
-      <MotorInfoDatatable columns={columns} payload={leadsMotorInfoList} />
+      <MotorInfoDatatable
+        columns={columns}
+        payload={leadsMotorInfoList || igisMakeList || igisSubMakeList}
+        isRefetching={LeadsMotorInfoListIsRefetching}
+        handleRefetch={handleRefetch}
+      />
     );
   };
 

@@ -45,7 +45,7 @@ const DataTablePagination = <TData,>({
               side="top"
               className="w-(--radix-dropdown-menu-trigger-width) rounded-md border-0 shadow-[0px_2px_8px_0px_rgba(99,99,99,0.2)]"
             >
-              {[10, 20, 30, 40, 50].map((pageSize) => (
+              {[25, 50, 75, 100].map((pageSize) => (
                 <SelectItem key={pageSize} value={`${pageSize}`}>
                   {pageSize}
                 </SelectItem>
@@ -56,8 +56,17 @@ const DataTablePagination = <TData,>({
         <div className="flex items-center space-x-3">
           <div className="flex min-w-[100px] items-center justify-center">
             <p className="text-foreground text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
+              Showing{" "}
+              {table.getState().pagination.pageIndex *
+                table.getState().pagination.pageSize +
+                1}
+              -
+              {Math.min(
+                (table.getState().pagination.pageIndex + 1) *
+                  table.getState().pagination.pageSize,
+                table.getFilteredRowModel().rows.length
+              )}{" "}
+              of {table.getFilteredRowModel().rows.length} Records
             </p>
           </div>
           <div className="flex items-center space-x-2">

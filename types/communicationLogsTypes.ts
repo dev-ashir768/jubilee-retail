@@ -54,3 +54,28 @@ export type CommunicationLogsResponseType = {
   message: string;
   payload: CommunicationLogsPayloadType[];
 };
+
+export type RepushCommunicationLogsPayloadType = {
+  success: boolean;
+  response: {
+    code: number;
+    data: {
+      data: {
+        errorMessage: string;
+        message: string;
+        result: {
+          id: string;
+          number: string;
+          messageId: string;
+        }[];
+      };
+    };
+  };
+  error: string | null;
+};
+
+export type RepushCommunicationLogsResponseType = {
+  status: 1 | 0;
+  message: string;
+  payload: RepushCommunicationLogsPayloadType[];
+};

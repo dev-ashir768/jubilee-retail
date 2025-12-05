@@ -99,6 +99,12 @@ const DataTable = <TData, TValue>({
     filterFns: {
       multiSelect: multiSelectFilter,
     },
+    initialState: {
+      pagination: {
+        pageSize: 25,
+        pageIndex: 0,
+      },
+    },
     state: {
       sorting,
       columnFilters,
