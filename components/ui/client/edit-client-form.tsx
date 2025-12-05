@@ -96,7 +96,7 @@ const EditClientForm: React.FC<EditClientFormProps> = ({
         },
       });
       queryClient.invalidateQueries({ queryKey: ["single-client", clientId] });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

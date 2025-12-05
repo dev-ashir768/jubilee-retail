@@ -305,7 +305,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
       toast.success(message);
       queryClient.invalidateQueries({ queryKey: ["users-list"] });
       queryClient.invalidateQueries({ queryKey: ["single-user", userId] });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

@@ -88,7 +88,7 @@ const AddClientForm: React.FC<AddClientFormProps> = ({ branchList }) => {
           );
         },
       });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

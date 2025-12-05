@@ -69,7 +69,7 @@ const AddCallUsForm = () => {
           );
         },
       });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

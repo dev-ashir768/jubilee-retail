@@ -63,7 +63,7 @@ const EditAgent = () => {
     error: developmentOfficerListError,
   } = useQuery<DevelopmentOfficerResponseTypes | null>({
     queryKey: ["all-development-officers-list"],
-        queryFn: fetchAllDevelopmentOfficerList,
+    queryFn: fetchAllDevelopmentOfficerList,
   });
 
   // Rights Redirection
@@ -108,7 +108,7 @@ const EditAgent = () => {
   // Empty and redirect state
   if (!agentId) {
     setTimeout(() => {
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     });
     return (
       <Empty

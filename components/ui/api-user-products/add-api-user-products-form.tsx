@@ -87,7 +87,7 @@ const AddApiAserProductsForm: React.FC<AddApiAserProductsFormProps> = ({
           );
         },
       });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

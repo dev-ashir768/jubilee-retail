@@ -94,7 +94,7 @@ const AddAgentForm: React.FC<AddAgentFormProps> = ({
       toast.success(message);
       reset();
       queryClient.invalidateQueries({ queryKey: ["all-agents-list"] });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

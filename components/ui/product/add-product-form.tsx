@@ -1,4 +1,3 @@
-
 import { axiosFunction } from "@/utils/axiosFunction";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -99,7 +98,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({
           );
         },
       });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

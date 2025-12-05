@@ -82,7 +82,7 @@ const AddBranchForm = () => {
           );
         },
       });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

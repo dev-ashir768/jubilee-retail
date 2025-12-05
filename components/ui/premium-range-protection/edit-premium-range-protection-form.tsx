@@ -100,7 +100,7 @@ const EditPremiumRangeProtectionForm: React.FC<
       queryClient.invalidateQueries({
         queryKey: ["premium-range-protection-list", premiumRangeProtectionId],
       });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

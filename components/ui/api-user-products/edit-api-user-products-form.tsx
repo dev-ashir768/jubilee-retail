@@ -99,7 +99,7 @@ const EditApiAserProductsForm: React.FC<EditApiAserProductsFormProps> = ({
       queryClient.invalidateQueries({
         queryKey: ["single-api-user-products", apiUserProductsId],
       });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

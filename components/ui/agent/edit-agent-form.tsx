@@ -105,7 +105,7 @@ const EditAgentForm: React.FC<EditAgentFormProps> = ({
       reset();
       queryClient.invalidateQueries({ queryKey: ["single-agent", agentId] });
       queryClient.invalidateQueries({ queryKey: ["all-agents-list"] });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

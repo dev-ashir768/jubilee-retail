@@ -89,7 +89,7 @@ const EditBranchForm: React.FC<EditBranchFormProps> = ({ singleBranch }) => {
           );
         },
       });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

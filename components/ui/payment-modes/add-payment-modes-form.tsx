@@ -60,7 +60,7 @@ const AddPaymentModeForm = () => {
       const message = data?.message;
       toast.success(message);
       queryClient.invalidateQueries({ queryKey: ["payment-modes-list"] });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

@@ -97,7 +97,7 @@ const AddCouponsForm: React.FC<AddCouponsForm> = ({ productList }) => {
           );
         },
       });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

@@ -106,7 +106,7 @@ const EditProductForm: React.FC<EditProductFormProps> = ({
       queryClient.invalidateQueries({
         queryKey: ["single-product", productsId],
       });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

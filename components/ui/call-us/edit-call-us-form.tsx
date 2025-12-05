@@ -75,7 +75,7 @@ const EditCallUsForm: React.FC<EditCallUsForm> = ({ singleCallUs }) => {
           );
         },
       });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 

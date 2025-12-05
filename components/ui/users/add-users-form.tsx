@@ -135,7 +135,7 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
       const message = data?.message;
       toast.success(message);
       queryClient.invalidateQueries({ queryKey: ["users-list"] });
-      router.push(LISTING_ROUTE);
+      router.replace(LISTING_ROUTE);
     },
   });
 
@@ -224,7 +224,6 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
   };
 
   // Submit Form
-
 
   // 3. onSubmit mein phone field bhi add kar do (missing tha)
   const onSubmit = (data: UserSchemaType) => {
