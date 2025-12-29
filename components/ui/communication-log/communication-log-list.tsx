@@ -30,6 +30,13 @@ import { MoreHorizontal, RefreshCcwDot } from "lucide-react";
 import { axiosFunction } from "@/utils/axiosFunction";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../shadcn/dialog";
 
 const CommunicationLogList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -67,6 +74,9 @@ const CommunicationLogList = () => {
         isServer: true,
       });
     },
+    onMutate: () => {
+      toast.loading("Repushing...", { id: "repushing" });
+    },
     onError: (err) => {
       const message = err?.response?.data?.message;
       console.log("Repush mutation error", err);
@@ -75,6 +85,7 @@ const CommunicationLogList = () => {
     onSuccess: (data) => {
       const message = data?.message;
       queryClient.invalidateQueries({ queryKey: ["communication-logs-list"] });
+      toast.dismiss("repushing");
       toast.success(message);
     },
   });
@@ -200,6 +211,76 @@ const CommunicationLogList = () => {
         const value = getValue<string | null>();
         return <div>{value || "-"}</div>;
       },
+    },
+    {
+      id: "statusmessage",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Status Message" />
+      ),
+      accessorFn: (row) => {
+        return row.response_data?.data?.data?.[0]?.statusmessage ?? null;
+      },
+      cell: ({ getValue }) => {
+        const value = getValue<string | null>();
+        return <div>{value || "-"}</div>;
+      },
+    },
+    {
+      id: "attachments",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Attachments" />
+      ),
+      accessorFn: (row) => row.params?.attachments ?? [],
+      cell: ({ row }) => {
+        const attachments = row.original.params?.attachments;
+        if (!attachments || attachments.length === 0) {
+          return <div>-</div>;
+        }
+        return (
+          <div className="flex flex-col items-start justify-start">
+            {attachments.map((attachment, index) => (
+              <Button
+                key={index}
+                variant="link"
+                onClick={() => window.open(attachment.path, "_blank")}
+                rel="noopener noreferrer"
+                className="text-xs"
+              >
+                {attachment.filename}
+              </Button>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "htmlContent",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Email Content" />
+      ),
+      cell: ({ row }) => (
+        <Dialog>
+          <DialogTrigger asChild>
+            {row.original.htmlContent ? (
+              <Button variant="link">View content</Button>
+            ) : (
+              <Button variant="link" disabled>
+                View content
+              </Button>
+            )}
+          </DialogTrigger>
+          <DialogContent className="data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-20 data-[state=open]:zoom-in-100 data-[state=open]:duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-20 data-[state=closed]:zoom-out-95 data-[state=closed]:duration-300 sm:max-w-[760px] gap-6">
+            <DialogHeader>
+              <DialogTitle>Email Content</DialogTitle>
+            </DialogHeader>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: row.original.htmlContent || "",
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      ),
     },
     {
       id: "actions",

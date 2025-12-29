@@ -9,6 +9,16 @@ export type CommunicationLogsMetaType = {
   limit: number;
 };
 
+export type CommunicationLogsParamsType = {
+  bcc: string | null;
+  cc: string | null;
+  attachments: {
+    filename: string;
+    path: string;
+    contentType: string;
+  }[];
+};
+
 export type CommunicationLogsDataType = {
   id: number;
   type: string;
@@ -16,7 +26,7 @@ export type CommunicationLogsDataType = {
   subject: string | null;
   message: string;
   htmlContent: string | null;
-  params: string | null;
+  params: CommunicationLogsParamsType | null;
   status: string;
   error_message: string | null;
   response_data: CommunicationLogsResponseDataType;
