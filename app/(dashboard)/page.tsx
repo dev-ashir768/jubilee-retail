@@ -1,3 +1,10 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: 'Home | Jubilee Retail',
+  description: 'Welcome to Jubilee General Retail',
+}
+
 const page = () => {
   return (
     <>

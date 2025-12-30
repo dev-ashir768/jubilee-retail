@@ -7,7 +7,7 @@ import {
 } from "@/types/communicationLogsTypes";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DatatableColumnHeader from "../datatable/datatable-column-header";
 import Empty from "../foundations/empty";
 import LoadingState from "../foundations/loading-state";
@@ -23,10 +23,17 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../shadcn/dropdown-menu";
 import { Button } from "../shadcn/button";
-import { MoreHorizontal, RefreshCcwDot } from "lucide-react";
+import {
+  FileText,
+  Mail,
+  MoreHorizontal,
+  Paperclip,
+  RefreshCcwDot,
+} from "lucide-react";
 import { axiosFunction } from "@/utils/axiosFunction";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
@@ -35,7 +42,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "../shadcn/dialog";
 
 const CommunicationLogList = () => {
@@ -43,6 +49,13 @@ const CommunicationLogList = () => {
   const LISTING_ROUTE = "/communication-log";
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  // ======== STATE ========
+  const [selectedRecord, setSelectedRecord] =
+    useState<CommunicationLogsDataType | null>(null);
+  const [dialogType, setDialogType] = useState<
+    "message" | "htmlContent" | "attachments" | null
+  >(null);
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -90,22 +103,22 @@ const CommunicationLogList = () => {
     },
   });
 
+  // ======== HANDLERS ========
+  const handleOpenDialog = (
+    record: CommunicationLogsDataType,
+    type: "message" | "htmlContent" | "attachments"
+  ) => {
+    setSelectedRecord(record);
+    setDialogType(type);
+  };
+
+  const handleCloseDialog = () => {
+    setSelectedRecord(null);
+    setDialogType(null);
+  };
+
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<CommunicationLogsDataType>[] = [
-    {
-      accessorKey: "id",
-      header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="ID" />
-      ),
-      cell: ({ row }) => <div>{row.original.id}</div>,
-    },
-    {
-      accessorKey: "type",
-      header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="Type" />
-      ),
-      cell: ({ row }) => <div>{row.original.type}</div>,
-    },
     {
       accessorKey: "recipient",
       header: ({ column }) => (
@@ -119,6 +132,19 @@ const CommunicationLogList = () => {
         <DatatableColumnHeader column={column} title="Subject" />
       ),
       cell: ({ row }) => <div>{row.original.subject}</div>,
+    },
+    {
+      accessorKey: "type",
+      header: ({ column }) => (
+        <DatatableColumnHeader column={column} title="Type" />
+      ),
+      cell: ({ row }) => (
+        <Badge
+          variant={row.original.type === "email" ? "interested" : "waiting"}
+        >
+          {row.original.type}
+        </Badge>
+      ),
     },
     {
       accessorKey: "status",
@@ -161,132 +187,15 @@ const CommunicationLogList = () => {
       ),
     },
     {
-      id: "otptype",
-      header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="OTP Type" />
-      ),
-      accessorFn: (row) => {
-        return row.response_data?.data?.data?.[0]?.otptype ?? null;
-      },
-      cell: ({ getValue }) => {
-        const value = getValue<string | null>();
-        return <div>{value || "-"}</div>;
-      },
-    },
-    {
-      id: "messageid",
-      header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="Message ID" />
-      ),
-      accessorFn: (row) => {
-        return row.response_data?.data?.data?.[0]?.messageid ?? null;
-      },
-      cell: ({ getValue }) => {
-        const value = getValue<string | null>();
-        return <div>{value || "-"}</div>;
-      },
-    },
-    {
-      id: "originator",
-      header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="Originator" />
-      ),
-      accessorFn: (row) => {
-        return row.response_data?.data?.data?.[0]?.originator ?? null;
-      },
-      cell: ({ getValue }) => {
-        const value = getValue<string | null>();
-        return <div>{value || "-"}</div>;
-      },
-    },
-    {
-      id: "statuscode",
-      header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="Status Code" />
-      ),
-      accessorFn: (row) => {
-        return row.response_data?.data?.data?.[0]?.statuscode ?? null;
-      },
-      cell: ({ getValue }) => {
-        const value = getValue<string | null>();
-        return <div>{value || "-"}</div>;
-      },
-    },
-    {
-      id: "statusmessage",
-      header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="Status Message" />
-      ),
-      accessorFn: (row) => {
-        return row.response_data?.data?.data?.[0]?.statusmessage ?? null;
-      },
-      cell: ({ getValue }) => {
-        const value = getValue<string | null>();
-        return <div>{value || "-"}</div>;
-      },
-    },
-    {
-      id: "attachments",
-      header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="Attachments" />
-      ),
-      accessorFn: (row) => row.params?.attachments ?? [],
-      cell: ({ row }) => {
-        const attachments = row.original.params?.attachments;
-        if (!attachments || attachments.length === 0) {
-          return <div>-</div>;
-        }
-        return (
-          <div className="flex flex-col items-start justify-start">
-            {attachments.map((attachment, index) => (
-              <Button
-                key={index}
-                variant="link"
-                onClick={() => window.open(attachment.path, "_blank")}
-                rel="noopener noreferrer"
-                className="text-xs"
-              >
-                {attachment.filename}
-              </Button>
-            ))}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "htmlContent",
-      header: ({ column }) => (
-        <DatatableColumnHeader column={column} title="Email Content" />
-      ),
-      cell: ({ row }) => (
-        <Dialog>
-          <DialogTrigger asChild>
-            {row.original.htmlContent ? (
-              <Button variant="link">View content</Button>
-            ) : (
-              <Button variant="link" disabled>
-                View content
-              </Button>
-            )}
-          </DialogTrigger>
-          <DialogContent className="data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-20 data-[state=open]:zoom-in-100 data-[state=open]:duration-300 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-20 data-[state=closed]:zoom-out-95 data-[state=closed]:duration-300 sm:max-w-[760px] gap-6">
-            <DialogHeader>
-              <DialogTitle>Email Content</DialogTitle>
-            </DialogHeader>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: row.original.htmlContent || "",
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-      ),
-    },
-    {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
         const record = row.original;
+        const hasAttachments =
+          record.params?.attachments && record.params.attachments.length > 0;
+        const hasMessage = !!record.message;
+        const hasHtmlContent = !!record.htmlContent;
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -297,17 +206,50 @@ const CommunicationLogList = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {rights?.can_edit === "1" && (
-                <DropdownMenuItem
-                  onClick={() => {
-                    useRepushMutation.mutate({
-                      communication_log_id: record.id,
-                    });
-                  }}
-                >
-                  <RefreshCcwDot className="h-4 w-4 mr-1" />
-                  Repush
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      useRepushMutation.mutate({
+                        communication_log_id: record.id,
+                      });
+                    }}
+                  >
+                    <RefreshCcwDot className="h-4 w-4 mr-2" />
+                    Repush
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
               )}
+
+              <DropdownMenuItem
+                disabled={!hasMessage}
+                onClick={() =>
+                  hasMessage && handleOpenDialog(record, "message")
+                }
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                View Message
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                disabled={!hasHtmlContent}
+                onClick={() =>
+                  hasHtmlContent && handleOpenDialog(record, "htmlContent")
+                }
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                View Email Content
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                disabled={!hasAttachments}
+                onClick={() =>
+                  hasAttachments && handleOpenDialog(record, "attachments")
+                }
+              >
+                <Paperclip className="h-4 w-4 mr-2" />
+                View Attachments ({record.params?.attachments?.length || 0})
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -372,6 +314,70 @@ const CommunicationLogList = () => {
       />
 
       {renderPageContent()}
+
+      {/* Message Dialog */}
+      <Dialog
+        open={dialogType === "message"}
+        onOpenChange={(open) => !open && handleCloseDialog()}
+      >
+        <DialogContent className="sm:max-w-[760px]">
+          <DialogHeader>
+            <DialogTitle>Message</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[500px] overflow-y-auto">
+            <p className="whitespace-pre-wrap">{selectedRecord?.message}</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* HTML Content Dialog */}
+      <Dialog
+        open={dialogType === "htmlContent"}
+        onOpenChange={(open) => !open && handleCloseDialog()}
+      >
+        <DialogContent className="sm:max-w-[760px]">
+          <DialogHeader>
+            <DialogTitle>Email Content</DialogTitle>
+          </DialogHeader>
+          <div
+            className="max-h-[500px] overflow-y-auto"
+            dangerouslySetInnerHTML={{
+              __html: selectedRecord?.htmlContent || "",
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Attachments Dialog */}
+      <Dialog
+        open={dialogType === "attachments"}
+        onOpenChange={(open) => !open && handleCloseDialog()}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Attachments</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            {selectedRecord?.params?.attachments?.map((attachment, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-2 border rounded-md"
+              >
+                <span className="text-sm truncate flex-1">
+                  {attachment.filename}
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(attachment.path, "_blank")}
+                >
+                  Download
+                </Button>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

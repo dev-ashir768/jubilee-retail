@@ -32,7 +32,7 @@ export default function RootLayout({
       >
         <TanstackQueryProvider>
           <NextTopLoader
-            color="#ffffff"
+            color="var(--primary)"
             showSpinner={false}
             speed={200}
             easing="ease"

@@ -15,7 +15,7 @@ import {
   ProductsResponseTypes,
 } from "@/types/productsTypes";
 import { UserResponseType } from "@/types/usersTypes";
-import { fetchProductsList } from "@/helperFunctions/productsFunction";
+import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,8 +33,6 @@ import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import Link from "next/link";
 import { ProductCategoriesResponseTypes } from "@/types/productCategoriesTypes";
 import { fetchProductCategoriesList } from "@/helperFunctions/productCategoriesFunction";
-import { DateRange } from "react-day-picker";
-import { format, startOfMonth } from "date-fns";
 import { useRouter } from "next/navigation";
 import DeleteDialog from "../common/delete-dialog";
 import {
@@ -57,19 +55,6 @@ const ProductList = () => {
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
 
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: startOfMonth(new Date()),
-    to: new Date(),
-  });
-  const startDate = dateRange?.from
-    ? format(dateRange?.from, "yyyy-MM-dd")
-    : "";
-  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
-  const defaultRange = {
-    from: startOfMonth(new Date()),
-    to: new Date(),
-  };
-
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE);
@@ -82,15 +67,8 @@ const ProductList = () => {
     isError: productListIsError,
     error: productListError,
   } = useQuery<ProductsResponseTypes | null>({
-    queryKey: [
-      "products-list",
-      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-    ],
-    queryFn: () =>
-      fetchProductsList({
-        startDate,
-        endDate,
-      }),
+    queryKey: ["all-products-list"],
+    queryFn: fetchAllProductsList,
   });
 
   const {
@@ -241,7 +219,7 @@ const ProductList = () => {
       header: ({ column }) => (
         <DatatableColumnHeader column={column} title="Created by" />
       ),
-      accessorFn: (row) => userMap.get(row.id) || row.id,
+      accessorFn: (row) => userMap.get(row.created_by) || row.created_by,
       cell: ({ row }) => <div>{row.getValue("created_by")}</div>,
       filterFn: "multiSelect",
       meta: {
@@ -335,10 +313,7 @@ const ProductList = () => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: [
-              "products-list",
-              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-            ],
+            queryKey: ["all-products-list"],
           });
           setSelectedRecordId(null);
         },
@@ -355,10 +330,7 @@ const ProductList = () => {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: [
-              "products-list",
-              ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
-            ],
+            queryKey: ["all-products-list"],
           });
         },
       }
@@ -415,10 +387,7 @@ const ProductList = () => {
         title="Products List"
         addBtnTitle="Add Product"
         urlPath={ADD_ROUTE}
-        datePicker={true}
-        dateRange={dateRange}
-        defaultDate={defaultRange}
-        setDateRange={setDateRange}
+        datePicker={false}
       />
 
       {renderPageContent()}
