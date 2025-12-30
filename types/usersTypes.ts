@@ -153,7 +153,7 @@ export type SingleUserPayloadType = {
   email: string;
   contact: string;
   image: string;
-  redirection_url: string | null;
+  redirectionUrl: string | null;
   isActive: boolean;
   is_locked: boolean;
   userType: "api_user" | "dashboard_user";

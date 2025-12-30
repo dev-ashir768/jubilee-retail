@@ -9,13 +9,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { EditUserSchema, EditUserSchemaType } from "@/schemas/usersSchemas";
 import { useForm, Controller } from "react-hook-form";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../shadcn/select";
-import {
   Accordion,
   AccordionContent,
   AccordionItem,
@@ -36,6 +29,8 @@ import { UserResponseType, SingleUserPayloadType } from "@/types/usersTypes";
 import { useRouter } from "next/navigation";
 import useUserIdStore from "@/hooks/useAddUserIdStore";
 import { fetchImageAsBase64 } from "@/utils/fetchImageAsBase64";
+import Select_R from "react-select";
+import { singleSelectStyle } from "@/utils/selectStyles";
 
 const userTypeOptions: {
   value: "api_user" | "dashboard_user";
@@ -45,9 +40,9 @@ const userTypeOptions: {
   { value: "dashboard_user", label: "Dashboard User" },
 ];
 
-const statusOptions: { value: string; label: string }[] = [
-  { value: "false", label: "In active" },
-  { value: "true", label: "Active" },
+const statusOptions: { value: boolean; label: string }[] = [
+  { value: false, label: "In active" },
+  { value: true, label: "Active" },
 ];
 
 interface EditUserFormProps {
@@ -127,7 +122,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
       image: undefined,
       user_type: singleUser ? singleUser.userType! : undefined,
       menu_rights: [],
-      redirection_url: null,
+      redirection_url: singleUser?.redirectionUrl,
       is_active: true,
       user_id: undefined,
     },
@@ -144,7 +139,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
         image: undefined,
         user_type: singleUser.userType as "api_user" | "dashboard_user",
         menu_rights: [] as MenuRightsTypes[],
-        redirection_url: singleUser.redirection_url,
+        redirection_url: singleUser.redirectionUrl || null,
         is_active: singleUser.isActive,
         is_locked: singleUser.is_locked ?? false,
         user_id: userId ?? undefined,
@@ -152,12 +147,28 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
     }
   }, [singleUser, reset, userId]);
 
-  // Compute redirection options from allMenus (main routes only)
+  // Compute redirection options from allMenus (including sub-menu routes)
   const redirectionOptions = useMemo(() => {
     if (!allMenus) return [];
-    return allMenus
-      .filter((menu) => menu.url) // Only main menus with url
-      .map((menu) => ({ value: menu.url, label: menu.name }));
+    const options: { value: string; label: string }[] = [];
+    allMenus.forEach((menu) => {
+      // Main menu URL
+      if (menu.url) {
+        options.push({ value: menu.url, label: menu.url });
+      }
+      // Sub-menu URLs
+      if (menu.childs && menu.childs.length > 0) {
+        menu.childs.forEach((child) => {
+          if (child.url) {
+            options.push({
+              value: child.url,
+              label: child.url,
+            });
+          }
+        });
+      }
+    });
+    return options;
   }, [allMenus]);
 
   const handleDrag = (e: React.DragEvent): void => {
@@ -180,6 +191,10 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
 
     const file = e.dataTransfer.files?.[0];
     if (file && file.type.startsWith("image/")) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should not exceed 5MB");
+        return;
+      }
       const base64 = await handleImage(file);
       onChange(base64);
       setUploadedImage(file.name);
@@ -275,6 +290,11 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
   ) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should not exceed 5MB");
+        e.target.value = ""; // Clear input
+        return;
+      }
       const base64 = await handleImage(file);
       onChange(base64);
       setUploadedImage(file.name);
@@ -475,23 +495,16 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
                 control={control}
                 render={({ field }) => {
                   return (
-                    <Select
-                      value={field.value || ""}
-                      onValueChange={(selectedOption) =>
-                        field.onChange(selectedOption)
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select User Type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {userTypeOptions.map((item, idx) => (
-                          <SelectItem key={idx} value={item.value}>
-                            {item.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Select_R
+                      options={userTypeOptions}
+                      value={userTypeOptions.find(
+                        (opt) => opt.value === field.value
+                      )}
+                      onChange={(val) => field.onChange(val?.value)}
+                      placeholder="Select User Type"
+                      className="w-full"
+                      styles={singleSelectStyle}
+                    />
                   );
                 }}
               />
@@ -511,29 +524,16 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
                 name="is_active"
                 control={control}
                 render={({ field }) => (
-                  <Select
-                    value={
-                      field.value === true
-                        ? "true"
-                        : field.value === false
-                        ? "false"
-                        : ""
-                    }
-                    onValueChange={(selectedOption) => {
-                      field.onChange(selectedOption === "true");
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {statusOptions.map((item, idx) => (
-                        <SelectItem key={idx} value={item.value}>
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Select_R
+                    options={statusOptions}
+                    value={statusOptions.find(
+                      (opt) => opt.value === field.value
+                    )}
+                    onChange={(val) => field.onChange(val?.value)}
+                    placeholder="Select Status"
+                    className="w-full"
+                    styles={singleSelectStyle}
+                  />
                 )}
               />
               {errors.is_active && (
@@ -605,7 +605,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
                         />
                       </label>
                       <p className="text-xs text-gray-400 mt-1">
-                        PNG, JPG, GIF up to 10MB
+                        PNG, JPG, GIF up to 5MB
                       </p>
                     </>
                   )}
@@ -624,23 +624,17 @@ const EditUserForm: React.FC<EditUserFormProps> = ({
               name="redirection_url"
               control={control}
               render={({ field }) => (
-                <Select
-                  value={field.value || ""}
-                  onValueChange={(selectedOption) =>
-                    field.onChange(selectedOption || null)
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select Redirection URL" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {redirectionOptions.map((item, idx: number) => (
-                      <SelectItem key={idx} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Select_R
+                  options={redirectionOptions}
+                  value={redirectionOptions.find(
+                    (opt) => opt.value === field.value
+                  )}
+                  onChange={(val) => field.onChange(val?.value || null)}
+                  placeholder="Select Redirection URL"
+                  isClearable
+                  className="w-full"
+                  styles={singleSelectStyle}
+                />
               )}
             />
             {errors.redirection_url && (

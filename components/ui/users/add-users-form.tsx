@@ -8,13 +8,6 @@ import { UserSchema, UserSchemaType } from "@/schemas/userSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../shadcn/input";
 import { useRouter } from "next/navigation";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../shadcn/select";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { axiosFunction } from "@/utils/axiosFunction";
@@ -35,6 +28,8 @@ import {
 } from "@/components/ui/shadcn/accordion";
 import * as Icons from "lucide-react";
 import { Checkbox } from "../shadcn/checkbox";
+import Select from "react-select";
+import { singleSelectStyle } from "@/utils/selectStyles";
 
 interface AddUserFormProps {
   allMenus: allMenusPayloadType[] | undefined;
@@ -45,9 +40,9 @@ const userTypeOptions: { value: string; label: string }[] = [
   { value: "dashboard_user", label: "Dashboard User" },
 ];
 
-const statusOptions: { value: string; label: string }[] = [
-  { value: "false", label: "In active" },
-  { value: "true", label: "Active" },
+const statusOptions: { value: boolean; label: string }[] = [
+  { value: false, label: "In active" },
+  { value: true, label: "Active" },
 ];
 
 const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
@@ -64,8 +59,20 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
     if (!allMenus) return [];
     const options: { value: string; label: string }[] = [];
     allMenus.forEach((menu) => {
+      // Main menu URL
       if (menu.url) {
-        options.push({ value: menu.url, label: menu.name });
+        options.push({ value: menu.url, label: menu.url });
+      }
+      // Sub-menu URLs
+      if (menu.childs && menu.childs.length > 0) {
+        menu.childs.forEach((child) => {
+          if (child.url) {
+            options.push({
+              value: child.url,
+              label: child.url,
+            });
+          }
+        });
       }
     });
     return options;
@@ -212,6 +219,11 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
   const handleProfileImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should not exceed 5MB");
+        e.target.value = ""; // Clear input
+        return;
+      }
       try {
         const base64 = await convertToBase64(file);
         setValue("image", base64);
@@ -366,22 +378,16 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
                 control={control}
                 render={({ field }) => (
                   <Select
-                    onValueChange={(selectedOption) => {
-                      field.onChange(selectedOption);
-                    }}
-                    defaultValue={field.value}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select User Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {userTypeOptions.map((item, idx) => (
-                        <SelectItem key={idx} value={item.value}>
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={userTypeOptions}
+                    value={userTypeOptions.find(
+                      (opt) => opt.value === field.value
+                    )}
+                    onChange={(val) => field.onChange(val?.value)}
+                    placeholder="Select User Type"
+                    className="w-full"
+                    styles={singleSelectStyle}
+                    classNamePrefix="react-select"
+                  />
                 )}
               />
               {errors.user_type && (
@@ -401,26 +407,16 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
                 control={control}
                 render={({ field }) => (
                   <Select
-                    value={field.value === undefined ? "" : String(field.value)}
-                    onValueChange={(selectedOption) => {
-                      if (selectedOption === "") {
-                        field.onChange(undefined);
-                      } else {
-                        field.onChange(selectedOption === "true");
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {statusOptions.map((item, idx) => (
-                        <SelectItem key={idx} value={item.value}>
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={statusOptions}
+                    value={statusOptions.find(
+                      (opt) => opt.value === field.value
+                    )}
+                    onChange={(val) => field.onChange(val?.value)}
+                    placeholder="Select Status"
+                    classNamePrefix="react-select"
+                    className="w-full"
+                    styles={singleSelectStyle}
+                  />
                 )}
               />
               {errors.is_active && (
@@ -452,22 +448,16 @@ const AddUsersForm: React.FC<AddUserFormProps> = ({ allMenus }) => {
                 control={control}
                 render={({ field }) => (
                   <Select
-                    onValueChange={(selectedOption) => {
-                      field.onChange(selectedOption);
-                    }}
-                    value={field.value || ""}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Redirection URL" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {redirectionOptions.map((item, idx) => (
-                        <SelectItem key={idx} value={item.value}>
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={redirectionOptions}
+                    value={redirectionOptions.find(
+                      (opt) => opt.value === field.value
+                    )}
+                    onChange={(val) => field.onChange(val?.value || null)}
+                    placeholder="Select Redirection URL"
+                    isClearable
+                    className="w-full"
+                    styles={singleSelectStyle}
+                  />
                 )}
               />
               {errors.redirection_url && (
