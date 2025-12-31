@@ -7,7 +7,7 @@ import {
 } from "@/types/communicationLogsTypes";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DatatableColumnHeader from "../datatable/datatable-column-header";
 import Empty from "../foundations/empty";
 import LoadingState from "../foundations/loading-state";
@@ -68,6 +68,8 @@ const CommunicationLogList = () => {
     isLoading: communicationlogsListLoading,
     isError: communicationlogsListIsError,
     error: communicationlogsListError,
+    refetch: communicationlogsListRefetch,
+    isRefetching: communicationlogsListIsRefetching,
   } = useQuery<CommunicationLogsResponseType | null>({
     queryKey: ["communication-logs-list"],
     queryFn: fetchAllCommunicationLogsList,
@@ -116,6 +118,24 @@ const CommunicationLogList = () => {
     setSelectedRecord(null);
     setDialogType(null);
   };
+
+  const handleRefetch = useCallback(async () => {
+    const toastId = "order-list-refetch-toast";
+
+    toast.loading("Refetching...", { id: toastId });
+
+    try {
+      const { isSuccess } = await communicationlogsListRefetch();
+
+      if (isSuccess) {
+        toast.success("Fetched Successfully!", { id: toastId });
+      } else {
+        toast.error("Failed to fetch data.", { id: toastId });
+      }
+    } catch (error) {
+      toast.error(`${error}: An error occurred.`, { id: toastId });
+    }
+  }, [communicationlogsListRefetch]);
 
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<CommunicationLogsDataType>[] = [
@@ -302,6 +322,8 @@ const CommunicationLogList = () => {
       <CommunicationLogDatatable
         columns={columns}
         payload={communicationlogsListResponse?.payload[0]?.data}
+        isRefetching={communicationlogsListIsRefetching}
+        handleRefetch={handleRefetch}
       />
     );
   };

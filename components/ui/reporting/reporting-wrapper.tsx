@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import SubNav from "../foundations/sub-nav";
 import { AgentResponseTypes } from "@/types/agentTypes";
 
@@ -26,8 +26,20 @@ import { CouponsResponseType } from "@/types/couponsTypes";
 import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 import { fetchAllAgentList } from "@/helperFunctions/agentFunction";
 import { fetchAllCouponsList } from "@/helperFunctions/couponsFunction";
+import { getRights } from "@/utils/getRights";
+import { useRouter } from "next/navigation";
+import Empty from "../foundations/empty";
 
 const ReportingWrapper = () => {
+  // ======== CONSTANTS & HOOKS ========
+  const LISTING_ROUTE = "/reporting";
+  const router = useRouter();
+
+  // ======== MEMOIZATION ========
+  const rights = useMemo(() => {
+    return getRights(LISTING_ROUTE);
+  }, [LISTING_ROUTE]);
+
   // ======== DATA FETCHING ========
   const {
     data: agentListResponse,
@@ -65,8 +77,8 @@ const ReportingWrapper = () => {
     isError: doListIsError,
     error: doListError,
   } = useQuery<DevelopmentOfficerResponseTypes | null>({
-   queryKey: ["all-development-officers-list"],
-       queryFn: fetchAllDevelopmentOfficerList,
+    queryKey: ["all-development-officers-list"],
+    queryFn: fetchAllDevelopmentOfficerList,
   });
 
   const {
@@ -194,36 +206,62 @@ const ReportingWrapper = () => {
     doListError?.message ||
     couponListError?.message;
 
+  useEffect(() => {
+    if (rights && rights?.can_view === "0") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [rights, router]);
+
+  if (rights && rights?.can_view === "0")
+    return (
+      <Empty
+        title="Permission Denied"
+        description="You do not have permission."
+      />
+    );
+
+  const renderPageContent = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
+
+    if (isError) {
+      return <Error err={onError} />;
+    }
+
+    return (
+      <Card className="w-full shadow-none border-none">
+        <CardHeader className="border-b gap-0">
+          <CardTitle>Add a new product types to the system</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="w-full">
+            <ReportingForm
+              agentList={agentList}
+              planList={planList}
+              doList={doList}
+              clientList={clientList}
+              branchList={branchList}
+              productList={productList}
+              apiUsersList={apiUsersList}
+              cityList={cityList}
+              couponList={couponList}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <>
       <SubNav title="Reporting Filters" />
 
-      {isLoading ? (
-        <LoadingState />
-      ) : isError ? (
-        <Error err={onError} />
-      ) : (
-        <Card className="w-full shadow-none border-none">
-          <CardHeader className="border-b gap-0">
-            <CardTitle>Add a new product types to the system</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="w-full">
-              <ReportingForm
-                agentList={agentList}
-                planList={planList}
-                doList={doList}
-                clientList={clientList}
-                branchList={branchList}
-                productList={productList}
-                apiUsersList={apiUsersList}
-                cityList={cityList}
-                couponList={couponList}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {renderPageContent()}
     </>
   );
 };
