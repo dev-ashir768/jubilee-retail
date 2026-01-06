@@ -6,6 +6,9 @@ export type BulkPolicyDetailType = {
   cnic_issue_date: string | null;
   dob: string | null;
   gender: string | null;
+  email?: string | null;
+  mobile?: string | null;
+  address?: string | null;
 };
 
 export type RiderTypes = {

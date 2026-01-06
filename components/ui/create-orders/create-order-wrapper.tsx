@@ -359,7 +359,9 @@ const CreateOrderWrapper = () => {
                 variant="secondary"
                 asChild
               >
-                <Link href="/product-plans" target="_blank">Product Plan</Link>
+                <Link href="/product-plans" target="_blank">
+                  Product Plan
+                </Link>
               </Button>
               <Button
                 size="lg"

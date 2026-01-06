@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  CommunicationLogsDataType,
+  CommunicationLogsPayloadType,
   CommunicationLogsResponseType,
   RepushCommunicationLogsResponseType,
 } from "@/types/communicationLogsTypes";
@@ -13,11 +13,11 @@ import Empty from "../foundations/empty";
 import LoadingState from "../foundations/loading-state";
 import CommunicationLogDatatable from "./communication-log-datatable";
 import { getRights } from "@/utils/getRights";
-import { fetchAllCommunicationLogsList } from "@/helperFunctions/communicationLogsFunction";
+import { fetchCommunicationLogsList } from "@/helperFunctions/communicationLogsFunction";
 import { ColumnDef } from "@tanstack/react-table";
 import SubNav from "../foundations/sub-nav";
 import Error from "../foundations/error";
-import { formatDate } from "date-fns";
+import { format, formatDate, startOfMonth } from "date-fns";
 import { Badge } from "../shadcn/badge";
 import {
   DropdownMenu,
@@ -43,6 +43,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../shadcn/dialog";
+import { DateRange } from "react-day-picker";
 
 const CommunicationLogList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -50,9 +51,22 @@ const CommunicationLogList = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  });
+  const startDate = dateRange?.from
+    ? format(dateRange?.from, "yyyy-MM-dd")
+    : "";
+  const endDate = dateRange?.to ? format(dateRange?.to, "yyyy-MM-dd") : "";
+  const defaultRange = {
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  };
+
   // ======== STATE ========
   const [selectedRecord, setSelectedRecord] =
-    useState<CommunicationLogsDataType | null>(null);
+    useState<CommunicationLogsPayloadType | null>(null);
   const [dialogType, setDialogType] = useState<
     "message" | "htmlContent" | "attachments" | null
   >(null);
@@ -71,8 +85,11 @@ const CommunicationLogList = () => {
     refetch: communicationlogsListRefetch,
     isRefetching: communicationlogsListIsRefetching,
   } = useQuery<CommunicationLogsResponseType | null>({
-    queryKey: ["communication-logs-list"],
-    queryFn: fetchAllCommunicationLogsList,
+    queryKey: [
+      "communication-logs-list",
+      ...(startDate && endDate ? [`${startDate} to ${endDate}`] : []),
+    ],
+    queryFn: () => fetchCommunicationLogsList({ startDate, endDate }),
   });
 
   // ======== MUTATIONS ========
@@ -107,7 +124,7 @@ const CommunicationLogList = () => {
 
   // ======== HANDLERS ========
   const handleOpenDialog = (
-    record: CommunicationLogsDataType,
+    record: CommunicationLogsPayloadType,
     type: "message" | "htmlContent" | "attachments"
   ) => {
     setSelectedRecord(record);
@@ -138,7 +155,7 @@ const CommunicationLogList = () => {
   }, [communicationlogsListRefetch]);
 
   // ======== COLUMN DEFINITIONS ========
-  const columns: ColumnDef<CommunicationLogsDataType>[] = [
+  const columns: ColumnDef<CommunicationLogsPayloadType>[] = [
     {
       accessorKey: "recipient",
       header: ({ column }) => (
@@ -311,7 +328,7 @@ const CommunicationLogList = () => {
 
     if (
       !communicationlogsListResponse?.payload ||
-      communicationlogsListResponse.payload[0].data.length === 0
+      communicationlogsListResponse.payload.length === 0
     ) {
       return (
         <Empty title="Not Found" description="No communication logs found" />
@@ -321,7 +338,7 @@ const CommunicationLogList = () => {
     return (
       <CommunicationLogDatatable
         columns={columns}
-        payload={communicationlogsListResponse?.payload[0]?.data}
+        payload={communicationlogsListResponse?.payload}
         isRefetching={communicationlogsListIsRefetching}
         handleRefetch={handleRefetch}
       />
@@ -333,6 +350,10 @@ const CommunicationLogList = () => {
       <SubNav
         title="Communication Logs List"
         addBtnTitle="Add Communication Log"
+        datePicker={true}
+        dateRange={dateRange}
+        defaultDate={defaultRange}
+        setDateRange={setDateRange}
       />
 
       {renderPageContent()}

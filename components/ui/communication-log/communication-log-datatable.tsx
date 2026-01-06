@@ -1,11 +1,11 @@
 import React from "react";
 import DataTable from "../datatable/data-table";
 import { ColumnDef } from "@tanstack/react-table";
-import { CommunicationLogsDataType } from "@/types/communicationLogsTypes";
+import { CommunicationLogsPayloadType } from "@/types/communicationLogsTypes";
 
 interface CommunicationLogsDatatableProps {
-  columns: ColumnDef<CommunicationLogsDataType>[];
-  payload: CommunicationLogsDataType[];
+  columns: ColumnDef<CommunicationLogsPayloadType>[];
+  payload: CommunicationLogsPayloadType[];
   isRefetching: boolean;
   handleRefetch: () => void;
 }

@@ -1,8 +1,3 @@
-export type CommunicationLogsPayloadType = {
-  meta: CommunicationLogsMetaType;
-  data: CommunicationLogsDataType[];
-};
-
 export type CommunicationLogsMetaType = {
   total: number;
   page: number;
@@ -19,7 +14,7 @@ export type CommunicationLogsParamsType = {
   }[];
 };
 
-export type CommunicationLogsDataType = {
+export type CommunicationLogsPayloadType = {
   id: number;
   type: string;
   recipient: string;
@@ -64,6 +59,7 @@ export type CommunicationLogsResponseType = {
   message: string;
   payload: CommunicationLogsPayloadType[];
 };
+
 
 export type RepushCommunicationLogsPayloadType = {
   success: boolean;

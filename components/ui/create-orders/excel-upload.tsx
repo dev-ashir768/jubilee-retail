@@ -18,7 +18,7 @@ import { createBulkOrderState } from "@/hooks/createBulkOrderState";
 import { RiderTypes, BulkPolicyDetailType } from "@/types/createBulkOrder";
 
 const ExcelUpload = () => {
-  const { setJsonResult, jsonResult} = createBulkOrderState();
+  const { setJsonResult, jsonResult } = createBulkOrderState();
   const [error, setError] = useState<string | null>(null);
 
   const dropzone = useDropzone({
@@ -39,7 +39,8 @@ const ExcelUpload = () => {
         // Convert sheet to JSON
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        let jsonData: Record<string, unknown>[] = XLSX.utils.sheet_to_json(worksheet);
+        let jsonData: Record<string, unknown>[] =
+          XLSX.utils.sheet_to_json(worksheet);
 
         // Filter empty rows
         jsonData = jsonData.filter((row) => Object.keys(row).length > 0);
@@ -147,25 +148,41 @@ const ExcelUpload = () => {
               policy_detail.push({
                 name: String(row[nameKey]!), // Non-null assertion as we checked it
                 type: `spouse${suffix}`, // <-- Use the dynamic key (e.g., "spouse", "spouse1")
-                relation:
-                  String(row[
-                    `spouse${suffix}_relationship` as keyof ExcelDataExpectedRow
-                  ] || "Spouse"),
-                cnic:
-                  row[`spouse${suffix}_cnic` as keyof ExcelDataExpectedRow] ?
-                  String(row[`spouse${suffix}_cnic` as keyof ExcelDataExpectedRow]) : null,
-                cnic_issue_date:
+                relation: String(
                   row[
-                    `spouse${suffix}_cnic_issue_date` as keyof ExcelDataExpectedRow
-                  ] ? String(row[
-                    `spouse${suffix}_cnic_issue_date` as keyof ExcelDataExpectedRow
-                  ]) : null,
-                dob:
-                  row[`spouse${suffix}_dob` as keyof ExcelDataExpectedRow] ?
-                  String(row[`spouse${suffix}_dob` as keyof ExcelDataExpectedRow]) : null,
-                gender:
-                  row[`spouse${suffix}_gender` as keyof ExcelDataExpectedRow] ?
-                  String(row[`spouse${suffix}_gender` as keyof ExcelDataExpectedRow]?.toLocaleString().toLowerCase()) : null,
+                    `spouse${suffix}_relationship` as keyof ExcelDataExpectedRow
+                  ] || "Spouse"
+                ),
+                cnic: row[`spouse${suffix}_cnic` as keyof ExcelDataExpectedRow]
+                  ? String(
+                      row[`spouse${suffix}_cnic` as keyof ExcelDataExpectedRow]
+                    )
+                  : null,
+                cnic_issue_date: row[
+                  `spouse${suffix}_cnic_issue_date` as keyof ExcelDataExpectedRow
+                ]
+                  ? String(
+                      row[
+                        `spouse${suffix}_cnic_issue_date` as keyof ExcelDataExpectedRow
+                      ]
+                    )
+                  : null,
+                dob: row[`spouse${suffix}_dob` as keyof ExcelDataExpectedRow]
+                  ? String(
+                      row[`spouse${suffix}_dob` as keyof ExcelDataExpectedRow]
+                    )
+                  : null,
+                gender: row[
+                  `spouse${suffix}_gender` as keyof ExcelDataExpectedRow
+                ]
+                  ? String(
+                      row[
+                        `spouse${suffix}_gender` as keyof ExcelDataExpectedRow
+                      ]
+                        ?.toLocaleString()
+                        .toLowerCase()
+                    )
+                  : null,
               });
             }
           }
@@ -177,22 +194,32 @@ const ExcelUpload = () => {
               policy_detail.push({
                 name: String(row[nameKey]!), // Non-null assertion
                 type: `kid${i}`, // <-- Use the dynamic key (e.g., "kid1", "kid2")
-                relation:
-                  String(row[`kid${i}_relationship` as keyof ExcelDataExpectedRow] ||
-                  "Child"),
-                cnic: row[`kid${i}_cnic` as keyof ExcelDataExpectedRow] ?
-                  String(row[`kid${i}_cnic` as keyof ExcelDataExpectedRow]) : null,
-                cnic_issue_date:
-                  row[
-                    `kid${i}_cnic_issue_date` as keyof ExcelDataExpectedRow
-                  ] ? String(row[
-                    `kid${i}_cnic_issue_date` as keyof ExcelDataExpectedRow
-                  ]) : null,
-                dob: row[`kid${i}_dob` as keyof ExcelDataExpectedRow] ?
-                  String(row[`kid${i}_dob` as keyof ExcelDataExpectedRow]) : null,
-                gender:
-                  row[`kid${i}_gender` as keyof ExcelDataExpectedRow] ?
-                  String(row[`kid${i}_gender` as keyof ExcelDataExpectedRow]?.toLocaleString().toLowerCase()) : null,
+                relation: String(
+                  row[`kid${i}_relationship` as keyof ExcelDataExpectedRow] ||
+                    "Child"
+                ),
+                cnic: row[`kid${i}_cnic` as keyof ExcelDataExpectedRow]
+                  ? String(row[`kid${i}_cnic` as keyof ExcelDataExpectedRow])
+                  : null,
+                cnic_issue_date: row[
+                  `kid${i}_cnic_issue_date` as keyof ExcelDataExpectedRow
+                ]
+                  ? String(
+                      row[
+                        `kid${i}_cnic_issue_date` as keyof ExcelDataExpectedRow
+                      ]
+                    )
+                  : null,
+                dob: row[`kid${i}_dob` as keyof ExcelDataExpectedRow]
+                  ? String(row[`kid${i}_dob` as keyof ExcelDataExpectedRow])
+                  : null,
+                gender: row[`kid${i}_gender` as keyof ExcelDataExpectedRow]
+                  ? String(
+                      row[`kid${i}_gender` as keyof ExcelDataExpectedRow]
+                        ?.toLocaleString()
+                        .toLowerCase()
+                    )
+                  : null,
               });
             }
           }
@@ -203,9 +230,18 @@ const ExcelUpload = () => {
               type: "customer",
               relation: "self",
               cnic: row.client_cnic ? String(row.client_cnic) : null,
-              cnic_issue_date: row.client_cnic_issue_date ? String(row.client_cnic_issue_date) : null,
+              cnic_issue_date: row.client_cnic_issue_date
+                ? String(row.client_cnic_issue_date)
+                : null,
               dob: row.client_dob ? String(row.client_dob) : null,
-              gender: row.gender ? String(row.gender).toLocaleLowerCase() : null,
+              gender: row.gender
+                ? String(row.gender).toLocaleLowerCase()
+                : null,
+              email: row.client_email ? String(row.client_email) : null,
+              mobile: row.client_contact_no
+                ? String(row.client_contact_no)
+                : null,
+              address: row.address ? String(row.address) : null,
             });
           }
 
@@ -281,7 +317,7 @@ const ExcelUpload = () => {
   const fileName = dropzone.fileStatuses[0]?.fileName;
   const isPending = dropzone.fileStatuses[0]?.status === "pending";
   const fileStatus = dropzone.fileStatuses[0]?.status;
-console.log("jsonResult", jsonResult)
+  console.log("jsonResult", jsonResult);
 
   return (
     <>
@@ -326,7 +362,6 @@ console.log("jsonResult", jsonResult)
           <DropzoneMessage />
         </div>
       </Dropzone>
-
 
       {error && (
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
