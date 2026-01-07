@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo } from "react";
-import SubNav from "../foundations/sub-nav";
 import { AgentResponseTypes } from "@/types/agentTypes";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import ReportingForm from "./reporting-form";
 import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
@@ -29,6 +28,10 @@ import { fetchAllCouponsList } from "@/helperFunctions/couponsFunction";
 import { getRights } from "@/utils/getRights";
 import { useRouter } from "next/navigation";
 import Empty from "../foundations/empty";
+import { Button } from "../shadcn/button";
+import { downloadMIS } from "@/helperFunctions/downloadMICFunction";
+import { toast } from "sonner";
+import { Loader } from "lucide-react";
 
 const ReportingWrapper = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -129,6 +132,31 @@ const ReportingWrapper = () => {
   } = useQuery<ApiUsersResponseType | null>({
     queryKey: ["all-api-user-list"],
     queryFn: fetchAllApiUserList,
+  });
+
+  // ======== MUTATION ========
+  const downloadMISMutation = useMutation({
+    mutationFn: downloadMIS,
+    onSuccess: (data) => {
+      const blob = new Blob([data], { type: "application/zip" });
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "MIS_Report.xlsx");
+
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success("MIS downloaded successfully");
+    },
+    onError: (err) => {
+      const message = err?.message;
+      console.log("Add agent mutation error", err);
+      toast.error(message);
+    },
   });
 
   // ======== PAYLOADS DATA ========
@@ -259,7 +287,24 @@ const ReportingWrapper = () => {
 
   return (
     <>
-      <SubNav title="Reporting Filters" />
+      <div className="flex flex-row items-center justify-between gap-2">
+        <div>
+          <h1 className="text-2xl font-semibold">Reporting Filters</h1>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Button
+            size="lg"
+            className="min-w-[150px]"
+            onClick={() => downloadMISMutation.mutate()}
+            disabled={downloadMISMutation.isPending}
+          >
+            Download MIS
+            {downloadMISMutation.isPending && (
+              <Loader className="ml-2 h-4 w-4 animate-spin" />
+            )}
+          </Button>
+        </div>
+      </div>
 
       {renderPageContent()}
     </>
