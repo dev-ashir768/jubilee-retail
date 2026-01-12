@@ -92,9 +92,7 @@ const LoginForm = () => {
           username: data.payload[0].username,
         })
       );
-      setCookie("otp-session", true, {
-        maxAge: 300,
-      });
+      setCookie("otp-session", true);
       useSendOtpMutation.mutate({
         username: data.payload[0].username,
         type: "email",

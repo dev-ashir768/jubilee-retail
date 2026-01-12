@@ -109,6 +109,7 @@ const OtpForm = () => {
       setCookie("userInfo", JSON.stringify(data.payload[0].user_info));
       localStorage.setItem("menus", JSON.stringify(data.payload[0].menus));
       deleteCookie("otp-session");
+      router.refresh();
       router.push(data.payload[0].user_info.redirection_url ?? "/");
     },
   });
