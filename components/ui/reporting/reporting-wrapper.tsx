@@ -32,10 +32,12 @@ import { Button } from "../shadcn/button";
 import { downloadMIS } from "@/helperFunctions/downloadMICFunction";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const ReportingWrapper = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/reporting";
+  const userInfo = getUserInfo();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -161,44 +163,44 @@ const ReportingWrapper = () => {
   // ======== PAYLOADS DATA ========
   const couponList = useMemo(
     () => couponListResponse?.payload || [],
-    [couponListResponse]
+    [couponListResponse],
   );
 
   const agentList = useMemo(
     () => agentListResponse?.payload || [],
-    [agentListResponse]
+    [agentListResponse],
   );
 
   const branchList = useMemo(
     () => branchListResponse?.payload || [],
-    [branchListResponse]
+    [branchListResponse],
   );
 
   const productList = useMemo(
     () => productListResponse?.payload || [],
-    [productListResponse]
+    [productListResponse],
   );
 
   const clientList = useMemo(
     () => clientListResponse?.payload || [],
-    [clientListResponse]
+    [clientListResponse],
   );
 
   const doList = useMemo(() => doListResponse?.payload || [], [doListResponse]);
 
   const planList = useMemo(
     () => planListResponse?.payload || [],
-    [planListResponse]
+    [planListResponse],
   );
 
   const apiUsersList = useMemo(
     () => apiUsersListResponse?.payload || [],
-    [apiUsersListResponse]
+    [apiUsersListResponse],
   );
 
   const cityList = useMemo(
     () => cityListResponse?.payload || [],
-    [cityListResponse]
+    [cityListResponse],
   );
 
   // ======== RENDER LOGIC ========
@@ -236,12 +238,12 @@ const ReportingWrapper = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

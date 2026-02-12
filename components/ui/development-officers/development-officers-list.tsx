@@ -1,8 +1,6 @@
 "use client";
 
-import {
-  fetchAllDevelopmentOfficerList,
-} from "@/helperFunctions/developmentOfficerFunction";
+import { fetchAllDevelopmentOfficerList } from "@/helperFunctions/developmentOfficerFunction";
 import {
   DevelopmentOfficerPayloadTypes,
   DevelopmentOfficerResponseTypes,
@@ -38,6 +36,7 @@ import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const DevelopmentOfficersList = () => {
   const pathname = usePathname();
@@ -48,6 +47,7 @@ const DevelopmentOfficersList = () => {
   const { mutate: deleteMutate } = handleDeleteMutation();
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
+  const userInfo = getUserInfo();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -230,7 +230,7 @@ const DevelopmentOfficersList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
@@ -246,7 +246,7 @@ const DevelopmentOfficersList = () => {
             queryKey: ["development-officers-list"],
           });
         },
-      }
+      },
     );
   };
 
@@ -258,12 +258,12 @@ const DevelopmentOfficersList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

@@ -62,10 +62,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../shadcn/dialog";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const OrdersListListing = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/orders/list";
+  const userInfo = getUserInfo();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterValue } = ordersListFilterState();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -288,27 +290,27 @@ const OrdersListListing = () => {
   // ======== PAYLOADS DATA ========
   const ordersListListing = useMemo(
     () => ordersListListingResponse?.payload || [],
-    [ordersListListingResponse]
+    [ordersListListingResponse],
   );
 
   const apiUserList = useMemo(
     () => apiUserListResponse?.payload || [],
-    [apiUserListResponse]
+    [apiUserListResponse],
   );
 
   const productList = useMemo(
     () => productListResponse?.payload || [],
-    [productListResponse]
+    [productListResponse],
   );
 
   const branchList = useMemo(
     () => branchListResponse?.payload || [],
-    [branchListResponse]
+    [branchListResponse],
   );
 
   const paymentModesList = useMemo(
     () => paymentModesListresponse?.payload || [],
-    [paymentModesListresponse]
+    [paymentModesListresponse],
   );
 
   // ======== HANDLERS ========
@@ -316,21 +318,21 @@ const OrdersListListing = () => {
     (orderId: string) => {
       singleOrderMutation.mutate({ orderId });
     },
-    [singleOrderMutation]
+    [singleOrderMutation],
   );
 
   const handleOrderVerifyManually = useCallback(
     (order_code: string) => {
       orderVerifyManuallyMutation.mutate({ order_code });
     },
-    [orderVerifyManuallyMutation]
+    [orderVerifyManuallyMutation],
   );
 
   const handleOrderRepush = useCallback(
     (order_code: string) => {
       orderRepushMutation.mutate({ order_code });
     },
-    [orderRepushMutation]
+    [orderRepushMutation],
   );
 
   const handleRefetch = useCallback(async () => {
@@ -430,7 +432,11 @@ const OrdersListListing = () => {
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="API User Name" />
         ),
-        cell: ({ row }) => <div className="capitalize">{row.original.api_user_name || "N/A"}</div>,
+        cell: ({ row }) => (
+          <div className="capitalize">
+            {row.original.api_user_name || "N/A"}
+          </div>
+        ),
       },
       {
         id: "order_status",
@@ -514,9 +520,10 @@ const OrdersListListing = () => {
                     <span>View Details</span>
                   </DropdownMenuItem>
                 )}
-                {rights?.can_edit === "1" && ["cc", "ol", "pp"].includes(
-                  row?.original.payment_code.toLocaleLowerCase()
-                ) &&
+                {rights?.can_edit === "1" &&
+                  ["cc", "ol", "pp"].includes(
+                    row?.original.payment_code.toLocaleLowerCase(),
+                  ) &&
                   row?.original.order_status.toLocaleLowerCase() ===
                     "unverified" && (
                     <DropdownMenuItem
@@ -543,7 +550,7 @@ const OrdersListListing = () => {
         },
       },
     ],
-    [rights, handleSingleOrderFetch, singleOrderMutation, handleOrderRepush]
+    [rights, handleSingleOrderFetch, singleOrderMutation, handleOrderRepush],
   );
 
   // ======== RENDER LOGIC ========
@@ -569,12 +576,12 @@ const OrdersListListing = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

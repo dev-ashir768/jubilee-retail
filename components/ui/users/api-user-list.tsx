@@ -30,10 +30,12 @@ import ApiUserDatatable from "./api-user-datatable";
 import LoadingState from "../foundations/loading-state";
 import { handleStatusMutation } from "@/helperFunctions/commonFunctions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const ApiUserList = () => {
   // ======== CONSTANTS AND HOOKS ========
   const queryClient = useQueryClient();
+  const userInfo = getUserInfo();
   const pathname = usePathname();
 
   const { mutate: statusMutate, isPending: statusIsPending } =
@@ -241,7 +243,7 @@ const ApiUserList = () => {
             queryKey: ["all-api-user-list"],
           });
         },
-      }
+      },
     );
   };
 
@@ -253,12 +255,12 @@ const ApiUserList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

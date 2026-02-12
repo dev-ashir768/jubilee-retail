@@ -3,9 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import SubNav from "../foundations/sub-nav";
 import { useQuery } from "@tanstack/react-query";
-import {
-  fetchAllUserList,
-} from "@/helperFunctions/userFunction";
+import { fetchAllUserList } from "@/helperFunctions/userFunction";
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import {
   UsersListPayloadType,
@@ -38,12 +36,14 @@ import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const UserList = () => {
   // ======== CONSTANTS AND HOOKS ========
   const ADD_ROUTE = "/users/add-user";
   const pathname = usePathname();
   const { setUserId } = useUserIdStore();
+  const userInfo = getUserInfo();
 
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -71,7 +71,7 @@ const UserList = () => {
   // ======== PAYLOADS DATA ========
   const userList = useMemo(
     () => userListResponse?.payload || [],
-    [userListResponse]
+    [userListResponse],
   );
 
   // ======== FILTER OPTIONS ========
@@ -172,7 +172,11 @@ const UserList = () => {
       header: ({ column }) => (
         <DatatableColumnHeader column={column} title="User Type" />
       ),
-      cell: ({ row }) => <div className="capitalize">{row.original.user_type.replace("_", " ")}</div>,
+      cell: ({ row }) => (
+        <div className="capitalize">
+          {row.original.user_type.replace("_", " ")}
+        </div>
+      ),
       filterFn: "multiSelect",
       meta: {
         filterType: "multiselect",
@@ -270,7 +274,7 @@ const UserList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
@@ -286,7 +290,7 @@ const UserList = () => {
             queryKey: ["users-list"],
           });
         },
-      }
+      },
     );
   };
 
@@ -298,12 +302,12 @@ const UserList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

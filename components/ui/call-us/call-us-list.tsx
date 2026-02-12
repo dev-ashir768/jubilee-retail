@@ -35,6 +35,7 @@ import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const CallUsList = () => {
   // Constants
@@ -48,6 +49,7 @@ const CallUsList = () => {
   const { mutate: deleteMutate } = handleDeleteMutation();
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
+  const userInfo = getUserInfo();
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfMonth(new Date()),
@@ -91,7 +93,7 @@ const CallUsList = () => {
     const allNames =
       callUsListResponse?.payload?.map((item) => item.name) || [];
     const uniqueNames = Array.from(
-      new Set(allNames.filter((name) => name != null))
+      new Set(allNames.filter((name) => name != null)),
     );
     return uniqueNames.map((name) => ({
       label: name || "N/A",
@@ -103,7 +105,7 @@ const CallUsList = () => {
     const allContacts =
       callUsListResponse?.payload?.map((item) => item.contact) || [];
     const uniqueContacts = Array.from(
-      new Set(allContacts.filter((contact) => contact != null))
+      new Set(allContacts.filter((contact) => contact != null)),
     );
     return uniqueContacts.map((contact) => ({
       label: contact || "N/A",
@@ -115,7 +117,7 @@ const CallUsList = () => {
     const allEmails =
       callUsListResponse?.payload?.map((item) => item.email) || [];
     const uniqueEmails = Array.from(
-      new Set(allEmails.filter((email) => email != null))
+      new Set(allEmails.filter((email) => email != null)),
     );
     return uniqueEmails.map((email) => ({
       label: email || "N/A",
@@ -253,7 +255,7 @@ const CallUsList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
@@ -272,7 +274,7 @@ const CallUsList = () => {
             ],
           });
         },
-      }
+      },
     );
   };
 
@@ -284,12 +286,12 @@ const CallUsList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

@@ -13,9 +13,7 @@ import {
   PaymentModesResponseType,
 } from "@/types/paymentModesTypes";
 import { useQuery } from "@tanstack/react-query";
-import {
-  fetchPaymentModesList
-} from "@/helperFunctions/paymentModesFunction";
+import { fetchPaymentModesList } from "@/helperFunctions/paymentModesFunction";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,18 +35,21 @@ import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const PaymentModesList = () => {
   // ======== CONSTANTS & HOOKS ========
   const ADD_ROUTE = "/products-plans/add-payment-modes";
   const EDIT_ROUTE = "/products-plans/edit-payment-modes";
   const LISTING_ROUTE = "/products-plans/payment-modes";
-  const { setPaymentModesId } = usePaymentModesIdStore()
+  const { setPaymentModesId } = usePaymentModesIdStore();
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { mutate: deleteMutate } = handleDeleteMutation();
-  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
+  const userInfo = getUserInfo();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -69,18 +70,18 @@ const PaymentModesList = () => {
   // ======== PAYLOADS DATA ========
   const paymentModesList = useMemo(
     () => paymentModesListData?.payload || [],
-    [paymentModesListData]
+    [paymentModesListData],
   );
 
   // ======== FILTER OPTIONS ========
   const nameFilterOptions = useMemo(
     () => createFilterOptions(paymentModesList, "name"),
-    [paymentModesList]
+    [paymentModesList],
   );
 
   const paymentCodeFilterOptions = useMemo(
     () => createFilterOptions(paymentModesList, "payment_code"),
-    [paymentModesList]
+    [paymentModesList],
   );
 
   // ======== COLUMN DEFINITIONS ========
@@ -122,8 +123,7 @@ const PaymentModesList = () => {
         const id = row.original?.id;
         return (
           <Badge
-            className={`justify-center py-1 min-w-[50px] w-[70px]`
-            }
+            className={`justify-center py-1 min-w-[50px] w-[70px]`}
             variant={status === "active" ? "success" : "danger"}
             onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
           >
@@ -156,7 +156,10 @@ const PaymentModesList = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {rights?.can_edit === "1" && (
-                <DropdownMenuItem onClick={() => setPaymentModesId(record.id)} asChild>
+                <DropdownMenuItem
+                  onClick={() => setPaymentModesId(record.id)}
+                  asChild
+                >
                   <Link href={EDIT_ROUTE}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
@@ -165,12 +168,10 @@ const PaymentModesList = () => {
               )}
               {rights?.can_delete === "1" && (
                 <DropdownMenuItem
-                  onClick={
-                    () => {
-                      setDeleteDialogOpen(true);
-                      setSelectedRecordId(record.id);
-                    }
-                  }
+                  onClick={() => {
+                    setDeleteDialogOpen(true);
+                    setSelectedRecordId(record.id);
+                  }}
                 >
                   <Trash className="h-4 w-4 mr-1" />
                   Delete
@@ -198,7 +199,7 @@ const PaymentModesList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
@@ -214,7 +215,7 @@ const PaymentModesList = () => {
             queryKey: ["payment-modes-list"],
           });
         },
-      }
+      },
     );
   };
 
@@ -226,12 +227,12 @@ const PaymentModesList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if (isLoading) return <LoadingState />;
   if (isError) return <Error err={onError} />;

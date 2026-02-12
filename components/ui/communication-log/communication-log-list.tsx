@@ -44,10 +44,12 @@ import {
   DialogTitle,
 } from "../shadcn/dialog";
 import { DateRange } from "react-day-picker";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const CommunicationLogList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/communication-log";
+  const userInfo = getUserInfo();
   const queryClient = useQueryClient();
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -124,7 +126,7 @@ const CommunicationLogList = () => {
   // ======== HANDLERS ========
   const handleOpenDialog = (
     record: CommunicationLogsPayloadType,
-    type: "message" | "htmlContent" | "attachments"
+    type: "message" | "htmlContent" | "attachments",
   ) => {
     setSelectedRecord(record);
     setDialogType(type);
@@ -301,12 +303,12 @@ const CommunicationLogList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

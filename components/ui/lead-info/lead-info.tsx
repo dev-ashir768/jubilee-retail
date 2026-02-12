@@ -39,10 +39,12 @@ import {
   handleDeleteMutation,
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const LeadInfoList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/leads/lead-info";
+  const userInfo = getUserInfo();
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -61,7 +63,7 @@ const LeadInfoList = () => {
     from: startOfMonth(new Date()),
     to: new Date(),
   };
-  
+
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE);
@@ -208,41 +210,41 @@ const LeadInfoList = () => {
   // ======== PAYLOADS DATA ========
   const leadInfoList = useMemo(
     () => LeadInfoListResponse?.payload || [],
-    [LeadInfoListResponse]
+    [LeadInfoListResponse],
   );
 
   // ======== FILTER OPTIONS ========
   const nameFilterOptions = useMemo(
     () => createFilterOptionsForLeadInfo(leadInfoList, "name"),
-    [leadInfoList]
+    [leadInfoList],
   );
   const dobFilterOptions = useMemo(
     () => createFilterOptionsForLeadInfo(leadInfoList, "dob"),
-    [leadInfoList]
+    [leadInfoList],
   );
   const ageFilterOptions = useMemo(
     () => createFilterOptionsForLeadInfo(leadInfoList, "age"),
-    [leadInfoList]
+    [leadInfoList],
   );
   const mobileNumFilterOptions = useMemo(
     () => createFilterOptionsForLeadInfo(leadInfoList, "mobile_num"),
-    [leadInfoList]
+    [leadInfoList],
   );
   const emailFilterOptions = useMemo(
     () => createFilterOptionsForLeadInfo(leadInfoList, "email_address"),
-    [leadInfoList]
+    [leadInfoList],
   );
   const spouseDobFilterOptions = useMemo(
     () => createFilterOptionsForLeadInfo(leadInfoList, "spouse_dob"),
-    [leadInfoList]
+    [leadInfoList],
   );
   const spouseAgeFilterOptions = useMemo(
     () => createFilterOptionsForLeadInfo(leadInfoList, "spouse_age"),
-    [leadInfoList]
+    [leadInfoList],
   );
   const kidsFilterOptions = useMemo(
     () => createFilterOptionsForLeadInfo(leadInfoList, "kids"),
-    [leadInfoList]
+    [leadInfoList],
   );
 
   // ======== COLUMN DEFINITIONS ========
@@ -367,7 +369,7 @@ const LeadInfoList = () => {
         const { status, id } = row.original;
         const currentStatus = status as string;
         const isLocked = ["interested", "not_interested", "cancelled"].includes(
-          currentStatus
+          currentStatus,
         );
 
         return (
@@ -478,7 +480,7 @@ const LeadInfoList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
@@ -497,7 +499,7 @@ const LeadInfoList = () => {
             ],
           });
         },
-      }
+      },
     );
   };
 
@@ -527,12 +529,12 @@ const LeadInfoList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

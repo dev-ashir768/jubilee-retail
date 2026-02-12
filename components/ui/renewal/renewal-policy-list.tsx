@@ -46,10 +46,12 @@ import {
 } from "../shadcn/dropdown-menu";
 import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const RenewalPolicyList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/orders/renewals";
+  const userInfo = getUserInfo();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterValue } = renewalPolicyFilterState();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -184,27 +186,27 @@ const RenewalPolicyList = () => {
   // ======== PAYLOADS DATA ========
   const renewalPolicyList = useMemo(
     () => renewalPolicyListResponse?.payload || [],
-    [renewalPolicyListResponse]
+    [renewalPolicyListResponse],
   );
 
   const apiUserList = useMemo(
     () => apiUserListResponse?.payload || [],
-    [apiUserListResponse]
+    [apiUserListResponse],
   );
 
   const productList = useMemo(
     () => productListResponse?.payload || [],
-    [productListResponse]
+    [productListResponse],
   );
 
   const branchList = useMemo(
     () => branchListResponse?.payload || [],
-    [branchListResponse]
+    [branchListResponse],
   );
 
   const paymentModesList = useMemo(
     () => paymentModesListresponse?.payload || [],
-    [paymentModesListresponse]
+    [paymentModesListresponse],
   );
 
   // ======== HANDLERS ========
@@ -212,7 +214,7 @@ const RenewalPolicyList = () => {
     (orderId: string) => {
       singleOrderMutation.mutate({ orderId });
     },
-    [singleOrderMutation]
+    [singleOrderMutation],
   );
 
   const handleRenewalPolicy = useCallback(
@@ -221,10 +223,10 @@ const RenewalPolicyList = () => {
         `https://dev-coverage.jubileegeneral.com.pk/renewalpolicy?order=${order_code}&site=${
           is_takaful ? "Takaful" : "Insurance"
         }`,
-        "_blank"
+        "_blank",
       );
     },
-    []
+    [],
   );
 
   const handleRefetch = useCallback(async () => {
@@ -417,7 +419,7 @@ const RenewalPolicyList = () => {
                   onClick={() =>
                     handleRenewalPolicy(
                       row.original.order_code,
-                      row.original.is_takaful
+                      row.original.is_takaful,
                     )
                   }
                 >
@@ -429,7 +431,7 @@ const RenewalPolicyList = () => {
         },
       },
     ],
-    [rights, handleSingleOrderFetch, singleOrderMutation, handleRenewalPolicy]
+    [rights, handleSingleOrderFetch, singleOrderMutation, handleRenewalPolicy],
   );
 
   // ======== RENDER LOGIC ========
@@ -455,12 +457,12 @@ const RenewalPolicyList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

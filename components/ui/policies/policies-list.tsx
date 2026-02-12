@@ -51,10 +51,12 @@ import { ClientResponseType } from "@/types/clientTypes";
 import { fetchAllClientList } from "@/helperFunctions/clientFunction";
 import { fetchAllAgentList } from "@/helperFunctions/agentFunction";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const PoliciesList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/orders/policies";
+  const userInfo = getUserInfo();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterValue } = policyListFilterState();
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
@@ -74,7 +76,7 @@ const PoliciesList = () => {
     from: startOfMonth(new Date()),
     to: new Date(),
   };
-  
+
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(LISTING_ROUTE);
@@ -214,37 +216,37 @@ const PoliciesList = () => {
   // ======== PAYLOADS DATA ========
   const policiesList = useMemo(
     () => policiesListResponse?.payload || [],
-    [policiesListResponse]
+    [policiesListResponse],
   );
 
   const apiUserList = useMemo(
     () => apiUserListResponse?.payload || [],
-    [apiUserListResponse]
+    [apiUserListResponse],
   );
 
   const productList = useMemo(
     () => productListResponse?.payload || [],
-    [productListResponse]
+    [productListResponse],
   );
 
   const branchList = useMemo(
     () => branchListResponse?.payload || [],
-    [branchListResponse]
+    [branchListResponse],
   );
 
   const agentList = useMemo(
     () => agentListResponse?.payload || [],
-    [agentListResponse]
+    [agentListResponse],
   );
 
   const clientList = useMemo(
     () => clientListResponse?.payload || [],
-    [clientListResponse]
+    [clientListResponse],
   );
 
   const paymentModesList = useMemo(
     () => paymentModesListresponse?.payload || [],
-    [paymentModesListresponse]
+    [paymentModesListresponse],
   );
 
   // ======== HANDLERS ========
@@ -252,7 +254,7 @@ const PoliciesList = () => {
     (orderId: string) => {
       return singleOrderMutation.mutate({ orderId });
     },
-    [singleOrderMutation]
+    [singleOrderMutation],
   );
 
   const handlePolicyStatusDialog = useCallback(
@@ -260,7 +262,7 @@ const PoliciesList = () => {
       setStatusDialogOpen(true);
       setIsPolicyId(policyId);
     },
-    [setStatusDialogOpen, setIsPolicyId]
+    [setStatusDialogOpen, setIsPolicyId],
   );
 
   const handleRefetch = useCallback(async () => {
@@ -393,7 +395,9 @@ const PoliciesList = () => {
           <DatatableColumnHeader column={column} title="Api User Name" />
         ),
         accessorFn: (row) => row.api_user_name || "N/A",
-        cell: ({ row }) => <div className="capitalize">{row.original.api_user_name}</div>,
+        cell: ({ row }) => (
+          <div className="capitalize">{row.original.api_user_name}</div>
+        ),
       },
       {
         accessorKey: "policy_status",
@@ -471,7 +475,7 @@ const PoliciesList = () => {
       handleSingleOrderFetch,
       singleOrderMutation,
       handlePolicyStatusDialog,
-    ]
+    ],
   );
 
   // ======== RENDER LOGIC ========
@@ -503,12 +507,12 @@ const PoliciesList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

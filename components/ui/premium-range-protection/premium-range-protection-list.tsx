@@ -36,6 +36,7 @@ import {
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const PremiumRangeProtectionList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -47,7 +48,9 @@ const PremiumRangeProtectionList = () => {
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { mutate: deleteMutate } = handleDeleteMutation();
-  const { mutate: statusMutate, isPending: statusIsPending } = handleStatusMutation();
+  const { mutate: statusMutate, isPending: statusIsPending } =
+    handleStatusMutation();
+  const userInfo = getUserInfo();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -68,23 +71,23 @@ const PremiumRangeProtectionList = () => {
   // ======== PAYLOADS DATA ========
   const premiumRangeProtectionList = useMemo(
     () => premiumRangeProtectionListResponse?.payload || [],
-    [premiumRangeProtectionListResponse]
+    [premiumRangeProtectionListResponse],
   );
 
   // ======== FILTER OPTIONS ========
   const apiUserNameFilterOptions = useMemo(
     () => createFilterOptions(premiumRangeProtectionList, "apiUser.name"),
-    [premiumRangeProtectionList]
+    [premiumRangeProtectionList],
   );
 
   const netPremiumFilterOptions = useMemo(
     () => createFilterOptions(premiumRangeProtectionList, "net_premium"),
-    [premiumRangeProtectionList]
+    [premiumRangeProtectionList],
   );
 
   const durationFilterOptions = useMemo(
     () => createFilterOptions(premiumRangeProtectionList, "duration"),
-    [premiumRangeProtectionList]
+    [premiumRangeProtectionList],
   );
 
   // ======== HANDLE ========
@@ -102,25 +105,28 @@ const PremiumRangeProtectionList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
-  const handleStatusUpdate = useCallback((id: number) => {
-    return statusMutate(
-      {
-        module: process.env.NEXT_PUBLIC_PATH_PREMIUMRANGEPROTECTION!,
-        record_id: id,
-      },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: ["premium-range-protection-list"],
-          });
+  const handleStatusUpdate = useCallback(
+    (id: number) => {
+      return statusMutate(
+        {
+          module: process.env.NEXT_PUBLIC_PATH_PREMIUMRANGEPROTECTION!,
+          record_id: id,
         },
-      }
-    );
-  }, [statusMutate, queryClient]);
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: ["premium-range-protection-list"],
+            });
+          },
+        },
+      );
+    },
+    [statusMutate, queryClient],
+  );
   // ======== COLUMN DEFINITIONS ========
   const columns: ColumnDef<PremiumRangeProtectionsPayloadType>[] = useMemo(
     () => [
@@ -151,7 +157,9 @@ const PremiumRangeProtectionList = () => {
         header: ({ column }) => (
           <DatatableColumnHeader column={column} title="Net Premium" />
         ),
-        cell: ({ row }) => <div>{formatNumberCell(row.original.net_premium)}</div>,
+        cell: ({ row }) => (
+          <div>{formatNumberCell(row.original.net_premium)}</div>
+        ),
         filterFn: "multiSelect",
         meta: {
           filterType: "multiselect",
@@ -187,7 +195,9 @@ const PremiumRangeProtectionList = () => {
             <Badge
               className={`justify-center py-1 min-w-[50px] w-[70px]`}
               variant={status === "active" ? "success" : "danger"}
-              onClick={statusIsPending ? undefined : () => handleStatusUpdate(id)}
+              onClick={
+                statusIsPending ? undefined : () => handleStatusUpdate(id)
+              }
             >
               {status}
             </Badge>
@@ -252,8 +262,8 @@ const PremiumRangeProtectionList = () => {
       durationFilterOptions,
       netPremiumFilterOptions,
       handleStatusUpdate,
-      statusIsPending
-    ]
+      statusIsPending,
+    ],
   );
 
   // ======== RENDER LOGIC ========
@@ -264,12 +274,12 @@ const PremiumRangeProtectionList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if (isLoading) return <LoadingState />;
   if (isError) return <Error err={onError} />;

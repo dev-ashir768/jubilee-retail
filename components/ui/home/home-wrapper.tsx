@@ -5,9 +5,11 @@ import { getRights } from "@/utils/getRights";
 import { useMemo } from "react";
 import { redirect } from "next/navigation";
 import Empty from "../foundations/empty";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const HomeWrapper = () => {
   const LISTING_ROUTE = "/dashboard";
+  const userInfo = getUserInfo();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -18,12 +20,12 @@ const HomeWrapper = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

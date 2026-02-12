@@ -33,10 +33,12 @@ import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const AgentList = () => {
   // Constants
   const ADD_ROUTES = "/agents-dos/add-agent";
+  const userInfo = getUserInfo();
   const { setAgentId } = useAgentIdStore();
   const pathname = usePathname();
   const queryClient = useQueryClient();
@@ -269,12 +271,12 @@ const AgentList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

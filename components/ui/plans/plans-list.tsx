@@ -33,6 +33,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { UserResponseType } from "@/types/usersTypes";
 import { fetchAllUserList } from "@/helperFunctions/userFunction";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const PlansList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -46,6 +47,7 @@ const PlansList = () => {
   const { mutate: deleteMutate } = handleDeleteMutation();
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
+  const userInfo = getUserInfo();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -78,7 +80,7 @@ const PlansList = () => {
 
   const usersList = useMemo(
     () => usersListResponse?.payload || [],
-    [usersListResponse]
+    [usersListResponse],
   );
 
   const usersMap = useMemo(() => {
@@ -212,7 +214,7 @@ const PlansList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
@@ -228,7 +230,7 @@ const PlansList = () => {
             queryKey: ["plans-list"],
           });
         },
-      }
+      },
     );
   };
 
@@ -240,12 +242,12 @@ const PlansList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if (isLoading) return <LoadingState />;
   if (isError) return <Error err={onError} />;

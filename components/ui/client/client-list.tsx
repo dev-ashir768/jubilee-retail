@@ -38,9 +38,11 @@ import {
   handleDeleteMutation,
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const ClientList = () => {
   // Constants
+  const userInfo = getUserInfo();
   const ADD_URL = "/branches-clients/add-clients";
   const EDIT_URL = "/branches-clients/edit-clients";
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
@@ -65,7 +67,7 @@ const ClientList = () => {
     from: startOfMonth(new Date()),
     to: new Date(),
   };
-  
+
   // Zustand
   const { setClientId } = useClientIdStore();
 
@@ -104,7 +106,7 @@ const ClientList = () => {
     const allNames =
       clientListResponse?.payload?.map((item) => item.name) || [];
     const uniqueNames = Array.from(
-      new Set(allNames.filter((name) => name !== null))
+      new Set(allNames.filter((name) => name !== null)),
     );
     return uniqueNames.map((name) => ({
       label: name,
@@ -319,7 +321,7 @@ const ClientList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
@@ -339,14 +341,14 @@ const ClientList = () => {
             ],
           });
         },
-      }
+      },
     );
   };
 
   // ======== FETCH PAYLOAD ========
   const branchList = useMemo(
     () => branchListResponse?.payload || [],
-    [branchListResponse]
+    [branchListResponse],
   );
 
   // ======== RENDER LOGIC ========
@@ -357,12 +359,12 @@ const ClientList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if (rights && rights?.can_view === "0") {
     return (

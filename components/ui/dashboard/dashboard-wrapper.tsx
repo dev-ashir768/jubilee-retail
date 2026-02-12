@@ -41,10 +41,12 @@ import Empty from "../foundations/empty";
 import { userInfoTypes } from "@/types/verifyOtpTypes";
 import { getCookie } from "cookies-next";
 import CouponUsage from "./coupon-usage";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 export function DashboardWrapper() {
   // ======== CONSTANTS & HOOKS ========
   const pathname = usePathname();
+  const userInfo = getUserInfo();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfMonth(new Date()),
     to: new Date(),
@@ -87,11 +89,8 @@ export function DashboardWrapper() {
     isError: monthlyPolicyNOrdersIsError,
     error: monthlyPolicyNOrdersError,
   } = useQuery<MonthlyPolicyNOrdersResponse | null>({
-    queryKey: [
-      "policy-monthly-orders-and-policies",
-    ],
-    queryFn: () =>
-      fetchMonthlyPolicyNOrders(),
+    queryKey: ["policy-monthly-orders-and-policies"],
+    queryFn: () => fetchMonthlyPolicyNOrders(),
   });
 
   const {
@@ -216,59 +215,59 @@ export function DashboardWrapper() {
   // ======== PAYLOADS DATA ========
   const policyStats = useMemo(
     () => policyStatsResponse?.payload || [],
-    [policyStatsResponse]
+    [policyStatsResponse],
   );
 
   const monthlyPolicyNOrders = useMemo(
     () => monthlyPolicyNOrdersResponse?.payload || [],
-    [monthlyPolicyNOrdersResponse]
+    [monthlyPolicyNOrdersResponse],
   );
 
   const policyStatusBreakdown = useMemo(
     () => policyStatusBreakdownResponse?.payload || [],
-    [policyStatusBreakdownResponse]
+    [policyStatusBreakdownResponse],
   );
 
   const productsDetailWise = useMemo(
     () => productsDetailWiseResponse?.payload || [],
-    [productsDetailWiseResponse]
+    [productsDetailWiseResponse],
   );
 
   const apiUsersByPolicyAmount = useMemo(
     () => apiUsersByPolicyAmountResponse?.payload || [],
-    [apiUsersByPolicyAmountResponse]
+    [apiUsersByPolicyAmountResponse],
   );
 
   const productShareOfPolicyAmountByAmount = useMemo(
     () => productShareOfPolicyAmountByAmountResponse?.payload || [],
-    [productShareOfPolicyAmountByAmountResponse]
+    [productShareOfPolicyAmountByAmountResponse],
   );
 
   const paymentMode = useMemo(
     () => paymentModeResponse?.payload || [],
-    [paymentModeResponse]
+    [paymentModeResponse],
   );
 
   const top5Branches = useMemo(
     () => top5BranchesResponse?.payload || [],
-    [top5BranchesResponse]
+    [top5BranchesResponse],
   );
 
   const couponUsage = useMemo(
     () => couponUsageResponse?.payload || [],
-    [couponUsageResponse]
+    [couponUsageResponse],
   );
 
   // ======== RENDER LOGIC ========
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
@@ -285,7 +284,6 @@ export function DashboardWrapper() {
         datePicker={true}
         setDateRange={setDateRange}
         dateRange={dateRange}
-        
       />
 
       <div className="grid grid-cols-1 gap-6">

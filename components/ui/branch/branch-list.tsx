@@ -34,6 +34,7 @@ import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import DeleteDialog from "../common/delete-dialog";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const BranchList = () => {
   // Constants
@@ -42,6 +43,7 @@ const BranchList = () => {
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
+  const userInfo = getUserInfo();
   const { mutate: deleteMutate } = handleDeleteMutation();
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
@@ -395,12 +397,12 @@ const BranchList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

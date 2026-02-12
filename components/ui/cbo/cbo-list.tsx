@@ -45,6 +45,7 @@ import {
 import ChangeCBOPolicyStatus from "./change-cbo-policy-status";
 import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const CboList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -57,6 +58,7 @@ const CboList = () => {
   const [orderSingleData, setSingleOrderData] =
     useState<SingleOrderPayloadTypes | null>(null);
   const { filterValue } = cboListFilterState();
+  const userInfo = getUserInfo();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfMonth(new Date()),
     to: new Date(),
@@ -187,27 +189,27 @@ const CboList = () => {
   // ======== PAYLOADS DATA ========
   const cboList = useMemo(
     () => cobListResponse?.payload || [],
-    [cobListResponse]
+    [cobListResponse],
   );
 
   const apiUserList = useMemo(
     () => apiUserListResponse?.payload || [],
-    [apiUserListResponse]
+    [apiUserListResponse],
   );
 
   const productList = useMemo(
     () => productListResponse?.payload || [],
-    [productListResponse]
+    [productListResponse],
   );
 
   const branchList = useMemo(
     () => branchListResponse?.payload || [],
-    [branchListResponse]
+    [branchListResponse],
   );
 
   const paymentModesList = useMemo(
     () => paymentModesListresponse?.payload || [],
-    [paymentModesListresponse]
+    [paymentModesListresponse],
   );
 
   // ======== HANDLERS ========
@@ -215,7 +217,7 @@ const CboList = () => {
     (orderId: string) => {
       singleOrderMutation.mutate({ orderId });
     },
-    [singleOrderMutation]
+    [singleOrderMutation],
   );
 
   const handlePolicyStatusDialog = useCallback(
@@ -223,7 +225,7 @@ const CboList = () => {
       setStatusDialogOpen(true);
       setIsPolicyId(policyId);
     },
-    [setStatusDialogOpen, setIsPolicyId]
+    [setStatusDialogOpen, setIsPolicyId],
   );
 
   const handleRefetch = useCallback(async () => {
@@ -488,7 +490,7 @@ const CboList = () => {
       handleSingleOrderFetch,
       singleOrderMutation,
       handlePolicyStatusDialog,
-    ]
+    ],
   );
 
   // ======== RENDER LOGIC ========
@@ -514,12 +516,12 @@ const CboList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

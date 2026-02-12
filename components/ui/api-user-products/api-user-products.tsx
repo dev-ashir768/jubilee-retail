@@ -39,6 +39,7 @@ import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const ApiUserProductsList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -54,6 +55,7 @@ const ApiUserProductsList = () => {
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
   const queryClient = useQueryClient();
+  const userInfo = getUserInfo();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -287,12 +289,12 @@ const ApiUserProductsList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

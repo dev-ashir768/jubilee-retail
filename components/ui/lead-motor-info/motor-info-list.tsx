@@ -48,10 +48,12 @@ import {
   IgisMakeResponseType,
   IgisSubMakeResponseType,
 } from "@/types/igisTypes";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const MotorInfoList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/leads/lead-motor-info";
+  const userInfo = getUserInfo();
 
   const router = useRouter();
 
@@ -266,43 +268,43 @@ const MotorInfoList = () => {
 
   const leadsMotorInfoList = useMemo(
     () => LeadsMotorInfoListResponse?.payload || [],
-    [LeadsMotorInfoListResponse]
+    [LeadsMotorInfoListResponse],
   );
 
   const igisMakeList = useMemo(
     () => igisMakeListResponse?.payload || [],
-    [igisMakeListResponse]
+    [igisMakeListResponse],
   );
 
   const igisSubMakeList = useMemo(
     () => igisSubMakeListResponse?.payload || [],
-    [igisSubMakeListResponse]
+    [igisSubMakeListResponse],
   );
 
   // ======== FILTER OPTIONS ========
   const fullNameFilterOptions = useMemo(
     () => createFilterOptions(leadsMotorInfoList, "full_name"),
-    [leadsMotorInfoList]
+    [leadsMotorInfoList],
   );
 
   const mobileFilterOptions = useMemo(
     () => createFilterOptions(leadsMotorInfoList, "mobile"),
-    [leadsMotorInfoList]
+    [leadsMotorInfoList],
   );
 
   const emailFilterOptions = useMemo(
     () => createFilterOptions(leadsMotorInfoList, "email"),
-    [leadsMotorInfoList]
+    [leadsMotorInfoList],
   );
 
   const vehicleModelFilterOptions = useMemo(
     () => createFilterOptions(leadsMotorInfoList, "vehicle_model"),
-    [leadsMotorInfoList]
+    [leadsMotorInfoList],
   );
 
   const vehicleValueFilterOptions = useMemo(
     () => createFilterOptions(leadsMotorInfoList, "vehicle_value"),
-    [leadsMotorInfoList]
+    [leadsMotorInfoList],
   );
 
   const handleRefetch = useCallback(async () => {
@@ -374,7 +376,7 @@ const MotorInfoList = () => {
           return "N/A";
         }
         const makeName = igisMakeListResponse?.payload.find((item) =>
-          row.vehicle_make.includes(String(item.id))
+          row.vehicle_make.includes(String(item.id)),
         )?.make_name;
 
         return makeName || "N/A";
@@ -397,7 +399,7 @@ const MotorInfoList = () => {
           return "N/A";
         }
         const subMakeName = igisSubMakeListResponse?.payload.find((item) =>
-          row.vehicle_submake.includes(String(item.id))
+          row.vehicle_submake.includes(String(item.id)),
         )?.sub_make_name;
 
         return subMakeName || "N/A";
@@ -450,7 +452,7 @@ const MotorInfoList = () => {
         const { status, id } = row.original;
         const currentStatus = status as string;
         const isLocked = ["interested", "not_interested", "cancelled"].includes(
-          currentStatus
+          currentStatus,
         );
 
         return (
@@ -561,7 +563,7 @@ const MotorInfoList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
@@ -580,7 +582,7 @@ const MotorInfoList = () => {
             ],
           });
         },
-      }
+      },
     );
   };
 
@@ -597,12 +599,12 @@ const MotorInfoList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

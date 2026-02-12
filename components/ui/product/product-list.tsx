@@ -40,6 +40,7 @@ import {
   handleStatusMutation,
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const ProductList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -53,6 +54,7 @@ const ProductList = () => {
   const { mutate: deleteMutate } = handleDeleteMutation();
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
+  const userInfo = getUserInfo();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -92,17 +94,17 @@ const ProductList = () => {
   // ======== PAYLOADS DATA ========
   const productList = useMemo(
     () => productListResponse?.payload || [],
-    [productListResponse]
+    [productListResponse],
   );
 
   const usersList = useMemo(
     () => usersListResponse?.payload || [],
-    [usersListResponse]
+    [usersListResponse],
   );
 
   const productCategoriesList = useMemo(
     () => productCategoriesListResponse?.payload || [],
-    [productCategoriesListResponse]
+    [productCategoriesListResponse],
   );
 
   // ======== Lookups ========
@@ -121,7 +123,7 @@ const ProductList = () => {
   const productNameFilterOptions = useMemo(() => {
     if (!productList) return [];
     const uniqueName = Array.from(
-      new Set(productList.map((item) => item.product_name))
+      new Set(productList.map((item) => item.product_name)),
     );
     return uniqueName.map((item) => ({
       label: item,
@@ -132,7 +134,7 @@ const ProductList = () => {
   const productTypeFilterOptions = useMemo(() => {
     if (!productList) return [];
     const uniqueType = Array.from(
-      new Set(productList.map((item) => item.product_type))
+      new Set(productList.map((item) => item.product_type)),
     );
     return uniqueType.map((item) => ({
       label: item,
@@ -160,15 +162,18 @@ const ProductList = () => {
   const productCategoryFilterOptions = useMemo(() => {
     if (!productList.length || !productCategoryMap.size) return [];
     const categoryIdsInProducts = new Set(
-      productList.map((item) => item.product_category_id)
+      productList.map((item) => item.product_category_id),
     );
-    return Array.from(categoryIdsInProducts).reduce((options, id) => {
-      const name = productCategoryMap.get(id);
-      if (name) {
-        options.push({ label: name, value: name });
-      }
-      return options;
-    }, [] as { label: string; value: string }[]);
+    return Array.from(categoryIdsInProducts).reduce(
+      (options, id) => {
+        const name = productCategoryMap.get(id);
+        if (name) {
+          options.push({ label: name, value: name });
+        }
+        return options;
+      },
+      [] as { label: string; value: string }[],
+    );
   }, [productList, productCategoryMap]);
 
   // ======== COLUMN DEFINITIONS ========
@@ -316,7 +321,7 @@ const ProductList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
@@ -332,7 +337,7 @@ const ProductList = () => {
             queryKey: ["all-products-list"],
           });
         },
-      }
+      },
     );
   };
 
@@ -349,12 +354,12 @@ const ProductList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (

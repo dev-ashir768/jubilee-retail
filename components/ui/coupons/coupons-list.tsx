@@ -33,13 +33,14 @@ import {
 } from "@/helperFunctions/commonFunctions";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const CouponsList = () => {
   // ======== CONSTANTS & HOOKS ========
   const ADD_ROUTE = "/coupons-management/add-coupons";
   const LISTING_ROUTE = "/coupons-management/coupons";
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
-  
+
   const { filterValue } = couponFilterState();
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
@@ -47,7 +48,7 @@ const CouponsList = () => {
   const { mutate: deleteMutate } = handleDeleteMutation();
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
-  
+  const userInfo = getUserInfo();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -84,12 +85,12 @@ const CouponsList = () => {
   // ======== PAYLOADS DATA ========
   const couponsList = useMemo(
     () => couponsListResponse?.payload || [],
-    [couponsListResponse]
+    [couponsListResponse],
   );
 
   const productList = useMemo(
     () => productListResponse?.payload || [],
-    [productListResponse]
+    [productListResponse],
   );
 
   // ======== HANDLE ========
@@ -110,7 +111,7 @@ const CouponsList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
@@ -130,10 +131,10 @@ const CouponsList = () => {
               ],
             });
           },
-        }
+        },
       );
     },
-    [statusMutate, filterValue?.product_id, queryClient]
+    [statusMutate, filterValue?.product_id, queryClient],
   );
 
   // ======== COLUMN DEFINITIONS ========
@@ -251,7 +252,7 @@ const CouponsList = () => {
         },
       },
     ],
-    [rights, handleStatusUpdate, statusIsPending]
+    [rights, handleStatusUpdate, statusIsPending],
   );
 
   // ======== RENDER LOGIC ========
@@ -262,12 +263,12 @@ const CouponsList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
@@ -298,7 +299,6 @@ const CouponsList = () => {
         title="Coupons List"
         addBtnTitle="Add Coupon"
         urlPath={ADD_ROUTE}
-        
         filter={true}
         isFilterOpen={isFilterOpen}
         setIsFilterOpen={setIsFilterOpen}

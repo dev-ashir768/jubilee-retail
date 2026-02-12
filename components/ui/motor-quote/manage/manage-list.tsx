@@ -34,6 +34,7 @@ import MotorQuotesFilters from "../../filters/motor-quotes";
 import { motorQuotesFilterState } from "@/hooks/motorQuotesFilterState";
 import { handleStatusMutation } from "@/helperFunctions/commonFunctions";
 import { formatNumberCell } from "@/utils/numberFormaterFunction";
+import { getUserInfo } from "@/utils/getUserInfo";
 
 const MotorQuoteList = () => {
   // ======== CONSTANTS & HOOKS ========
@@ -43,6 +44,7 @@ const MotorQuoteList = () => {
   const { filterValue } = motorQuotesFilterState();
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
+  const userInfo = getUserInfo();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfMonth(new Date()),
     to: new Date(),
@@ -55,7 +57,7 @@ const MotorQuoteList = () => {
     from: startOfMonth(new Date()),
     to: new Date(),
   };
-  
+
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
     return getRights(pathname);
@@ -114,7 +116,7 @@ const MotorQuoteList = () => {
   // ======== PAYLOADS DATA ========
   const motorQuoteList = useMemo(
     () => motorQuoteListResponse?.payload || [],
-    [motorQuoteListResponse]
+    [motorQuoteListResponse],
   );
 
   // ======== MUTATION ========
@@ -149,59 +151,59 @@ const MotorQuoteList = () => {
   // ======== FILTER OPTIONS ========
   const nameFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "name"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
   const policyTypeFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "policy_type"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
   const quoteIdFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "quote_id"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
   const mobileFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "mobile"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
   const cityIdFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "city_id"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
   const premiumValueFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "premium_value"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
   const rateFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "rate"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
   const vehicleMakeFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "vehicle_make"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
   const vehicleSubmakeFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "vehicle_submake"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
   const vehicleValueFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "vehicle_value"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
   const vehicleModelFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "vehicle_model"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
   const regNoFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "reg_no"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
   const engineNoFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "engine_no"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
   const chassisNoFilterOptions = useMemo(
     () => createFilterOptions(motorQuoteList, "chassis_no"),
-    [motorQuoteList]
+    [motorQuoteList],
   );
 
   // ======== COLUMN DEFINITIONS ========
@@ -513,7 +515,7 @@ const MotorQuoteList = () => {
             ],
           });
         },
-      }
+      },
     );
   };
 
@@ -525,12 +527,12 @@ const MotorQuoteList = () => {
   useEffect(() => {
     if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        redirect("/");
+        redirect(userInfo?.redirection_url ? userInfo.redirection_url : "/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights]);
+  }, [rights, userInfo]);
 
   if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
