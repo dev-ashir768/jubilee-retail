@@ -6,7 +6,7 @@ import useClientIdStore from "@/hooks/useClientIdStore";
 import { ClientPayloadType, ClientResponseType } from "@/types/clientTypes";
 import { getRights } from "@/utils/getRights";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { usePathname, useRouter } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import Error from "../foundations/error";
 import Empty from "../foundations/empty";
 import DatatableColumnHeader from "../datatable/datatable-column-header";
@@ -46,7 +46,6 @@ const ClientList = () => {
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const { mutate: deleteMutate } = handleDeleteMutation();
@@ -356,14 +355,14 @@ const ClientList = () => {
   const onError = clientListError?.message || branchListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
   if (rights && rights?.can_view === "0") {
     return (

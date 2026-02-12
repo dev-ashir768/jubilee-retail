@@ -3,12 +3,11 @@
 import React, { useEffect } from "react";
 import { getRights } from "@/utils/getRights";
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import Empty from "../foundations/empty";
 
 const HomeWrapper = () => {
   const LISTING_ROUTE = "/dashboard";
-  const router = useRouter();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -17,16 +16,16 @@ const HomeWrapper = () => {
 
   // ======== RENDER LOGIC ========
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

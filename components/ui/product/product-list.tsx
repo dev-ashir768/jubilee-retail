@@ -33,7 +33,7 @@ import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import Link from "next/link";
 import { ProductCategoriesResponseTypes } from "@/types/productCategoriesTypes";
 import { fetchProductCategoriesList } from "@/helperFunctions/productCategoriesFunction";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import DeleteDialog from "../common/delete-dialog";
 import {
   handleDeleteMutation,
@@ -46,7 +46,6 @@ const ProductList = () => {
   const ADD_ROUTE = "/products-plans/add-product";
   const EDIT_ROUTE = "/products-plans/edit-product";
   const LISTING_ROUTE = "/products-plans/product";
-  const router = useRouter();
   const { setProductsId } = useProductsIdStore();
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
@@ -348,16 +347,16 @@ const ProductList = () => {
     productCategoriesListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

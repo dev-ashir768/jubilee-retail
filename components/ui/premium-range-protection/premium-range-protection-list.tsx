@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import SubNav from "../foundations/sub-nav";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
 import Empty from "../foundations/empty";
@@ -43,7 +43,6 @@ const PremiumRangeProtectionList = () => {
   const EDIT_ROUTE = "/products-plans/edit-premium-range-protection";
   const LISTING_ROUTE = "/products-plans/premium-range-protection";
   const { setPremiumRangeProtectionId } = usePremiumRangeProtectionIdStore();
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -263,18 +262,18 @@ const PremiumRangeProtectionList = () => {
   const onError = premiumRangeProtectionListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
   if (isLoading) return <LoadingState />;
   if (isError) return <Error err={onError} />;
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

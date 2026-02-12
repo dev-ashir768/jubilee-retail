@@ -2,7 +2,7 @@
 
 import usePlanIdStore from "@/hooks/usePlanIdStore";
 import { getRights } from "@/utils/getRights";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import SubNav from "../foundations/sub-nav";
 import PlansDatatable from "./plans-datatable";
@@ -40,7 +40,6 @@ const PlansList = () => {
   const EDIT_ROUTE = "/products-plans/edit-plan";
   const LISTING_ROUTE = "/products-plans/plan";
   const { setPlanId } = usePlanIdStore();
-  const router = useRouter();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -239,14 +238,14 @@ const PlansList = () => {
   const onError = planListError?.message || usersListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
   if (isLoading) return <LoadingState />;
   if (isError) return <Error err={onError} />;

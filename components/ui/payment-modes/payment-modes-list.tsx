@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import SubNav from "../foundations/sub-nav";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { getRights } from "@/utils/getRights";
 import PaymentModesDatatable from "./payment-modes-datatable";
 import LoadingState from "../foundations/loading-state";
@@ -44,7 +44,6 @@ const PaymentModesList = () => {
   const EDIT_ROUTE = "/products-plans/edit-payment-modes";
   const LISTING_ROUTE = "/products-plans/payment-modes";
   const { setPaymentModesId } = usePaymentModesIdStore()
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -225,18 +224,18 @@ const PaymentModesList = () => {
   const onError = paymentModesListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
   if (isLoading) return <LoadingState />;
   if (isError) return <Error err={onError} />;
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

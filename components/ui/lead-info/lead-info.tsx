@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import SubNav from "../foundations/sub-nav";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { getRights } from "@/utils/getRights";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -42,10 +42,7 @@ import {
 
 const LeadInfoList = () => {
   // ======== CONSTANTS & HOOKS ========
-
   const LISTING_ROUTE = "/leads/lead-info";
-  const router = useRouter();
-
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -528,16 +525,16 @@ const LeadInfoList = () => {
   const onError = LeadInfoListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

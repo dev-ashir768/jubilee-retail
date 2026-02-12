@@ -2,7 +2,7 @@
 
 import { fetchCallUsList } from "@/helperFunctions/callUsFunction";
 import { useQuery } from "@tanstack/react-query";
-import { usePathname, useRouter } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import Error from "../foundations/error";
 import Empty from "../foundations/empty";
@@ -40,7 +40,6 @@ const CallUsList = () => {
   // Constants
   const ADD_URL = "/customer-service/add-call-us";
   const EDIT_URL = "/customer-service/edit-call-us";
-  const router = useRouter();
   const pathname = usePathname();
   const { setCallUsId } = useCallUsIdStore();
   const queryClient = useQueryClient();
@@ -283,16 +282,16 @@ const CallUsList = () => {
   const onError = callUsListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

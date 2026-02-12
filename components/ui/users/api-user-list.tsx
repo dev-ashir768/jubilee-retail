@@ -1,7 +1,7 @@
 "use client";
 
 import { getRights } from "@/utils/getRights";
-import { usePathname, useRouter } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import React, { useEffect, useMemo } from "react";
 import SubNav from "../foundations/sub-nav";
 import { useMutation } from "@tanstack/react-query";
@@ -33,8 +33,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const ApiUserList = () => {
   // ======== CONSTANTS AND HOOKS ========
-
-  const router = useRouter();
   const queryClient = useQueryClient();
   const pathname = usePathname();
 
@@ -253,16 +251,16 @@ const ApiUserList = () => {
   const onError = apiUserError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

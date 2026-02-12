@@ -27,7 +27,7 @@ import {
 import { getRights } from "@/utils/getRights";
 import { useQuery } from "@tanstack/react-query";
 import { format, startOfMonth } from "date-fns";
-import { usePathname, useRouter } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import ProductsDetailWise from "./products-detail-wise";
@@ -45,7 +45,6 @@ import CouponUsage from "./coupon-usage";
 export function DashboardWrapper() {
   // ======== CONSTANTS & HOOKS ========
   const pathname = usePathname();
-  const router = useRouter();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfMonth(new Date()),
     to: new Date(),
@@ -262,16 +261,16 @@ export function DashboardWrapper() {
 
   // ======== RENDER LOGIC ========
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

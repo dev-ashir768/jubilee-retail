@@ -6,7 +6,7 @@ import {
   RepushCommunicationLogsResponseType,
 } from "@/types/communicationLogsTypes";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DatatableColumnHeader from "../datatable/datatable-column-header";
 import Empty from "../foundations/empty";
@@ -48,7 +48,6 @@ import { DateRange } from "react-day-picker";
 const CommunicationLogList = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/communication-log";
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -300,16 +299,16 @@ const CommunicationLogList = () => {
   const onError = communicationlogsListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

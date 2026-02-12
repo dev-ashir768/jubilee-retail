@@ -5,7 +5,7 @@ import { CouponsPayloadType, CouponsResponseType } from "@/types/couponsTypes";
 import { getRights } from "@/utils/getRights";
 import { useQuery } from "@tanstack/react-query";
 import { MoreHorizontal, Trash } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   DropdownMenu,
@@ -38,7 +38,6 @@ const CouponsList = () => {
   // ======== CONSTANTS & HOOKS ========
   const ADD_ROUTE = "/coupons-management/add-coupons";
   const LISTING_ROUTE = "/coupons-management/coupons";
-  const router = useRouter();
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   
   const { filterValue } = couponFilterState();
@@ -261,16 +260,16 @@ const CouponsList = () => {
   const onError = couponsListError?.message || productListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

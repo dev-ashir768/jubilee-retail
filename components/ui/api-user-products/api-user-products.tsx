@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import SubNav from "../foundations/sub-nav";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { getRights } from "@/utils/getRights";
 import LoadingState from "../foundations/loading-state";
 import Error from "../foundations/error";
@@ -48,7 +48,6 @@ const ApiUserProductsList = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filterValue } = apiUserProductsFilterState();
   const { setApiUserProductsId } = useApiUserProductsIdStore();
-  const router = useRouter();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { mutate: deleteMutate } = handleDeleteMutation();
@@ -88,28 +87,28 @@ const ApiUserProductsList = () => {
   // ======== PAYLOADS DATA ========
   const apiUserProductsList = useMemo(
     () => apiUserProductsListData?.payload || [],
-    [apiUserProductsListData]
+    [apiUserProductsListData],
   );
 
   const apiUserList = useMemo(
     () => apiUserResponse?.payload || [],
-    [apiUserResponse]
+    [apiUserResponse],
   );
 
   // ======== FILTER OPTIONS ========
   const nameFilterOptions = useMemo(
     () => createFilterOptions(apiUserProductsList, "name"),
-    [apiUserProductsList]
+    [apiUserProductsList],
   );
 
   const emailFilterOptions = useMemo(
     () => createFilterOptions(apiUserProductsList, "email"),
-    [apiUserProductsList]
+    [apiUserProductsList],
   );
 
   const phoneFilterOptions = useMemo(
     () => createFilterOptions(apiUserProductsList, "phone"),
-    [apiUserProductsList]
+    [apiUserProductsList],
   );
 
   // ======== COLUMN DEFINITIONS ========
@@ -160,7 +159,7 @@ const ApiUserProductsList = () => {
       ),
       cell: ({ row }) => {
         const apiUser = apiUserList.find(
-          (item) => item.id === row.getValue("api_user_id")
+          (item) => item.id === row.getValue("api_user_id"),
         );
         return (
           <div>{apiUser ? apiUser.name : row.getValue("api_user_id")}</div>
@@ -257,7 +256,7 @@ const ApiUserProductsList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
@@ -276,7 +275,7 @@ const ApiUserProductsList = () => {
             ],
           });
         },
-      }
+      },
     );
   };
 
@@ -286,16 +285,16 @@ const ApiUserProductsList = () => {
   const onError = apiUserProductsListError?.message || apiUserError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

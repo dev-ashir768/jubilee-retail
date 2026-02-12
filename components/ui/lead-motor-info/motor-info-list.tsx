@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import MotorInfoDatatable from "./motor-info-datatable";
 import SubNav from "../foundations/sub-nav";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { getRights } from "@/utils/getRights";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -595,16 +595,16 @@ const MotorInfoList = () => {
     igisSubMakeListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

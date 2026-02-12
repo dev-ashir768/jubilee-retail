@@ -5,7 +5,7 @@ import useBranchIdStore from "@/hooks/useBranchIdStore";
 import { BranchPayloadType, BranchResponseType } from "@/types/branchTypes";
 import { getRights } from "@/utils/getRights";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { usePathname, useRouter } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import Error from "../foundations/error";
 import { ColumnDef } from "@tanstack/react-table";
@@ -45,7 +45,6 @@ const BranchList = () => {
   const { mutate: deleteMutate } = handleDeleteMutation();
   const { mutate: statusMutate, isPending: statusIsPending } =
     handleStatusMutation();
-  const router = useRouter();
   const { setBranchId } = useBranchIdStore();
   const pathname = usePathname();
 
@@ -118,10 +117,10 @@ const BranchList = () => {
   const IGISBranchTakafulCodeFilterOptions = useMemo(() => {
     const allIGISBranchTakafulCode =
       branchListResponse?.payload?.map(
-        (item) => item.igis_branch_takaful_code
+        (item) => item.igis_branch_takaful_code,
       ) || [];
     const uniqueIGISBranchTakafulCode = Array.from(
-      new Set(allIGISBranchTakafulCode)
+      new Set(allIGISBranchTakafulCode),
     );
     return uniqueIGISBranchTakafulCode.map((igis_branch_takaful_code) => ({
       label: igis_branch_takaful_code,
@@ -365,7 +364,7 @@ const BranchList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
@@ -384,7 +383,7 @@ const BranchList = () => {
             ],
           });
         },
-      }
+      },
     );
   };
 
@@ -394,16 +393,16 @@ const BranchList = () => {
   const onError = branchListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

@@ -26,7 +26,7 @@ import { fetchAllProductsList } from "@/helperFunctions/productsFunction";
 import { fetchAllAgentList } from "@/helperFunctions/agentFunction";
 import { fetchAllCouponsList } from "@/helperFunctions/couponsFunction";
 import { getRights } from "@/utils/getRights";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import Empty from "../foundations/empty";
 import { Button } from "../shadcn/button";
 import { downloadMIS } from "@/helperFunctions/downloadMICFunction";
@@ -36,7 +36,6 @@ import { Loader } from "lucide-react";
 const ReportingWrapper = () => {
   // ======== CONSTANTS & HOOKS ========
   const LISTING_ROUTE = "/reporting";
-  const router = useRouter();
 
   // ======== MEMOIZATION ========
   const rights = useMemo(() => {
@@ -235,16 +234,16 @@ const ReportingWrapper = () => {
     couponListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"

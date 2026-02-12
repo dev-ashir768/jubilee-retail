@@ -5,7 +5,7 @@ import useAgentIdStore from "@/hooks/useAgentIdStore";
 import { AgentPayloadTypes, AgentResponseTypes } from "@/types/agentTypes";
 import { getRights } from "@/utils/getRights";
 import { useQuery } from "@tanstack/react-query";
-import { usePathname, useRouter } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import Error from "../foundations/error";
 import Empty from "../foundations/empty";
@@ -38,7 +38,6 @@ const AgentList = () => {
   // Constants
   const ADD_ROUTES = "/agents-dos/add-agent";
   const { setAgentId } = useAgentIdStore();
-  const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
@@ -62,7 +61,7 @@ const AgentList = () => {
   const nameFilterOptions = useMemo(() => {
     const allNames = agentListResponse?.payload?.map((item) => item.name) || [];
     const uniqueNames = Array.from(
-      new Set(allNames.filter((name) => name != null))
+      new Set(allNames.filter((name) => name != null)),
     );
     return uniqueNames.map((name) => ({
       label: name,
@@ -74,7 +73,7 @@ const AgentList = () => {
     const allIgisCodes =
       agentListResponse?.payload?.map((item) => item.igis_code) || [];
     const uniqueIgisCodes = Array.from(
-      new Set(allIgisCodes.filter((igisCode) => igisCode != null))
+      new Set(allIgisCodes.filter((igisCode) => igisCode != null)),
     );
     return uniqueIgisCodes.map((igis_code) => ({
       label: igis_code,
@@ -87,8 +86,8 @@ const AgentList = () => {
       agentListResponse?.payload?.map((item) => item.igis_agent_code) || [];
     const uniqueIgisAgentCodes = Array.from(
       new Set(
-        allIgisAgentCodes.filter((igisAgentCode) => igisAgentCode != null)
-      )
+        allIgisAgentCodes.filter((igisAgentCode) => igisAgentCode != null),
+      ),
     );
     return uniqueIgisAgentCodes.map((igis_agent_code) => ({
       label: igis_agent_code,
@@ -242,7 +241,7 @@ const AgentList = () => {
           });
           setSelectedRecordId(null);
         },
-      }
+      },
     );
   };
 
@@ -258,7 +257,7 @@ const AgentList = () => {
             queryKey: ["all-agents-list"],
           });
         },
-      }
+      },
     );
   };
 
@@ -268,16 +267,16 @@ const AgentList = () => {
   const onError = agentListError?.message;
 
   useEffect(() => {
-    if (rights && rights?.can_view === "0") {
+    if ((rights && rights?.can_view === "0") || !rights?.can_view) {
       const timer = setTimeout(() => {
-        router.push("/");
+        redirect("/");
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-  }, [rights, router]);
+  }, [rights]);
 
-  if (rights && rights?.can_view === "0")
+  if ((rights && rights?.can_view === "0") || !rights?.can_view)
     return (
       <Empty
         title="Permission Denied"
