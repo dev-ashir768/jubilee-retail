@@ -40,13 +40,13 @@ const GenerateHis: React.FC<GenerateHisProps> = ({
     to: new Date(),
   });
   const [localDateRange, setLocalDateRange] = useState<DateRange | undefined>(
-    dateRange
+    dateRange,
   );
   const [fileType, setFileType] = useState<string>("");
 
   // ======== MUTATION ========
   const generateHISMutation = useMutation<
-    GenerateHISResponseTypes,
+    Blob,
     AxiosError<GenerateHISResponseTypes>,
     { option: string; date: string }
   >({
@@ -56,34 +56,30 @@ const GenerateHis: React.FC<GenerateHisProps> = ({
         urlPath: `/orders/generate-his`,
         data: { option: record.option, date: record.date },
         isServer: true,
+        responseType: "blob",
       });
     },
     onError: (err) => {
       const message = err?.response?.data?.message;
-      console.log("Generate HIS mutation error", err);
       toast.error(message);
+      console.log("Generate HIS mutation error", err);
     },
-    onSuccess: (data) => {
-      const message = data?.message;
-      const filePath = data?.payload;
+    onSuccess: (blobData: Blob) => {
+      const url = URL.createObjectURL(blobData);
 
-      console.log("Generated HIS file path:", filePath[0].his_retail_zip);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `generated-his-${new Date().toISOString().split("T")[0]}.zip`;
+      document.body.appendChild(a);
 
-      if (filePath && process.env.NEXT_PUBLIC_UPLOADS_BASE_URL) {
-        const fullUrl = `${process.env.NEXT_PUBLIC_UPLOADS_BASE_URL}${filePath[0].his_retail_zip}`;
+      // Trigger download
+      a.click();
 
-        // Trigger download
-        const link = document.createElement("a");
-        link.href = fullUrl;
-        link.download = `his_files_${Date.now()}.zip`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      // Clean up
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-        toast.success(`${message}. File downloaded automatically.`);
-      } else {
-        toast.success(message);
-      }
+      toast.success("Generated HIS downloaded successfully");
 
       setIsExportZipOpen(false);
     },
@@ -94,7 +90,7 @@ const GenerateHis: React.FC<GenerateHisProps> = ({
     if (localDateRange?.from && localDateRange?.to && fileType) {
       const formattedDate = `${format(
         localDateRange.from,
-        "yyyy-MM-dd"
+        "yyyy-MM-dd",
       )} to ${format(localDateRange.to, "yyyy-MM-dd")}`;
       const option = fileType;
       generateHISMutation.mutate({ option, date: formattedDate });

@@ -403,7 +403,6 @@ const ReportingForm: React.FC<ReportingFormProps> = ({
     },
     onSuccess: (blobData: Blob) => {
       const url = URL.createObjectURL(blobData);
-      console.log("Created URL:", url);
 
       const a = document.createElement("a");
       a.href = url;
