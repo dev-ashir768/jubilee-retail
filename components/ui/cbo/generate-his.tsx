@@ -51,6 +51,7 @@ const GenerateHis: React.FC<GenerateHisProps> = ({
     { option: string; date: string }
   >({
     mutationFn: (record) => {
+      console.log("record", record);
       return axiosFunction({
         method: "POST",
         urlPath: `/orders/generate-his`,
@@ -88,10 +89,7 @@ const GenerateHis: React.FC<GenerateHisProps> = ({
   // ======== HANDLERS ========
   const handleApply = useCallback(() => {
     if (localDateRange?.from && localDateRange?.to && fileType) {
-      const formattedDate = `${format(
-        localDateRange.from,
-        "yyyy-MM-dd",
-      )} to ${format(localDateRange.to, "yyyy-MM-dd")}`;
+      const formattedDate = `${format(localDateRange.from, "yyyy-MM-dd")} to ${format(localDateRange.to, "yyyy-MM-dd")}`;
       const option = fileType;
       generateHISMutation.mutate({ option, date: formattedDate });
       setDateRange(localDateRange);
@@ -127,7 +125,10 @@ const GenerateHis: React.FC<GenerateHisProps> = ({
             </DialogDescription>
           </DialogHeader>
           <div>
-            <DateRangeCalendar date={localDateRange} />
+            <DateRangeCalendar
+              date={localDateRange}
+              onDateChange={setLocalDateRange}
+            />
 
             <div className="mt-4">
               <Select value={fileType} onValueChange={setFileType}>
